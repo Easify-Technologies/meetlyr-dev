@@ -79,7 +79,6 @@ const Page = () => {
                     <TableHead className='text-[#2f1107]'>Date</TableHead>
                     <TableHead className='text-[#2f1107]'>City</TableHead>
                     <TableHead className='text-[#2f1107]'>Country</TableHead>
-                    <TableHead className='text-[#2f1107]'>Cafe</TableHead>
                     <TableHead className='text-[#2f1107]'>Created At</TableHead>
                     <TableHead className='text-[#2f1107]'>Status</TableHead>
                     <TableHead className='text-[#2f1107]'>Created By</TableHead>
@@ -99,10 +98,9 @@ const Page = () => {
                         <TableCell>{formattedEventDate}</TableCell>
                         <TableCell>{event?.city}</TableCell>
                         <TableCell>{event?.country}</TableCell>
-                        <TableCell>{event?.cafe.name}</TableCell>
                         <TableCell>{formattedCreatedDate}</TableCell>
                         <TableCell>{event?.isClosed ? "True" : "False"}</TableCell>
-                        <TableCell>{event?.admin.email}</TableCell>
+                        <TableCell>{event?.admin?.email}</TableCell>
                       </TableRow>
                     )
                   })}

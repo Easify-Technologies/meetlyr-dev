@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
+import { Eye, EyeOff } from "lucide-react";
 import { useAdminLogin } from '@/app/queries/admin/login';
 
 interface LoginProps {
@@ -12,6 +13,7 @@ interface LoginProps {
 }
 
 const Page = () => {
+  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState<LoginProps>({
     email: "",
     password: ""
@@ -55,7 +57,12 @@ const Page = () => {
             <div className="grid w-full items-center gap-3">
               <div className="relative">
                 <input onChange={handleInputChange} className="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground border-input flex h-16 w-full min-w-0 rounded-full border bg-muted px-5 py-2 text-base transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium md:text-sm" aria-placeholder="Email" placeholder="Email" id="email" type="email" value={email} name="email" />
-                <input onChange={handleInputChange} className="file:text-foreground mt-5 placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground border-input flex h-16 w-full min-w-0 rounded-full border bg-muted px-5 py-2 text-base transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium md:text-sm" aria-placeholder="Password" placeholder="Password" id="password" type="password" value={password} name="password" />
+                <div className='flex relative items-center justify-between bg-muted rounded-full px-5 py-2 h-16 mt-4 border border-input'>
+                  <input type={showPassword ? "text" : "password"} onChange={handleInputChange} className='w-full outline-0' placeholder='Password' value={password} id='password' name='password' />
+                  <button onClick={() => setShowPassword((prev) => !prev)} type="button" className='cursor-pointer text-muted-foreground'>
+                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
+                </div>
               </div>
               {isError && (
                 <p data-slot="form-message" className="text-destructive text-sm">{(error as Error).message}</p>

@@ -1,13 +1,19 @@
 "use client";
 
 import React, { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import Navbar from "@/components/ui/Navbar";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 const Page = () => {
+  const params = useSearchParams();
+
   const [payment, setPayment] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const userId = params.get("userId");
+  const eventId = params.get("eventId");
 
   async function handleCheckOut() {
     if (!payment) {
@@ -16,9 +22,6 @@ const Page = () => {
     }
     setLoading(true);
     try {
-      const userId = "6905c04c8db5e8d6901e4dcd";
-      const eventId = "68ff2982e04718630895429a";
-
       // Call your backend route
       const res = await fetch("/api/payment/checkout", {
         method: "POST",
