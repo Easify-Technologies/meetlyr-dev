@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
-import {prisma} from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2025-10-29.clover",
@@ -9,7 +9,10 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 export async function POST(req: Request) {
   const sig = req.headers.get("stripe-signature");
   if (!sig) {
-    return NextResponse.json({ error: "Missing Stripe signature" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Missing Stripe signature" },
+      { status: 400 }
+    );
   }
 
   const body = await req.text();
@@ -17,7 +20,11 @@ export async function POST(req: Request) {
   let event: Stripe.Event;
 
   try {
-    event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET!);
+    event = stripe.webhooks.constructEvent(
+      body,
+      sig,
+      process.env.STRIPE_WEBHOOK_SECRET!
+    );
   } catch (err: any) {
     console.error("❌ Webhook signature verification failed:", err.message);
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
@@ -35,18 +42,28 @@ export async function POST(req: Request) {
         break;
       }
 
-      // ✅ Save payment info
-      await prisma.payment.upsert({
-        where: { stripeSessionId: session.id },
-        update: { status: "paid" },
-        create: {
-          userId,
-          eventId: eventId ?? "",
-          stripeSessionId: session.id,
-          mode: mode ?? "payment",
-          status: "paid",
-        },
+      const existingPayment = await prisma.payment.findUnique({
+        where: {
+          stripeSessionId: session.id
+        }
       });
+
+      if (existingPayment) {
+        await prisma.payment.update({
+          where: { stripeSessionId: session.id },
+          data: { status: "paid" },
+        });
+      } else {
+        await prisma.payment.create({
+          data: {
+            userId,
+            eventId: eventId ?? "",
+            stripeSessionId: session.id,
+            mode: mode ?? "payment",
+            status: "paid",
+          },
+        });
+      }
 
       if (mode === "subscription") {
         await prisma.user.update({
@@ -62,7 +79,10 @@ export async function POST(req: Request) {
         });
       }
 
-      console.log("🎉 Payment confirmed and database updated for user:", userId);
+      console.log(
+        "🎉 Payment confirmed and database updated for user:",
+        userId
+      );
       break;
     }
 
