@@ -1,40 +1,43 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { prisma } from "@/lib/prisma";
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    const form = await request.formData();
 
-    const {
-      name,
-      email,
-      phoneNumber,
-      age,
-      gender,
-      dateOfBirth,
-      cafe_id,
-      city_id,
-      connectionStyle,
-      communicationStyle,
-      socialStyle,
-      healthFitnessStyle,
-      family,
-      spirituality,
-      politicsNews,
-      humor,
-      peopleType,
-      password,
-    } = body;
+    // --- Extract all form fields ---
+    const name = form.get("name") as string;
+    const email = form.get("email") as string;
+    const phoneNumber = form.get("phoneNumber") as string;
+    const gender = form.get("gender") as string;
+    const age = form.get("age") as string;
+    const dateOfBirth = form.get("dateOfBirth") as string;
+    const cafe_id = form.get("cafe_id") as string;
+    const city_id = form.get("city_id") as string;
+    const connectionStyle = form.get("connectionStyle") as string;
+    const communicationStyle = form.get("communicationStyle") as string;
+    const socialStyle = form.get("socialStyle") as string;
+    const healthFitnessStyle = form.get("healthFitnessStyle") as string;
+    const family = form.get("family") as string;
+    const spirituality = form.get("spirituality") as string;
+    const politicsNews = form.get("politicsNews") as string;
+    const humor = form.get("humor") as string;
+    const password = form.get("password") as string;
+    const peopleType = JSON.parse(form.get("peopleType") as string);
+    const avatarFile = form.get("avatar") as string;
 
-    // Validation: ensure no empty field
+    console.log("Received avatar:", form.get("avatar"));
+
+    // --- Validation ---
     if (
       !name ||
       !email ||
       !phoneNumber ||
       !gender ||
       !age ||
+      !avatarFile ||
       !dateOfBirth ||
       !cafe_id ||
       !city_id ||
@@ -55,7 +58,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Check if user exists
+    // --- Check existing user ---
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
       return NextResponse.json(
@@ -64,33 +67,30 @@ export async function POST(request: Request) {
       );
     }
 
-    if (age && Number(age) <= 18) {
+    if (Number(age) <= 18) {
       return NextResponse.json(
         { error: "Age should be greater than 18" },
         { status: 400 }
       );
     }
 
+    // --- Fetch city info ---
     const getCity = await prisma.location.findUnique({
-      where: {
-        id: city_id,
-      },
-      select: {
-        city: true,
-        country: true,
-      },
+      where: { id: city_id },
+      select: { city: true, country: true },
     });
 
-    // Hash password
+    // --- Hash password ---
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create user
+    // --- Create user ---
     const user = await prisma.user.create({
       data: {
         name,
         email,
         phoneNumber,
         gender,
+        avatar: avatarFile,
         dateOfBirth,
         age: Number(age),
         country: getCity?.country || "",
@@ -99,17 +99,17 @@ export async function POST(request: Request) {
         communicationStyles: communicationStyle,
         socialStyles: socialStyle,
         healthAndFitness: healthFitnessStyle,
-        family: family.toString(),
-        spirituality: spirituality.toString(),
-        politicalNews: politicsNews.toString(),
-        incorrectHumor: humor.toString(),
+        family,
+        spirituality,
+        politicalNews: politicsNews,
+        incorrectHumor: humor,
         kindOfPeople: peopleType,
         password: hashedPassword,
         isLoggedIn: true,
       },
     });
 
-    // Generate JWT token
+    // --- Generate JWT ---
     const token = jwt.sign(
       { userId: user.id, email: user.email },
       process.env.NEXTAUTH_SECRET!,
@@ -126,10 +126,10 @@ export async function POST(request: Request) {
       },
       { status: 201 }
     );
-  } catch (error: any) {
+  } catch (error) {
     console.error("Register API error:", error);
     return NextResponse.json(
-      { error: "Something went wrong", isLoggedIn: false },
+      { error: "Something went wrong!" },
       { status: 500 }
     );
   }

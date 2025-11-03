@@ -1,45 +1,52 @@
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import { signIn } from "next-auth/react";
 
-interface ApiError {
-  error: string;
-}
-
-export async function addUser(data: {
-  name: string;
-  email: string;
-  age: number;
-  phoneNumber: string;
-  gender: string;
-  dateOfBirth: string;
-  cafe_id: string;
-  city_id: string;
-  connectionStyle: string;
-  communicationStyle: string;
-  socialStyle: string;
-  healthFitnessStyle: string;
-  family: string;
-  spirituality: string;
-  politicsNews: string;
-  humor: string;
-  peopleType: string[];
-  password: string;
-}) {
+export async function addUser(data: any) {
   try {
-    const response = await axios.post("/api/auth/register", data);
+    const formData = new FormData();
+
+    // Append all fields
+    formData.append("name", data.name);
+    formData.append("email", data.email);
+    formData.append("age", String(data.age));
+    formData.append("phoneNumber", data.phoneNumber);
+    formData.append("gender", data.gender);
+    formData.append("dateOfBirth", data.dateOfBirth);
+    formData.append("cafe_id", data.cafe_id);
+    formData.append("city_id", data.city_id);
+    formData.append("connectionStyle", data.connectionStyle);
+    formData.append("communicationStyle", data.communicationStyle);
+    formData.append("socialStyle", data.socialStyle);
+    formData.append("healthFitnessStyle", data.healthFitnessStyle);
+    formData.append("family", data.family);
+    formData.append("spirituality", data.spirituality);
+    formData.append("politicsNews", data.politicsNews);
+    formData.append("humor", data.humor);
+    formData.append("password", data.password);
+    formData.append("avatar", data.avatar);
+
+    // ✅ Convert array to JSON string
+    formData.append("peopleType", JSON.stringify(data.peopleType));
+
+    // 🚀 Send multipart/form-data request
+    const response = await axios.post("/api/auth/register", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
 
     if (response.status === 201) {
       await signIn("credentials", {
         redirect: true,
         email: data.email,
         password: data.password,
-        callbackUrl: "/bookings"
+        callbackUrl: "/bookings",
       });
     }
 
     return response.data;
-  } catch (error) {
-    const axiosErr = error as AxiosError<ApiError>;
-    throw new Error(axiosErr.response?.data?.error || "Something went wrong");
+  } catch (error: any) {
+    console.error("Error uploading user:", error);
+    throw new Error(error.response?.data?.error || "Something went wrong");
   }
 }

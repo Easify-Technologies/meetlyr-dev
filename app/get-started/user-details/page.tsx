@@ -16,6 +16,7 @@ interface UserDetailsProps {
 
 const Page = () => {
   const searchParams = useSearchParams();
+
   const city_id = searchParams.get("city_id") ?? "";
   const cafe_id = searchParams.get("cafe_id") ?? "";
 
@@ -24,7 +25,7 @@ const Page = () => {
     name: "",
     email: "",
     phoneNumber: "",
-    password: ""
+    password: "",
   });
 
   const { name, email, phoneNumber, password } = formData;
@@ -58,7 +59,7 @@ const Page = () => {
               </div>
               <div className="flex-1 min-h-0 overflow-y-auto">
                 <div className="h-full flex flex-col">
-                  <div className="flex-1 overflow-y-auto flex flex-col gap-6 text-center px-4 pt-10 pb-4">
+                  <form encType="multipart/form-data" className="flex-1 overflow-y-auto flex flex-col gap-6 text-center px-4 pt-10 pb-4">
                     <h1 className="text-2xl md:text-3xl lg:text-4xl text-[#2F1107] font-semibold">What is your name?</h1>
                     <input type="text" value={name} id="name" name="name" onChange={handleChange} className="bg-muted px-5 py-2 outline border-0 rounded-full w-full h-12 text-[#2F1107] font-medium text-base" />
                     <div className='pt-6 border-t border-[#f7f0f2]'>
@@ -80,7 +81,7 @@ const Page = () => {
                         </button>
                       </div>
                     </div>
-                  </div>
+                  </form>
                   <div className="p-4 bg-background">
                     <Link
                       href={`/get-started/questions?city_id=${city_id}&cafe_id=${cafe_id}&name=${name}&email=${email}&phoneNumber=${phoneNumber}&password=${password}`}

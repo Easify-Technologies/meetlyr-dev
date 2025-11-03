@@ -22,6 +22,7 @@ model User {
   socialStyles        String
   healthAndFitness    String
   family              String
+  avatar              String
   spirituality        String
   politicalNews       String
   incorrectHumor      String

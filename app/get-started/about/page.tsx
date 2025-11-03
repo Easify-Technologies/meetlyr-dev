@@ -17,6 +17,7 @@ import { Label } from "@/components/ui/label";
 const Page = () => {
     const router = useRouter();
 
+    const [avatarFile, setAvatarFile] = useState<File | null>(null);
     const [open, setOpen] = useState(false);
     const [date, setDate] = useState<Date | undefined>(undefined);
     const [formData, setFormData] = useState({
@@ -25,7 +26,14 @@ const Page = () => {
         age: ""
     });
 
-    const handleNext = () => {
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setAvatarFile(file);
+        }
+    };
+
+    const handleNext = async () => {
         if (!formData.gender || !date || !formData.age) return;
 
         const params = new URLSearchParams(window.location.search);
@@ -34,10 +42,36 @@ const Page = () => {
         params.set("age", formData.age);
         params.set("dateOfBirth", date.toISOString().split("T")[0]);
 
-        router.replace(`?${params.toString()}`, { scroll: false });
+        // 1️⃣ Upload the avatar file (if selected)
+        let avatarPath = "";
+        if (avatarFile) {
+            const formDataFile = new FormData();
+            formDataFile.append("avatar", avatarFile);
 
+            try {
+                const res = await fetch("/api/upload/avatar", {
+                    method: "POST",
+                    body: formDataFile,
+                });
+
+                const data = await res.json();
+                if (res.ok) {
+                    avatarPath = data.filePath;
+                } else {
+                    console.error("Upload failed:", data.error);
+                }
+            } catch (err) {
+                console.error("Error uploading avatar:", err);
+            }
+        }
+
+        // 2️⃣ Add the avatar path (not the file) to the query
+        if (avatarPath) params.set("avatar", avatarPath);
+
+        // 3️⃣ Navigate to matching page
+        router.replace(`?${params.toString()}`, { scroll: false });
         router.push(`/get-started/matching?${params.toString()}`);
-    }
+    };
 
     return (
         <>
@@ -132,7 +166,7 @@ const Page = () => {
                                                     ...prev,
                                                     age: e.target.value
                                                 }))
-                                            }/>
+                                            } />
                                         </div>
 
                                         <div className='py-6 border-t border-[#f7f0f2]'>
@@ -164,6 +198,21 @@ const Page = () => {
                                                     />
                                                 </PopoverContent>
                                             </Popover>
+                                        </div>
+                                        <div className="py-6 border-t border-[#f7f0f2]">
+                                            <h1 className="text-2xl md:text-3xl lg:text-4xl text-[#2F1107] font-semibold">Upload Your Image</h1>
+                                            <input
+                                                type="file"
+                                                name="imageUrl"
+                                                id="imageUrl"
+                                                onChange={handleFileChange}
+                                                className="mt-4 w-full rounded-full border border-gray-300 bg-gray-100 px-5 py-3 text-base text-gray-700
+                                                transition-colors duration-200 outline-none
+                                                file:mr-4 file:rounded-full file:border-0 file:bg-[#2f1107] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white
+                                                file:hover:bg-[#2f1107]/90
+                                                placeholder:text-gray-400
+                                                focus:border-[#2f1107] focus:ring-1"
+                                            />
                                         </div>
                                     </div>
                                     <div className="p-4 bg-background">
