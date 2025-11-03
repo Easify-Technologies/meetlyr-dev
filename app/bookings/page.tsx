@@ -19,7 +19,7 @@ const Page = () => {
   const [booking, setBooking] = useState("");
   const { data: profile, isLoading } = useProfileDetails(userId);
 
-  const { data } = useGetAllEvents();
+  const { data } = useGetAllEvents(profile?.city);
   const events = data?.events ?? [];
 
   if (isLoading) return <Loader />
@@ -123,9 +123,11 @@ const Page = () => {
                               </div>
                               <div className="shrink-0 pt-6 pb-4">
                                 {profile?.isVerified ? (
-                                  <Link href={`/payment?userId=${profile?.id}&eventId=69075e07d3f78b4d3c268d3f`} className="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm md:text-base font-medium transition-all outline-none bg-[#FFD100] text-[#2F1107] hover:bg-[#FFD100]/80 cursor-pointer h-12 px-4 py-2 rounded-full w-full">
-                                    Book my seat
-                                  </Link>
+                                  booking !== "" && (
+                                    <Link href={`/payment?userId=${profile?.id}&eventId=${booking}`} className="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm md:text-base font-medium transition-all outline-none bg-[#FFD100] text-[#2F1107] hover:bg-[#FFD100]/80 cursor-pointer h-12 px-4 py-2 rounded-full w-full">
+                                      Book my seat
+                                    </Link>
+                                  )
                                 ) : (
                                   <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm md:text-base font-medium transition-all outline-none bg-muted text-muted-foreground cursor-not-allowed h-12 px-4 py-2 rounded-full w-full">
                                     Book my seat

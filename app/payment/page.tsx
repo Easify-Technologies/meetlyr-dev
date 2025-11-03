@@ -4,16 +4,25 @@ import React, { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Navbar from "@/components/ui/Navbar";
 import { Label } from "@/components/ui/label";
+import { useSession } from 'next-auth/react';
+import { useProfileDetails } from "../queries/profile";
+
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import Loader from "@/components/ui/loader";
 
 const Page = () => {
   const params = useSearchParams();
-
+  const { data: session } = useSession();
+  const email = session?.user?.email ?? '';
+  
   const [payment, setPayment] = useState("");
   const [loading, setLoading] = useState(false);
-
+  
   const userId = params.get("userId");
   const eventId = params.get("eventId");
+  
+  const { data: profile, isPending } = useProfileDetails(email);
+  const paymentStatus = profile?.payment?.status;
 
   async function handleCheckOut() {
     if (!payment) {
@@ -47,6 +56,8 @@ const Page = () => {
       setLoading(false);
     }
   }
+
+  if(isPending) return <Loader />
 
   return (
     <>
@@ -175,18 +186,28 @@ const Page = () => {
                 </Label>
               </div>
             </RadioGroup>
-            <button
-              type="button"
-              onClick={handleCheckOut}
-              disabled={loading}
-              className={`rounded-full w-full py-3 text-base font-semibold transition-colors duration-500 cursor-pointer ${
-                loading
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-[#2f1107] text-white hover:bg-[#ffd100] hover:text-[#2f1107]"
-              }`}
-            >
-              {loading ? "Redirecting..." : "Proceed to Checkout"}
-            </button>
+            {paymentStatus === "paid" ? (
+              <button 
+                type="button"
+                className="rounded-full w-full py-3 text-base bg-muted-foreground text-muted"
+                disabled
+              >
+                Paid
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleCheckOut}
+                disabled={loading}
+                className={`rounded-full w-full py-3 text-base font-semibold transition-colors duration-500 cursor-pointer ${
+                  loading
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-[#2f1107] text-white hover:bg-[#ffd100] hover:text-[#2f1107]"
+                }`}
+              >
+                {loading ? "Redirecting..." : "Proceed to Checkout"}
+              </button>
+            )}
           </div>
         </div>
       </section>

@@ -10,6 +10,14 @@ export async function POST(request: NextRequest) {
         const profile = await prisma.user.findUnique({
             where: { 
                 email: body.userId 
+            },
+            include: {
+                payment: {
+                    select: {
+                        status: true,
+                        stripeSessionId: true
+                    }
+                }
             }
         });
 

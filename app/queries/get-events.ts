@@ -18,15 +18,15 @@ type Event = {
     status?: string | null;
 };
 
-export function useGetAllEvents() {
-    return useQuery<{ events: Event[] }>({
-        queryKey: ["time_based_events"],
-        queryFn: () => getEvents(),
-        refetchOnWindowFocus: false,
-        refetchOnReconnect: false,
-        retry: false,
-        staleTime: 10000,
-    });
+export function useGetAllEvents(city?: string, filterDays?: string) {
+  return useQuery<{ success: boolean; events: Event[] }>({
+    queryKey: ["filter-events", city, filterDays],
+    queryFn: () => getEvents(city, filterDays),
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    retry: false,
+    staleTime: 10000,
+  });
 }
 
 export function useFetchEvents() {

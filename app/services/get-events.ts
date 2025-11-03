@@ -2,9 +2,14 @@ import axios, { AxiosError } from "axios";
 
 type ApiError = { error: string };
 
-export async function getEvents() {
+export async function getEvents(city?: string, filterDays?: string) {
   try {
-    const res = await axios.get("/api/event/matchGroup");
+    const params = new URLSearchParams();
+
+    if (city) params.append("city", city);
+    if (filterDays) params.append("filterDays", filterDays);
+
+    const res = await axios.get(`/api/event?${params.toString()}`);
     return res.data;
   } catch (error) {
     const axiosErr = error as AxiosError<ApiError>;
