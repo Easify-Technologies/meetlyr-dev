@@ -95,3 +95,28 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const city = searchParams.get("city");
+
+    const where: any = {};
+    if (city) {
+      where.city = city;
+    }
+
+    const events = await prisma.event.findMany({
+      where,
+      orderBy: { date: "asc" },
+    });
+
+    return NextResponse.json({ success: true, events });
+  } catch (error: any) {
+    return NextResponse.json(
+      { success: false, message: "Failed to fetch events", error: error.message },
+      { status: 500 }
+    );
+  }
+}

@@ -1,6 +1,6 @@
-import Stripe from "stripe";
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import Stripe from "stripe";
+import {prisma} from "@/lib/prisma";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2025-10-29.clover",
@@ -9,10 +9,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 export async function POST(req: Request) {
   const sig = req.headers.get("stripe-signature");
   if (!sig) {
-    return NextResponse.json(
-      { error: "Missing Stripe signature" },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "Missing Stripe signature" }, { status: 400 });
   }
 
   const body = await req.text();
@@ -20,48 +17,75 @@ export async function POST(req: Request) {
   let event: Stripe.Event;
 
   try {
-    event = stripe.webhooks.constructEvent(
-      body,
-      sig,
-      process.env.STRIPE_WEBHOOK_SECRET!
-    );
+    event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET!);
   } catch (err: any) {
     console.error("❌ Webhook signature verification failed:", err.message);
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
-  // Handle the successful checkout
-  if (event.type === "checkout.session.completed") {
-    const session = event.data.object as Stripe.Checkout.Session;
+  switch (event.type) {
+    case "checkout.session.completed": {
+      const session = event.data.object as Stripe.Checkout.Session;
+      const userId = session.metadata?.userId;
+      const eventId = session.metadata?.eventId;
+      const mode = session.mode;
 
-    console.log("✅ Payment successful:", session.id);
+      if (!userId) {
+        console.warn("⚠️ No userId found in session metadata");
+        break;
+      }
 
-    const userId = session.metadata?.userId;
-    const eventId = session.metadata?.eventId;
-    const mode = session.mode;
-
-    if (!userId) {
-      console.warn("⚠️ No userId found in session metadata");
-      return NextResponse.json({ error: "Missing userId" }, { status: 400 });
-    }
-
-    if (mode === "subscription") {
-      // Subscription payment
-      await prisma.user.update({
-        where: { id: userId },
-        data: {
-          subscriptionActive: true,
-          subscriptionCredits: 4, // give 4 credits
+      // ✅ Save payment info
+      await prisma.payment.upsert({
+        where: { stripeSessionId: session.id },
+        update: { status: "paid" },
+        create: {
+          userId,
+          eventId: eventId ?? "",
+          stripeSessionId: session.id,
+          mode: mode ?? "payment",
+          status: "paid",
         },
       });
-    } else if (mode === "payment" && eventId) {
-      // One-time payment event join
-      await prisma.eventParticipant.create({
-        data: { userId, eventId },
-      });
+
+      if (mode === "subscription") {
+        await prisma.user.update({
+          where: { id: userId },
+          data: {
+            subscriptionActive: true,
+            subscriptionCredits: 4, // Give 4 credits
+          },
+        });
+      } else if (mode === "payment" && eventId) {
+        await prisma.eventParticipant.create({
+          data: { userId, eventId },
+        });
+      }
+
+      console.log("🎉 Payment confirmed and database updated for user:", userId);
+      break;
     }
 
-    console.log("🎉 Database updated for user:", userId);
+    case "customer.subscription.deleted": {
+      const subscription = event.data.object as Stripe.Subscription;
+      const userId = subscription.metadata?.userId;
+
+      if (userId) {
+        await prisma.user.update({
+          where: { id: userId },
+          data: {
+            subscriptionActive: false,
+            subscriptionEndsAt: new Date(),
+            subscriptionCredits: 0,
+          },
+        });
+        console.log(`🧹 Subscription ended for user: ${userId}`);
+      }
+      break;
+    }
+
+    default:
+      console.log(`Unhandled event type: ${event.type}`);
   }
 
   return NextResponse.json({ received: true });

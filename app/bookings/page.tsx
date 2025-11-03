@@ -27,7 +27,6 @@ const Page = () => {
   return (
     <>
       <Navbar />
-
       <div className="flex-1 min-h-full flex flex-col lg:flex-row">
         <div className="w-full lg:w-1/2 flex flex-col overflow-y-auto h-full">
           <div className="h-full flex flex-col">

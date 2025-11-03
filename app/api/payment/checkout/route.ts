@@ -1,7 +1,6 @@
-// app/api/payment/checkout/route.ts
 import Stripe from "stripe";
 import { NextRequest, NextResponse } from "next/server";
-
+import { prisma } from "@/lib/prisma";
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 export async function POST(req: NextRequest) {
@@ -12,6 +11,31 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         { error: "Missing userId or eventId" },
         { status: 400 }
+      );
+    }
+
+    // Check existing subscription (prevent duplicate)
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { subscriptionActive: true },
+    });
+
+    if (mode === "subscription" && user?.subscriptionActive) {
+      return NextResponse.json(
+        { error: "User already has an active subscription" },
+        { status: 403 }
+      );
+    }
+
+    // 🛑 Check existing one-time purchase for this event
+    const existingPayment = await prisma.payment.findFirst({
+      where: { userId, eventId, mode: "payment", status: "paid" },
+    });
+
+    if (mode === "payment" && existingPayment) {
+      return NextResponse.json(
+        { error: "You already purchased this event" },
+        { status: 403 }
       );
     }
 
@@ -29,7 +53,7 @@ export async function POST(req: NextRequest) {
           ]
         : [
             {
-              price: "price_1SOaac36VJPIw1TcE0EJzxv9", //subscription price ID
+              price: "price_1SOaac36VJPIw1TcE0EJzxv9", // subscription price ID
               quantity: 1,
             },
           ];
@@ -38,11 +62,23 @@ export async function POST(req: NextRequest) {
       payment_method_types: ["card"],
       mode,
       line_items: lineItems,
-      success_url: `${req.headers.get("origin")}/payment/success`,
+      success_url: `${req.headers.get("origin")}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${req.headers.get("origin")}/payment/failure`,
       metadata: {
         userId,
         eventId,
+        mode,
+      },
+    });
+
+    // 🧠 Save pending payment record
+    await prisma.payment.create({
+      data: {
+        userId,
+        eventId,
+        stripeSessionId: session.id,
+        mode,
+        status: "pending",
       },
     });
 
