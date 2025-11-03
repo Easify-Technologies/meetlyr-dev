@@ -6,6 +6,9 @@ import { matchedGroupEvents } from "../services/matched-group-events";
 export function useMatchedGroupEvents() {
     return useQuery({
         queryKey: ["matched-group-events"],
-        queryFn: matchedGroupEvents
+        queryFn: matchedGroupEvents,
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
+        retry: false
     });
 }

@@ -11,7 +11,7 @@ export async function GET() {
     const events = await prisma.event.findMany({
       where: {
         date: { lte: in48h },
-        isClosed: false,
+        isClosed: true,
       },
       include: {
         cafe: true,
