@@ -4,9 +4,11 @@ import { prisma } from "@/lib/prisma";
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> } // ✅ FIX: params is a Promise now
 ) {
   try {
+    const { id } = await context.params; // ✅ Await params
+
     const authHeader = request.headers.get("Authorization");
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return NextResponse.json(
@@ -30,8 +32,8 @@ export async function PUT(
     const body = await request.json();
 
     const allowedFields = ["name", "address", "imageUrl", "locationId"];
+    const dataToUpdate: Record<string, any> = {};
 
-    const dataToUpdate: any = {};
     for (const field of allowedFields) {
       if (body[field] !== undefined) {
         dataToUpdate[field] = body[field];
@@ -39,7 +41,7 @@ export async function PUT(
     }
 
     const updateCafe = await prisma.cafe.update({
-      where: { id: params.id },
+      where: { id },
       data: dataToUpdate,
     });
 
@@ -48,7 +50,7 @@ export async function PUT(
       user: updateCafe,
     });
   } catch (error: any) {
-    console.error(error);
+    console.error("Edit cafe error:", error);
     return NextResponse.json(
       { message: "Something went wrong", error: error.message },
       { status: 500 }
