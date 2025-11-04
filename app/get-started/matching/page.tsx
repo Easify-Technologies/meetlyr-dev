@@ -25,7 +25,7 @@ const Page = () => {
         ? params.peopleType.split(",")
         : [];
 
-      // Build the payload
+      // Build user data (no cafe_id here)
       const userData = {
         name: params.name || "",
         email: params.email || "",
@@ -34,7 +34,6 @@ const Page = () => {
         age: params.age || "",
         avatar: params.avatar || "",
         dateOfBirth: params.dateOfBirth || "",
-        cafe_id: params.cafe_id || "",
         city_id: params.city_id || "",
         connectionStyle: params.connectionStyle || "",
         communicationStyle: params.communicationStyle || "",
@@ -47,6 +46,8 @@ const Page = () => {
         peopleType: peopleTypeArray,
         password: params.password || "",
       };
+
+      console.log("Registering user:", userData);
 
       try {
         await addUser(userData);
@@ -84,12 +85,12 @@ const Page = () => {
                 <div className="flex-1 overflow-y-auto flex flex-col gap-6 text-center px-4 pt-10 pb-4">
                   {showMatchedSection ? (
                     <h1 className="text-2xl md:text-3xl lg:text-4xl text-[#2F1107] font-semibold">
-                      You&apos;re in. Your table&apos;s ready.
+                      You&apos;re in. We&apos;ll find your perfect table soon!
                     </h1>
                   ) : (
                     <>
                       <h1 className="text-2xl md:text-3xl lg:text-4xl text-[#2F1107] font-semibold">
-                        One moment, we are finding a table for you
+                        One moment, we’re setting up your profile…
                       </h1>
                       <Progress value={progress} className="w-full" />
                     </>

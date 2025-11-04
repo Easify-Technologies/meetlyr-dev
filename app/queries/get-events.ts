@@ -29,13 +29,14 @@ export function useGetAllEvents(city?: string, filterDays?: string) {
   });
 }
 
+// /app/queries/get-events.ts
 export function useFetchEvents() {
-    return useQuery({
-        queryKey: ['all-events'],
-        queryFn: () => fetchEvents(),
-        refetchOnWindowFocus: false,
-        refetchOnReconnect: false,
-        retry: false,
-        staleTime: 10000
-    });
+  return useQuery({
+    queryKey: ["all-events"],
+    queryFn: fetchEvents,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    retry: false,
+    staleTime: 10000,
+  });
 }

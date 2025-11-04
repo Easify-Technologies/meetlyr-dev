@@ -12,7 +12,12 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
+    "declaration": true,
+    "sourceMap": true,
     "incremental": true,
+    "moduleDetection": "force",
+    "allowSyntheticDefaultImports": true,
+    "verbatimModuleSyntax": false,
     "plugins": [
       {
         "name": "next"
@@ -22,6 +27,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "types/**/*.d.ts"],
   "exclude": ["node_modules"]
 }

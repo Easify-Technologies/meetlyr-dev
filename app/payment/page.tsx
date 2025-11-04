@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
-import { useSearchParams } from "next/navigation";
+import React, { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Navbar from "@/components/ui/Navbar";
 import { Label } from "@/components/ui/label";
-import { useSession } from 'next-auth/react';
+import { useSession } from "next-auth/react";
 import { useProfileDetails } from "../queries/profile";
 
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -13,7 +13,7 @@ import Loader from "@/components/ui/loader";
 const Page = () => {
   const params = useSearchParams();
   const { data: session } = useSession();
-  const email = session?.user?.email ?? '';
+  const email = session?.user?.email ?? "";
 
   const [payment, setPayment] = useState("");
   const [loading, setLoading] = useState(false);
@@ -22,7 +22,16 @@ const Page = () => {
   const eventId = params.get("eventId");
 
   const { data: profile, isPending } = useProfileDetails(email);
-  const hasPaid = profile?.payment?.some(p => p.status === "paid");
+  const hasPaid = profile?.payment?.some(
+    (p: { status: string }) => p.status === "paid"
+  );
+
+  const router = useRouter();
+  useEffect(() => {
+    if (hasPaid) {
+      router.push("/events");
+    }
+  }, [hasPaid, router]);
 
   async function handleCheckOut() {
     if (!payment) {
@@ -57,8 +66,9 @@ const Page = () => {
     }
   }
 
-  if (isPending) return <Loader />
+  if (isPending) return <Loader />;
 
+  if (hasPaid) return <Loader />;
   return (
     <>
       <Navbar />
@@ -85,10 +95,11 @@ const Page = () => {
             >
               {/* One-Time Payment Option */}
               <div
-                className={`relative flex w-full items-start gap-3 border p-4 rounded-lg shadow-sm transition-all duration-300 cursor-pointer ${payment === "oneTime"
+                className={`relative flex w-full items-start gap-3 border p-4 rounded-lg shadow-sm transition-all duration-300 cursor-pointer ${
+                  payment === "oneTime"
                     ? "bg-[#2F1107] border-[#2F1107] text-white scale-[1.02]"
                     : "bg-white border-gray-300 hover:bg-[#2F1107]/10 text-[#2F1107]"
-                  }`}
+                }`}
                 onClick={() => setPayment("oneTime")}
               >
                 <RadioGroupItem
@@ -102,25 +113,28 @@ const Page = () => {
                 >
                   <div className="flex justify-between items-center">
                     <span
-                      className={`text-lg md:text-xl font-semibold ${payment === "oneTime" ? "text-white" : "text-[#2F1107]"
-                        }`}
+                      className={`text-lg md:text-xl font-semibold ${
+                        payment === "oneTime" ? "text-white" : "text-[#2F1107]"
+                      }`}
                     >
                       One Time
                     </span>
                     <span
-                      className={`text-base md:text-lg font-bold ${payment === "oneTime"
+                      className={`text-base md:text-lg font-bold ${
+                        payment === "oneTime"
                           ? "text-[#FFD100]"
                           : "text-[#2F1107]"
-                        }`}
+                      }`}
                     >
                       $300.00
                     </span>
                   </div>
                   <span
-                    className={`text-sm ${payment === "oneTime"
+                    className={`text-sm ${
+                      payment === "oneTime"
                         ? "text-white/80"
                         : "text-[#2F1107]/70"
-                      }`}
+                    }`}
                   >
                     Pay once and enjoy lifetime access without renewal.
                   </span>
@@ -129,10 +143,11 @@ const Page = () => {
 
               {/* Subscription Payment Option (Recommended) */}
               <div
-                className={`relative flex w-full items-start gap-3 border p-4 rounded-lg shadow-sm transition-all duration-300 cursor-pointer ${payment === "subscription"
+                className={`relative flex w-full items-start gap-3 border p-4 rounded-lg shadow-sm transition-all duration-300 cursor-pointer ${
+                  payment === "subscription"
                     ? "bg-[#2F1107] border-[#2F1107] text-white scale-[1.02]"
                     : "bg-white border-gray-300 hover:bg-[#2F1107]/10 text-[#2F1107]"
-                  }`}
+                }`}
                 onClick={() => setPayment("subscription")}
               >
                 {/* Recommended Badge */}
@@ -151,27 +166,30 @@ const Page = () => {
                 >
                   <div className="flex justify-between items-center">
                     <span
-                      className={`text-lg md:text-xl font-semibold ${payment === "subscription"
+                      className={`text-lg md:text-xl font-semibold ${
+                        payment === "subscription"
                           ? "text-white"
                           : "text-[#2F1107]"
-                        }`}
+                      }`}
                     >
                       Subscription
                     </span>
                     <span
-                      className={`text-base md:text-lg font-bold ${payment === "subscription"
+                      className={`text-base md:text-lg font-bold ${
+                        payment === "subscription"
                           ? "text-[#FFD100]"
                           : "text-[#2F1107]"
-                        }`}
+                      }`}
                     >
                       $30.00 / month
                     </span>
                   </div>
                   <span
-                    className={`text-sm ${payment === "subscription"
+                    className={`text-sm ${
+                      payment === "subscription"
                         ? "text-white/80"
                         : "text-[#2F1107]/70"
-                      }`}
+                    }`}
                   >
                     Pay monthly and cancel anytime.
                   </span>
@@ -179,7 +197,11 @@ const Page = () => {
               </div>
             </RadioGroup>
             {hasPaid ? (
-              <button type="button" disabled className="rounded-full w-full py-3 text-base bg-muted-foreground text-muted cursor-not-allowed">
+              <button
+                type="button"
+                disabled
+                className="rounded-full w-full py-3 text-base bg-muted-foreground text-muted cursor-not-allowed"
+              >
                 Paid
               </button>
             ) : (
@@ -187,10 +209,11 @@ const Page = () => {
                 type="button"
                 onClick={handleCheckOut}
                 disabled={loading}
-                className={`rounded-full w-full py-3 text-base font-semibold transition-colors duration-500 ${loading
+                className={`rounded-full w-full py-3 text-base font-semibold transition-colors duration-500 ${
+                  loading
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-[#2f1107] text-white hover:bg-[#ffd100] hover:text-[#2f1107]"
-                  }`}
+                }`}
               >
                 {loading ? "Redirecting..." : "Proceed to Checkout"}
               </button>

@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -23,14 +24,52 @@ export const authOptions: NextAuthOptions = {
         const isValid = await bcrypt.compare(credentials.password, user.password);
         if (!isValid) return null;
 
-        return { id: user.id, name: user.name, email: user.email };
+        // ✅ Generate JWT token manually here
+        const accessToken = jwt.sign(
+          { userId: user.id, email: user.email },
+          process.env.NEXTAUTH_SECRET!, // same secret used in verifyAuthToken
+          { expiresIn: "1h" }
+        );
+
+        return {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          accessToken, // ✅ Attach token
+        };
       },
     }),
   ],
+
   session: {
     strategy: "jwt",
   },
+
+  callbacks: {
+    async jwt({ token, user }) {
+      // When user logs in, attach token
+      if (user?.accessToken) {
+        token.accessToken = user.accessToken;
+      }
+      if (user?.id) token.id = user.id;
+      return token;
+    },
+
+    async session({ session, token }) {
+      // Attach token to session
+      if (token?.accessToken) {
+        session.user.accessToken = token.accessToken as string;
+      }
+      if (token?.id) {
+        session.user.id = token.id as string;
+      }
+      return session;
+    },
+  },
+
   pages: {
     signIn: "/auth/signin",
   },
+
+  secret: process.env.NEXTAUTH_SECRET,
 };
