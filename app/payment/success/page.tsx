@@ -29,7 +29,7 @@ const Page = () => {
             </p>
 
             <Link
-              href="/bookings"
+              href="/events"
               className="px-6 mt-5 py-3 rounded-full bg-[#2f1107] text-white text-sm font-semibold shadow-md transition-colors hover:bg-[#ffd100] hover:text-[#2f1107] duration-500"
             >
               Back Home

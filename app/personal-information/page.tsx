@@ -217,6 +217,23 @@ const Page = () => {
                   <RadioGroupItem id="female" value="female" className="sr-only" />
                   <p className="text-sm leading-none font-bold text-foreground">Female</p>
                 </label>
+                <label
+                  htmlFor="other"
+                  className="relative w-1/2 flex cursor-pointer flex-col items-center gap-3 rounded-full border border-input px-2 py-5 text-center shadow-xs transition-all
+                  data-[state=checked]:bg-yellow-100
+                  data-[state=checked]:border-yellow-500
+                  focus-within:ring-2
+                  focus-within:ring-yellow-300"
+                >
+                  <RadioGroupItem
+                    value="other"
+                    id="other"
+                    className="sr-only peer"
+                  />
+                  <span className="text-sm leading-none font-bold text-foreground peer-data-[state=checked]:text-yellow-700">
+                    Other
+                  </span>
+                </label>
               </RadioGroup>
             </div>
 

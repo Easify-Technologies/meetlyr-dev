@@ -96,9 +96,6 @@ const Page = () => {
 
                   {/* Phone */}
                   <div className="pt-6 border-t border-[#f7f0f2]">
-                    <h1 className="text-2xl md:text-3xl lg:text-4xl text-[#2F1107] font-semibold">
-                      What is your phone number?
-                    </h1>
                     <div className="mt-4">
                       <PhoneNumberInput
                         phone={phoneNumber}

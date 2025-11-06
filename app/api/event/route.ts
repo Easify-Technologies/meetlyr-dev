@@ -21,17 +21,17 @@ function getNextSundays(count: number): Date[] {
 
 export async function POST(request: NextRequest) {
   try {
-    // const auth = verifyAuthToken(request);
+    const auth = verifyAuthToken(request);
 
-    // // ✅ Ensure only admins can create events
-    // if (!auth?.adminId) {
-    //   return NextResponse.json(
-    //     { message: "Only admins can create events" },
-    //     { status: 403 }
-    //   );
-    // }
+    // ✅ Ensure only admins can create events
+    if (!auth?.adminId) {
+      return NextResponse.json(
+        { message: "Only admins can create events" },
+        { status: 403 }
+      );
+    }
 
-    // const adminId = auth.adminId;
+    const adminId = auth.adminId;
     const locations = await prisma.location.findMany();
 
     if (locations.length === 0) {
@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
             date: sunday,
             city: location.city,
             country: location.country,
-            createdBy: "68fe04fc214c35383d3a8ebd",
+            createdBy: adminId,
             locationId: location.id,
             bookingOpen,
             bookingClose,

@@ -149,7 +149,7 @@ const Page = () => {
                                                                 <h2 className="text-3xl md:text-4xl lg:text-5xl text-[#2f1107] font-semibold">{profile?.name}</h2>
                                                                 <div className="text-center mt-2 flex flex-col gap-0">
                                                                     <p className="text-muted-foreground text-sm">Ticket Credits</p>
-                                                                    <p className="text-2xl text-foreground h-8">0</p>
+                                                                    <p className="text-2xl text-foreground h-8">{profile?.subscriptionCredits}</p>
                                                                 </div>
                                                             </div>
                                                         </div>
