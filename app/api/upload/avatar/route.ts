@@ -1,35 +1,40 @@
 import { NextRequest, NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
+import { v2 as cloudinary } from "cloudinary";
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
+  api_key: process.env.CLOUDINARY_API_KEY!,
+  api_secret: process.env.CLOUDINARY_API_SECRET!,
+});
 
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
-    const avatarFile = formData.get("avatar") as File | null;
+    const file = formData.get("avatar") as File | null;
 
-    if (!avatarFile) {
+    if (!file) {
       return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
     }
 
-    const buffer = Buffer.from(await avatarFile.arrayBuffer());
-    const timestamp = Date.now();
-    const extension = path.extname(avatarFile.name);
-    const fileName = `user_${timestamp}${extension}`;
-    const uploadDir = path.join(process.cwd(), "public", "user");
+    // Convert file to buffer
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
 
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
+    // Convert buffer to base64 for Cloudinary upload
+    const base64Data = `data:${file.type};base64,${buffer.toString("base64")}`;
 
-    const filePath = path.join(uploadDir, fileName);
-    fs.writeFileSync(filePath, buffer);
+    const uploadResponse = await cloudinary.uploader.upload(base64Data, {
+      folder: "user_avatars", // optional: folder name in Cloudinary
+      transformation: [{ width: 512, height: 512, crop: "limit" }], // optional
+    });
 
-    return NextResponse.json({ success: true, filePath: `/user/${fileName}` });
+    return NextResponse.json({
+      success: true,
+      url: uploadResponse.secure_url,
+      public_id: uploadResponse.public_id,
+    });
   } catch (error) {
-    console.log(error);
-    return NextResponse.json(
-      { message: "Error adding location" },
-      { status: 500 }
-    );
+    console.error("Upload error:", error);
+    return NextResponse.json({ error: "Upload failed" }, { status: 500 });
   }
 }

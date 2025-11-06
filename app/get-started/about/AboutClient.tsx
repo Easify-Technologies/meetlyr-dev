@@ -56,7 +56,7 @@ const AboutClient = () => {
 
                 const data = await res.json();
                 if (res.ok) {
-                    avatarPath = data.filePath;
+                    avatarPath = data.url;
                 } else {
                     console.error("Upload failed:", data.error);
                 }
@@ -97,7 +97,7 @@ const AboutClient = () => {
                             </div>
                             <div className="flex-1 min-h-0 overflow-y-auto">
                                 <div className="h-full flex flex-col">
-                                    <div className="flex-1 overflow-y-auto flex flex-col gap-6 text-center px-4 pt-10 pb-4">
+                                    <form encType="multipart/form-data" className="flex-1 overflow-y-auto flex flex-col gap-6 text-center px-4 pt-10 pb-4">
                                         <h1 className="text-2xl md:text-3xl lg:text-4xl text-[#2F1107] font-semibold">What gender are you?</h1>
                                         <RadioGroup
                                             className="flex gap-2 items-center justify-center w-full mx-auto py-3"
@@ -214,7 +214,7 @@ const AboutClient = () => {
                                                 focus:border-[#2f1107] focus:ring-1"
                                             />
                                         </div>
-                                    </div>
+                                    </form>
                                     <div className="p-4 bg-background">
                                         <button
                                             type="button"
