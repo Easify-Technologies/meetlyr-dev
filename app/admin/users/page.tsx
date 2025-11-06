@@ -68,8 +68,8 @@ const Page = () => {
                         <h3 className="text-2xl md:text-3xl font-bold">All Users</h3>
                     </div>
 
-                    {/* Table */}
-                    <div className="w-full mt-10 overflow-x-auto">
+                    {/* Table (desktop) */}
+                    <div className="hidden md:block w-full mt-10 overflow-x-auto">
                         <div className="[&>div]:max-h-[70vh]">
                             <Table className="min-w-full border-separate border-spacing-0 [&_td]:border-border [&_tfoot_td]:border-t [&_th]:border-b [&_th]:border-border [&_tr]:border-none [&_tr:not(:last-child)_td]:border-b">
                                 <TableHeader className="sticky top-0 bg-[#ffd100] backdrop-blur-xs">
@@ -125,6 +125,39 @@ const Page = () => {
                                 </TableBody>
                             </Table>
                         </div>
+                    </div>
+
+                    {/* Card layout (mobile) */}
+                    <div className="md:hidden mt-8 space-y-4">
+                        {users?.map((user: UserProps, idx: number) => (
+                            <div
+                                key={user.id}
+                                className="bg-white border border-gray-200 rounded-xl shadow-sm p-4 flex flex-col gap-2"
+                            >
+                                <div className="flex justify-between items-center border-b pb-2">
+                                    <h4 className="font-bold text-lg text-[#2f1107]">{user?.name}</h4>
+                                    <span className="text-sm text-gray-500">#{idx + 1}</span>
+                                </div>
+                                <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm text-gray-700">
+                                    <p><span className="font-semibold">Email:</span> {user?.email}</p>
+                                    <p><span className="font-semibold">Phone:</span> {user?.phoneNumber}</p>
+                                    <p><span className="font-semibold">Gender:</span> {user?.gender}</p>
+                                    <p><span className="font-semibold">DOB:</span> {user?.dateOfBirth}</p>
+                                    <p><span className="font-semibold">City:</span> {user?.city}</p>
+                                    <p><span className="font-semibold">Country:</span> {user?.country}</p>
+                                    <p><span className="font-semibold">Connection:</span> {user?.connectionStyles}</p>
+                                    <p><span className="font-semibold">Communication:</span> {user?.communicationStyles}</p>
+                                    <p><span className="font-semibold">Family:</span> {user?.family}</p>
+                                    <p><span className="font-semibold">Humor:</span> {user?.incorrectHumor}</p>
+                                    <p><span className="font-semibold">Health & Fitness:</span> {user?.healthAndFitness}</p>
+                                    <p><span className="font-semibold">Politics:</span> {user?.politicalNews}</p>
+                                    <p className="col-span-2">
+                                        <span className="font-semibold">Kind of People:</span>{" "}
+                                        {user?.kindOfPeople?.join(", ")}
+                                    </p>
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 </div>
             </section>
