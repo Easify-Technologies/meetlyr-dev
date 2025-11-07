@@ -27,7 +27,7 @@ const Page = () => {
                 <FaHouseUser size={30} />
               </div>
               <div className="flex flex-col items-end gap-1">
-                <span className="text-[#2f1107] text-3xl font-bold">{users?.length > 10 ? `${users?.length}` : `0${users?.length}`}</span>
+                <span className="text-[#2f1107] text-3xl font-bold">{users?.length > 9 ? `${users?.length}` : `0${users?.length}`}</span>
                 <span className="text-[#202124] font-medium text-base">Users</span>
               </div>
             </div>
@@ -36,7 +36,7 @@ const Page = () => {
                 <MdEvent size={30} />
               </div>
               <div className="flex flex-col items-end gap-1">
-                <span className="text-[#2f1107] text-3xl font-bold">{events?.length > 10 ? `${events?.length}` : `0${events?.length}`}</span>
+                <span className="text-[#2f1107] text-3xl font-bold">{events?.length > 9 ? `${events?.length}` : `0${events?.length}`}</span>
                 <span className="text-[#202124] font-medium text-base">Events</span>
               </div>
             </div>
@@ -45,7 +45,7 @@ const Page = () => {
                 <FaMapLocationDot size={30} />
               </div>
               <div className="flex flex-col items-end gap-1">
-                <span className="text-[#2f1107] text-3xl font-bold">{locations?.length > 10 ? `${locations?.length}` : `0${locations?.length}`}</span>
+                <span className="text-[#2f1107] text-3xl font-bold">{locations?.length > 9 ? `${locations?.length}` : `0${locations?.length}`}</span>
                 <span className="text-[#202124] font-medium text-base">Locations</span>
               </div>
             </div>
@@ -54,7 +54,7 @@ const Page = () => {
                 <IoIosCafe size={30} />
               </div>
               <div className="flex flex-col items-end gap-1">
-                <span className="text-[#2f1107] text-3xl font-bold">{cafes?.length > 10 ? `${cafes?.length}` : `0${cafes?.length}`}</span>
+                <span className="text-[#2f1107] text-3xl font-bold">{cafes?.length > 9 ? `${cafes?.length}` : `0${cafes?.length}`}</span>
                 <span className="text-[#202124] font-medium text-base">Cafes</span>
               </div>
             </div>

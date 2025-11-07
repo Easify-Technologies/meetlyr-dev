@@ -129,7 +129,15 @@ const Page = () => {
                                                             <div className="relative -mt-18 lg:mt-0 flex justify-center">
                                                                 <div className="relative cursor-pointer group">
                                                                     <span data-slot="avatar" className="relative flex size-8 shrink-0 overflow-hidden rounded-full w-24 h-24 border-4 border-white">
-                                                                        <span data-slot="avatar-fallback" className="bg-muted flex size-full items-center justify-center rounded-full text-xl">{profile?.name[0].toUpperCase()}</span>
+                                                                        <span data-slot="avatar-fallback" className="bg-muted flex size-full items-center justify-center rounded-full text-xl">
+                                                                            <Image
+                                                                                src={profile?.avatar}
+                                                                                alt={profile?.name}
+                                                                                width={100}
+                                                                                height={100}
+                                                                                className='w-full h-full object-cover'
+                                                                            />
+                                                                        </span>
                                                                     </span>
                                                                     <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center transition-opacity duration-200 opacity-0 group-hover:opacity-100">
                                                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-camera w-8 h-8 text-white" aria-hidden="true">

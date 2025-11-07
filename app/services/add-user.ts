@@ -8,12 +8,12 @@ export async function addUser(data: any) {
     // Append all fields
     formData.append("name", data.name);
     formData.append("email", data.email);
-    formData.append("age", String(data.age));
     formData.append("phoneNumber", data.phoneNumber);
     formData.append("gender", data.gender);
     formData.append("dateOfBirth", data.dateOfBirth);
     formData.append("cafe_id", data.cafe_id);
     formData.append("city_id", data.city_id);
+    formData.append("oneLiner", data.oneLiner);
     formData.append("connectionStyle", data.connectionStyle);
     formData.append("communicationStyle", data.communicationStyle);
     formData.append("socialStyle", data.socialStyle);

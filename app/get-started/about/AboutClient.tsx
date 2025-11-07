@@ -23,8 +23,13 @@ const AboutClient = () => {
     const [formData, setFormData] = useState({
         gender: "",
         dateOfBirth: "",
-        age: ""
+        oneLiner: ""
     });
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setFormData((prev) => ({ ...prev, [name]: value }));
+    };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -34,13 +39,13 @@ const AboutClient = () => {
     };
 
     const handleNext = async () => {
-        if (!formData.gender || !date || !formData.age) return;
+        if (!formData.gender || !date || !formData.oneLiner) return;
 
         const params = new URLSearchParams(window.location.search);
 
         params.set("gender", formData.gender);
-        params.set("age", formData.age);
         params.set("dateOfBirth", date.toISOString().split("T")[0]);
+        params.set("oneLiner", formData.oneLiner);
 
         // 1️⃣ Upload the avatar file (if selected)
         let avatarPath = "";
@@ -159,16 +164,6 @@ const AboutClient = () => {
                                             </Label>
                                         </RadioGroup>
 
-                                        <div className='pt-6 border-t border-[#f7f0f2]'>
-                                            <h1 className="text-2xl md:text-3xl lg:text-4xl text-[#2F1107] font-semibold">What is your age?</h1>
-                                            <input className="w-full rounded-full border border-input outline-none px-2 py-4 text-sm text-[#2f1107] font-semibold mt-6" type="number" id="age" name="age" value={formData.age} onChange={(e) =>
-                                                setFormData((prev) => ({
-                                                    ...prev,
-                                                    age: e.target.value
-                                                }))
-                                            } />
-                                        </div>
-
                                         <div className='py-6 border-t border-[#f7f0f2]'>
                                             <h1 className="text-2xl md:text-3xl lg:text-4xl text-[#2F1107] font-semibold">What is your date of birth?</h1>
                                             <Popover open={open} onOpenChange={setOpen}>
@@ -198,6 +193,22 @@ const AboutClient = () => {
                                                     />
                                                 </PopoverContent>
                                             </Popover>
+                                        </div>
+                                        <div className="py-6 border-t border-[#f7f0f2]">
+                                            <h1 className="text-2xl md:text-3xl lg:text-4xl text-[#2F1107] font-semibold">Tell us a one-liner about you</h1>
+                                            <input
+                                                type="text"
+                                                name="oneLiner"
+                                                id="oneLiner"
+                                                value={formData.oneLiner}
+                                                onChange={handleInputChange}
+                                                className="mt-4 w-full rounded-full border border-gray-300 bg-gray-100 px-5 py-3 text-base text-gray-700
+                                                transition-colors duration-200 outline-none
+                                                file:mr-4 file:rounded-full file:border-0 file:bg-[#2f1107] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white
+                                                file:hover:bg-[#2f1107]/90
+                                                placeholder:text-gray-400
+                                                focus:border-[#2f1107] focus:ring-1"
+                                            />
                                         </div>
                                         <div className="py-6 border-t border-[#f7f0f2]">
                                             <h1 className="text-2xl md:text-3xl lg:text-4xl text-[#2F1107] font-semibold">Upload Your Image</h1>

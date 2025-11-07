@@ -70,7 +70,7 @@ const LocationClient = () => {
                         key={city.id}
                         type="button"
                         onClick={() => setSelectedCityId(city.id)}
-                        className={`group relative overflow-hidden rounded-lg border bg-card transition-all hover:shadow-md hover:scale-[1.02] ${
+                        className={`group cursor-pointer relative overflow-hidden rounded-lg border bg-card transition-all hover:shadow-md hover:scale-[1.02] ${
                           selectedCityId === city.id
                             ? "border-[#2F1107] ring-2 ring-[#FFD100]"
                             : ""

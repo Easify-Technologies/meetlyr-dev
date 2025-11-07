@@ -12,10 +12,10 @@ export async function POST(request: NextRequest) {
     const email = form.get("email") as string;
     const phoneNumber = form.get("phoneNumber") as string;
     const gender = form.get("gender") as string;
-    const age = form.get("age") as string;
     const dateOfBirth = form.get("dateOfBirth") as string;
     const cafe_id = form.get("cafe_id") as string;
     const city_id = form.get("city_id") as string;
+    const oneLiner = form.get("oneLiner") as string;
     const connectionStyle = form.get("connectionStyle") as string;
     const communicationStyle = form.get("communicationStyle") as string;
     const socialStyle = form.get("socialStyle") as string;
@@ -30,13 +30,22 @@ export async function POST(request: NextRequest) {
 
     console.log("Received avatar:", form.get("avatar"));
 
+    const today = new Date();
+    const dob = new Date(dateOfBirth);
+    const age = today.getFullYear() - dob.getFullYear();
+    const hasBirthdayPassed =
+      today.getMonth() > dob.getMonth() ||
+      (today.getMonth() === dob.getMonth() && today.getDate() >= dob.getDate());
+
+    const finalAge = hasBirthdayPassed ? age : age - 1;
+
     // --- Validation ---
     if (
       !name ||
       !email ||
       !phoneNumber ||
       !gender ||
-      !age ||
+      !oneLiner ||
       !avatarFile ||
       !dateOfBirth ||
       !cafe_id ||
@@ -67,13 +76,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (Number(age) <= 18) {
+    if (finalAge < 18) {
       return NextResponse.json(
-        { error: "Age should be greater than 18" },
+        { error: "You must be at least 18 years old to register." },
         { status: 400 }
       );
     }
-
+    
     // --- Fetch city info ---
     const getCity = await prisma.location.findUnique({
       where: { id: city_id },
@@ -92,9 +101,9 @@ export async function POST(request: NextRequest) {
         gender,
         avatar: avatarFile,
         dateOfBirth,
-        age: Number(age),
         country: getCity?.country || "",
         city: getCity?.city || "",
+        oneLiner,
         connectionStyles: connectionStyle,
         communicationStyles: communicationStyle,
         socialStyles: socialStyle,
