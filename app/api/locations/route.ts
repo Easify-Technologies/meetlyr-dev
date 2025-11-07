@@ -1,9 +1,12 @@
-"use server";
-
 import { NextRequest, NextResponse } from "next/server";
+import { v2 as cloudinary } from "cloudinary";
 import { prisma } from "@/lib/prisma";
-import path from "path";
-import fs from "fs";
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
+  api_key: process.env.CLOUDINARY_API_KEY!,
+  api_secret: process.env.CLOUDINARY_API_SECRET!,
+});
 
 export async function POST(request: NextRequest) {
   try {
@@ -20,45 +23,43 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const timestamp = Date.now();
-    const extension = path.extname(file.name);
-    const fileName = `location_${timestamp}${extension}`;
-    const assetsDir = path.join(process.cwd(), "public", "location");
-    const filePath = path.join(assetsDir, fileName);
-
-    if (!fs.existsSync(assetsDir)) {
-      fs.mkdirSync(assetsDir, { recursive: true });
-    }
-
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
-    fs.writeFileSync(filePath, buffer);
 
-    const finalImage = `/location/${fileName}`;
+    // Convert buffer to base64 for Cloudinary upload
+    const base64Data = `data:${file.type};base64,${buffer.toString("base64")}`;
+
+    const uploadResponse = await cloudinary.uploader.upload(base64Data, {
+      folder: "locations", // optional: folder name in Cloudinary
+      transformation: [{ width: 512, height: 512, crop: "limit" }], // optional
+    });
 
     const location = await prisma.location.create({
-      data: { city, country, imageUrl: finalImage },
+      data: { city, country, imageUrl: uploadResponse.secure_url },
     });
 
     return NextResponse.json(
       { message: "Location added successfully", location },
       { status: 200 }
     );
-  } catch (error: any) {
+  } catch (error) {
     console.error(error);
     return NextResponse.json(
-      { message: "Error adding location", error: error.message },
+      { error: "Error adding location" },
       { status: 500 }
     );
   }
 }
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const locations = await prisma.location.findMany();
-    return NextResponse.json({ locations }, { status: 200 })
-  } catch (error: any) {
+    return NextResponse.json({ locations }, { status: 200 });
+  } catch (error) {
     console.error(error);
-    return NextResponse.json({ message: "Error fetching locations", error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: "Error fetching locations" },
+      { status: 500 }
+    );
   }
 }

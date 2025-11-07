@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import path from "path";
-import fs from "fs";
+import { v2 as cloudinary } from "cloudinary";
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
+  api_key: process.env.CLOUDINARY_API_KEY!,
+  api_secret: process.env.CLOUDINARY_API_SECRET!,
+});
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,28 +24,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const timestamp = Date.now();
-    const extension = path.extname(file.name);
-    const fileName = `cafe_${timestamp}${extension}`;
-    const assetsDir = path.join(process.cwd(), "public", "cafe");
-    const filePath = path.join(assetsDir, fileName);
-
-    if (!fs.existsSync(assetsDir)) {
-      fs.mkdirSync(assetsDir, { recursive: true });
-    }
-
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
-    fs.writeFileSync(filePath, buffer);
 
-    const finalImage = `/cafe/${fileName}`;
+    // Convert buffer to base64 for Cloudinary upload
+    const base64Data = `data:${file.type};base64,${buffer.toString("base64")}`;
+
+    const uploadResponse = await cloudinary.uploader.upload(base64Data, {
+      folder: "cafes", // optional: folder name in Cloudinary
+      transformation: [{ width: 512, height: 512, crop: "limit" }], // optional
+    });
 
     const saveCafe = await prisma.cafe.create({
       data: {
         name,
         address,
         locationId,
-        imageUrl: finalImage,
+        imageUrl: uploadResponse.secure_url,
       },
     });
 
@@ -48,10 +48,10 @@ export async function POST(request: NextRequest) {
       { message: "Cafe added successfully", cafe: saveCafe },
       { status: 200 }
     );
-  } catch (error: any) {
+  } catch (error) {
     console.error(error);
     return NextResponse.json(
-      { message: "Error adding cafe", error: error.message },
+      { error: "Error adding cafe" },
       { status: 500 }
     );
   }
@@ -69,10 +69,10 @@ export async function GET() {
       }
     });
     return NextResponse.json(cafes, { status: 200 });
-  } catch (error: any) {
+  } catch (error) {
     console.error(error);
     return NextResponse.json(
-      { message: "Error fetching cafes", error: error.message },
+      { error: "Error fetching cafes" },
       { status: 500 }
     );
   }
