@@ -191,26 +191,26 @@ const QuestionClient = () => {
                           onValueChange={(value) => setSelectedStyle(value)}
                         >
                           {options?.map((style, index) => (
-                            <div
+                            <Label
                               key={index}
-                              className="flex items-center border-b border-[#2F1107] justify-between pb-2"
+                              htmlFor={style.value}
+                              className={`flex items-center justify-between border rounded-xl px-4 py-3 cursor-pointer transition-all
+                                ${selectedStyle === style.value
+                                  ? "border-[#2F1107] bg-[#2F1107]/10"
+                                  : "border-[#2F1107]/40 hover:bg-[#2F1107]/5"
+                                }`}
                             >
-                              <Label
-                                className="text-sm font-medium text-[#2F1107]"
-                                htmlFor={style.value}
-                              >
-                                {style.label}
-                              </Label>
+                              <div className="text-sm font-medium text-[#2F1107]">{style.label}</div>
                               <RadioGroupItem
+                                value={style.value}
+                                id={style.value}
                                 className="border-[#2F1107]
                                 text-[#2F1107]
                                 data-[state=checked]:bg-[#2F1107]
                                 data-[state=checked]:border-[#2F1107]
                                 data-[state=checked]:text-[#2F1107]"
-                                value={style.value}
-                                id={style.value}
                               />
-                            </div>
+                            </Label>
                           ))}
                         </RadioGroup>
                       )}

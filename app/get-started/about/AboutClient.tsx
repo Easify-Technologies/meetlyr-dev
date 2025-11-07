@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { ChevronDownIcon } from "lucide-react";
 import { Label } from "@/components/ui/label";
+import OneLinerDropdown from "@/components/comp-234";
 
 const AboutClient = () => {
     const router = useRouter();
@@ -25,11 +26,6 @@ const AboutClient = () => {
         dateOfBirth: "",
         oneLiner: ""
     });
-
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
-    };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -195,20 +191,7 @@ const AboutClient = () => {
                                             </Popover>
                                         </div>
                                         <div className="py-6 border-t border-[#f7f0f2]">
-                                            <h1 className="text-2xl md:text-3xl lg:text-4xl text-[#2F1107] font-semibold">Tell us a one-liner about you</h1>
-                                            <input
-                                                type="text"
-                                                name="oneLiner"
-                                                id="oneLiner"
-                                                value={formData.oneLiner}
-                                                onChange={handleInputChange}
-                                                className="mt-4 w-full rounded-full border border-gray-300 bg-gray-100 px-5 py-3 text-base text-gray-700
-                                                transition-colors duration-200 outline-none
-                                                file:mr-4 file:rounded-full file:border-0 file:bg-[#2f1107] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white
-                                                file:hover:bg-[#2f1107]/90
-                                                placeholder:text-gray-400
-                                                focus:border-[#2f1107] focus:ring-1"
-                                            />
+                                            <OneLinerDropdown setFormData={setFormData} />
                                         </div>
                                         <div className="py-6 border-t border-[#f7f0f2]">
                                             <h1 className="text-2xl md:text-3xl lg:text-4xl text-[#2F1107] font-semibold">Upload Your Image</h1>
@@ -216,10 +199,10 @@ const AboutClient = () => {
                                                 type="file"
                                                 name="imageUrl"
                                                 id="imageUrl"
+                                                accept=".jgp, .jpeg, .webp, .png"
                                                 onChange={handleFileChange}
                                                 className="mt-4 w-full rounded-full border border-gray-300 bg-gray-100 px-5 py-3 text-base text-gray-700
-                                                transition-colors duration-200 outline-none
-                                                file:mr-4 file:rounded-full file:border-0 file:bg-[#2f1107] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white
+                                                transition-colors duration-200 outline-none file:mr-4 file:rounded-full file:border-0 file:bg-[#2f1107] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white
                                                 file:hover:bg-[#2f1107]/90
                                                 placeholder:text-gray-400
                                                 focus:border-[#2f1107] focus:ring-1"
