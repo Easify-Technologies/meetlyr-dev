@@ -10,6 +10,7 @@ import { useProfileDetails } from '../queries/profile';
 import Link from 'next/link';
 import axios from 'axios';
 import { signOut } from 'next-auth/react';
+import { FaLocationArrow } from "react-icons/fa";
 
 const connectionStyles = [
     { label: "I ask questions", value: "ask_questions" },
@@ -157,6 +158,10 @@ const Page = () => {
                                                             </div>
                                                             <div className="text-center">
                                                                 <h2 className="text-3xl md:text-4xl lg:text-5xl text-[#2f1107] font-semibold">{profile?.name}</h2>
+                                                                <button type="button" className='flex items-center justify-center gap-2 mt-3 bg-[#fff100] text-[#2f1107] border border-[#2f1107] text-sm font-semibold cursor-pointer py-2.5 px-2 rounded-md hover:bg-[#2f1107] hover:text-[#fff100] transition-colors duration-500'>
+                                                                    <FaLocationArrow size={15} />
+                                                                    <span>{profile?.city}, {profile?.country}</span>
+                                                                </button>
                                                             </div>
                                                         </div>
                                                         <div className="px-4 flex flex-col gap-4">
