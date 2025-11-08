@@ -21,6 +21,7 @@ const AboutClient = () => {
     const [avatarFile, setAvatarFile] = useState<File | null>(null);
     const [open, setOpen] = useState(false);
     const [date, setDate] = useState<Date | undefined>(undefined);
+    const [error, setError] = useState<string>("");
     const [formData, setFormData] = useState({
         gender: "",
         dateOfBirth: "",
@@ -34,8 +35,18 @@ const AboutClient = () => {
         }
     };
 
+    const is18OrOlder = (dob: Date) => {
+        const today = new Date();
+        const ageDiff = today.getFullYear() - dob.getFullYear();
+        const hasHadBirthdayThisYear =
+            today.getMonth() > dob.getMonth() ||
+            (today.getMonth() === dob.getMonth() && today.getDate() >= dob.getDate());
+
+        return ageDiff > 18 || (ageDiff === 18 && hasHadBirthdayThisYear);
+    };
+
     const handleNext = async () => {
-        if (!formData.gender || !date || !formData.oneLiner) return;
+        if (!formData.gender || !date || !formData.oneLiner || !is18OrOlder(date)) return;
 
         const params = new URLSearchParams(window.location.search);
 
@@ -173,17 +184,30 @@ const AboutClient = () => {
                                                         <ChevronDownIcon />
                                                     </Button>
                                                 </PopoverTrigger>
+
                                                 <PopoverContent className="w-auto overflow-hidden" align="start">
                                                     <Calendar
                                                         mode="single"
                                                         selected={date}
                                                         captionLayout="dropdown"
-                                                        onSelect={(date) => {
-                                                            setDate(date);
-                                                            setFormData((prev) => ({
-                                                                ...prev,
-                                                                dateOfBirth: date ? date.toISOString().split("T")[0] : "",
-                                                            }));
+                                                        onSelect={(selectedDate) => {
+                                                            if (selectedDate) {
+                                                                // Always display the date
+                                                                setDate(selectedDate);
+
+                                                                // Validate age
+                                                                if (!is18OrOlder(selectedDate)) {
+                                                                    setError("You must be at least 18 years old.");
+                                                                } else {
+                                                                    setError("");
+                                                                }
+
+                                                                // Store in form data regardless
+                                                                setFormData((prev) => ({
+                                                                    ...prev,
+                                                                    dateOfBirth: selectedDate.toISOString().split("T")[0],
+                                                                }));
+                                                            }
                                                             setOpen(false);
                                                         }}
                                                     />
@@ -209,6 +233,7 @@ const AboutClient = () => {
                                             />
                                         </div>
                                     </form>
+                                    {error && <p className="text-red-500 text-base font-semibold">{error}</p>}
                                     <div className="p-4 bg-background">
                                         <button
                                             type="button"

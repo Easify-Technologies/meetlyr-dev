@@ -72,7 +72,7 @@ const Page = () => {
                             )}`
                           )
                         }
-                        className="group relative overflow-hidden rounded-lg border bg-card transition-all hover:shadow-md hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-[#2F1107] focus:ring-offset-2"
+                        className="group cursor-pointer relative overflow-hidden rounded-lg border bg-card transition-all hover:shadow-md hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-[#2F1107] focus:ring-offset-2"
                       >
                         <div className="aspect-[4/3] relative overflow-hidden bg-muted">
                           <Image

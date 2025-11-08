@@ -135,6 +135,8 @@ const Page = () => {
                                                                                 alt={profile?.name}
                                                                                 width={100}
                                                                                 height={100}
+                                                                                quality={100}
+                                                                                priority
                                                                                 className='w-full h-full object-cover'
                                                                             />
                                                                         </span>
@@ -155,10 +157,6 @@ const Page = () => {
                                                             </div>
                                                             <div className="text-center">
                                                                 <h2 className="text-3xl md:text-4xl lg:text-5xl text-[#2f1107] font-semibold">{profile?.name}</h2>
-                                                                <div className="text-center mt-2 flex flex-col gap-0">
-                                                                    <p className="text-muted-foreground text-sm">Ticket Credits</p>
-                                                                    <p className="text-2xl text-foreground h-8">{profile?.subscriptionCredits}</p>
-                                                                </div>
                                                             </div>
                                                         </div>
                                                         <div className="px-4 flex flex-col gap-4">
@@ -374,7 +372,7 @@ const Page = () => {
                                                             </div>
                                                             <div className="flex flex-col w-full gap-2">
                                                                 <div data-orientation="horizontal" role="none" data-slot="separator" className="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px"></div>
-                                                                <Link href="#">
+                                                                <Link href="https://meetlyr.com/terms-and-conditions/">
                                                                     <div className="flex flex-row justify-between px-4 py-1 items-center hover:bg-muted/50 transition-colors">
                                                                         <div className="flex flex-col gap-1">
                                                                             <p className="text-base md:text-lg">Terms of Service</p>
@@ -386,7 +384,7 @@ const Page = () => {
                                                                     </div>
                                                                 </Link>
                                                                 <div data-orientation="horizontal" role="none" data-slot="separator" className="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px"></div>
-                                                                <Link href="#">
+                                                                <Link href="https://meetlyr.com/terms-and-conditions/">
                                                                     <div className="flex flex-row justify-between px-4 py-1 items-center hover:bg-muted/50 transition-colors">
                                                                         <div className="flex flex-col gap-1">
                                                                             <p className="text-base md:text-lg">Privacy Policy</p>
@@ -398,7 +396,7 @@ const Page = () => {
                                                                     </div>
                                                                 </Link>
                                                                 <div data-orientation="horizontal" role="none" data-slot="separator" className="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px"></div>
-                                                                <Link href="#">
+                                                                <Link href="https://meetlyr.com/community-guidelines/">
                                                                     <div className="flex flex-row justify-between px-4 py-1 items-center hover:bg-muted/50 transition-colors">
                                                                         <div className="flex flex-col gap-1">
                                                                             <p className="text-base md:text-lg">Community Guidelines</p>

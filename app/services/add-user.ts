@@ -1,5 +1,9 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { signIn } from "next-auth/react";
+
+interface ApiError {
+  error: string;
+}
 
 export async function addUser(data: any) {
   try {
@@ -45,8 +49,8 @@ export async function addUser(data: any) {
     }
 
     return response.data;
-  } catch (error: any) {
-    console.error("Error uploading user:", error);
-    throw new Error(error.response?.data?.error || "Something went wrong");
+  } catch (error) {
+    const axiosErr = error as AxiosError<ApiError>;
+    throw new Error(axiosErr.response?.data?.error || "Something went wrong");
   }
 }
