@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import Navbar from '@/components/ui/Navbar';
 import Image from 'next/image';
 import { useSession } from 'next-auth/react';
@@ -11,6 +11,20 @@ import Link from 'next/link';
 import axios from 'axios';
 import { signOut } from 'next-auth/react';
 import { FaLocationArrow } from "react-icons/fa";
+import { CheckCircle } from "lucide-react";
+import { useFetchAllLocations } from "../queries/fetch-locations";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import {
+    Dialog,
+    DialogClose,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog";
 
 const connectionStyles = [
     { label: "I ask questions", value: "ask_questions" },
@@ -48,11 +62,40 @@ const kindOfPeople = [
     { label: "I don't mind, everyone has a story", value: "everyone_has_story" },
 ];
 
+interface Locations {
+    id: string;
+    name: string;
+    country: string;
+    imageUrl: string;
+}
+
 const Page = () => {
     const { data: session } = useSession();
+    const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
     const email = session?.user?.email ?? "";
 
     const { data: profile, isLoading } = useProfileDetails(email);
+    const { data: locations = [] } = useFetchAllLocations();
+
+    const [open, setOpen] = useState(false);
+    const [formData, setFormData] = useState({
+        city: profile?.city || "",
+        country: profile?.country || "",
+    });
+    console.log(formData);
+
+    const countries = useMemo(() => {
+        const unique = new Map<string, string>();
+        locations.forEach((loc: Locations) => {
+            if (!unique.has(loc.country)) unique.set(loc.country, loc.imageUrl);
+        });
+        return Array.from(unique, ([country, imageUrl]) => ({ country, imageUrl }));
+    }, [locations]);
+
+    const filteredCities = useMemo(() => {
+        if (!selectedCountry) return [];
+        return locations.filter((loc) => loc.country === selectedCountry);
+    }, [locations, selectedCountry]);
 
     const formattedDate = profile?.dateOfBirth
         ? format(new Date(profile.dateOfBirth), "MMMM do, yyyy")
@@ -74,8 +117,6 @@ const Page = () => {
         profile?.kindOfPeople?.includes(item.value)
     );
 
-    if (isLoading) return <Loader />
-
     const handleLogout = async () => {
         try {
             const res = await axios.post("/api/logout", { email });
@@ -86,6 +127,8 @@ const Page = () => {
             console.error(error);
         }
     };
+
+    if (isLoading) return <Loader />
 
     return (
         <>
@@ -102,7 +145,7 @@ const Page = () => {
                                             <div className="max-w-1/2 mx-auto pt-12">
                                                 <Image
                                                     src="/colleagues-having-a-coffee-break-1024x752.webp"
-                                                    alt="Meetly"
+                                                    alt="Meetlyr"
                                                     width={600}
                                                     height={600}
                                                     quality={100}
@@ -158,10 +201,121 @@ const Page = () => {
                                                             </div>
                                                             <div className="text-center">
                                                                 <h2 className="text-3xl md:text-4xl lg:text-5xl text-[#2f1107] font-semibold">{profile?.name}</h2>
-                                                                <button type="button" className='flex items-center justify-center gap-2 mt-3 bg-[#fff100] text-[#2f1107] border border-[#2f1107] text-sm font-semibold cursor-pointer py-2.5 px-2 rounded-md hover:bg-[#2f1107] hover:text-[#fff100] transition-colors duration-500'>
-                                                                    <FaLocationArrow size={15} />
-                                                                    <span>{profile?.city}, {profile?.country}</span>
-                                                                </button>
+                                                                <Dialog open={open} onOpenChange={setOpen}>
+                                                                    <DialogTrigger asChild>
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() => setOpen(true)}
+                                                                            className="flex items-center justify-center gap-2 mt-3 bg-[#fff100] text-[#2f1107] border border-[#2f1107] text-sm font-semibold cursor-pointer py-2.5 px-2 rounded-md hover:bg-[#2f1107] hover:text-[#fff100] transition-colors duration-500"
+                                                                        >
+                                                                            <FaLocationArrow size={15} />
+                                                                            <span>
+                                                                                {formData.city ? `${formData.city}, ${formData.country}` : "Update Your Location"}
+                                                                            </span>
+                                                                        </button>
+                                                                    </DialogTrigger>
+
+                                                                    <DialogContent className="sm:max-w-[650px]">
+                                                                        <DialogHeader>
+                                                                            <DialogTitle className="text-2xl font-semibold text-[#2f1107]">
+                                                                                Choose Your Location
+                                                                            </DialogTitle>
+                                                                        </DialogHeader>
+
+                                                                        {!selectedCountry && (
+                                                                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 p-1">
+                                                                                {countries.map(({ country, imageUrl }) => (
+                                                                                    <button
+                                                                                        key={country}
+                                                                                        type="button"
+                                                                                        onClick={() => setSelectedCountry(country)}
+                                                                                        className="group cursor-pointer relative overflow-hidden rounded-lg border bg-card transition-all hover:shadow-md hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-[#2F1107] focus:ring-offset-2"
+                                                                                    >
+                                                                                        <div className="aspect-[4/3] relative overflow-hidden bg-muted">
+                                                                                            <Image
+                                                                                                width={100}
+                                                                                                height={100}
+                                                                                                alt={country}
+                                                                                                className="h-full w-full object-cover transition-transform group-hover:scale-110"
+                                                                                                src={imageUrl || "/placeholder.jpg"}
+                                                                                            />
+                                                                                        </div>
+                                                                                        <div className="p-3 text-center">
+                                                                                            <h3 className="font-medium text-sm line-clamp-1">{country}</h3>
+                                                                                        </div>
+                                                                                    </button>
+                                                                                ))}
+                                                                            </div>
+                                                                        )}
+
+                                                                        {/* 🏙️ Cities List with RadioGroup */}
+                                                                        {selectedCountry && (
+                                                                            <div className="mt-4">
+                                                                                <h2 className="text-lg font-semibold mb-4">
+                                                                                    Select a city in {selectedCountry}
+                                                                                </h2>
+
+                                                                                <RadioGroup
+                                                                                    value={formData.city}
+                                                                                    onValueChange={(selectedCity) => {
+                                                                                        setFormData({
+                                                                                            city: selectedCity,
+                                                                                            country: selectedCountry,
+                                                                                        });
+                                                                                    }}
+                                                                                    className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3"
+                                                                                >
+                                                                                    {filteredCities.map((city) => (
+                                                                                        <Label
+                                                                                            key={city.id}
+                                                                                            htmlFor={city.city}
+                                                                                            className="relative cursor-pointer border rounded-lg overflow-hidden bg-card hover:shadow-md transition-all flex flex-col peer-checked:border-[#2f1107]"
+                                                                                        >
+                                                                                            {/* The actual radio input */}
+                                                                                            <RadioGroupItem
+                                                                                                value={city.city}
+                                                                                                id={city.city}
+                                                                                                className="absolute opacity-0 peer"
+                                                                                            />
+
+                                                                                            {/* Image */}
+                                                                                            <div className="aspect-[4/3] relative overflow-hidden bg-muted">
+                                                                                                <Image
+                                                                                                    width={100}
+                                                                                                    height={100}
+                                                                                                    alt={city.city}
+                                                                                                    className="h-full w-full object-cover"
+                                                                                                    src={city.imageUrl || "/placeholder.jpg"}
+                                                                                                />
+                                                                                            </div>
+
+                                                                                            <div className="p-3 text-center">
+                                                                                                <h3 className="font-medium text-sm line-clamp-1">{city.city}</h3>
+                                                                                            </div>
+                                                                                            
+                                                                                            <div className="absolute inset-0 border-2 border-transparent rounded-lg pointer-events-none transition-all peer-checked:border-[#2f1107]">
+                                                                                                <CheckCircle className="hidden peer-checked:block absolute top-2 right-2 text-[#2f1107]" size={20} />
+                                                                                            </div>
+                                                                                        </Label>
+                                                                                    ))}
+                                                                                </RadioGroup>
+
+                                                                                <div className='flex items-center gap-3 mt-6'>
+                                                                                    <button
+                                                                                        type="button"
+                                                                                        onClick={() => setSelectedCountry(null)}
+                                                                                        className="px-5 py-2 rounded-full font-semibold text-sm bg-[#2F1107] text-white hover:bg-[#2F1107]/90 transition-colors cursor-pointer"
+                                                                                    >
+                                                                                        Back to Countries
+                                                                                    </button>
+                                                                                    <button className='px-5 py-2 rounded-full font-semibold text-sm bg-[#ffd100] text-[#2f1107] hover:bg-[#ffd100]/70 transition-colors cursor-pointer' type="button">
+                                                                                        Save Location
+                                                                                    </button>
+                                                                                </div>
+                                                                            </div>
+                                                                        )}
+                                                                    </DialogContent>
+                                                                </Dialog>
                                                             </div>
                                                         </div>
                                                         <div className="px-4 flex flex-col gap-4">
@@ -448,7 +602,7 @@ const Page = () => {
                     <div className="absolute right-1/8 h-2/3 w-auto">
                         <Image
                             src="/colleagues-having-a-coffee-break-1024x752.webp"
-                            alt="Meetly"
+                            alt="Meetlyr"
                             width={600}
                             height={600}
                             quality={100}
