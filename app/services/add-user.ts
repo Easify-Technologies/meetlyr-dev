@@ -44,7 +44,7 @@ export async function addUser(data: any) {
         redirect: true,
         email: data.email,
         password: data.password,
-        callbackUrl: "/bookings",
+        callbackUrl: "/email-verification",
       });
     }
 

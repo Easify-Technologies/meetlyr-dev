@@ -223,7 +223,7 @@ const AboutClient = () => {
                                                 type="file"
                                                 name="imageUrl"
                                                 id="imageUrl"
-                                                accept=".jgp, .jpeg, .webp, .png"
+                                                accept=".jpg, .jpeg, .png, .webp, .gif"
                                                 onChange={handleFileChange}
                                                 className="mt-4 w-full rounded-full border border-gray-300 bg-gray-100 px-5 py-3 text-base text-gray-700
                                                 transition-colors duration-200 outline-none file:mr-4 file:rounded-full file:border-0 file:bg-[#2f1107] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white

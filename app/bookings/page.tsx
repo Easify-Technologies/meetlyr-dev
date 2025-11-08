@@ -223,17 +223,6 @@ const Page = () => {
                                   </div>
                                 )}
                               </div>
-
-                              {/* VERIFY EMAIL */}
-                              <div className="shrink-0">
-                                <Link
-                                  href="/email-verification"
-                                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm md:text-base font-medium transition-all outline-none bg-[#2F1107] text-white hover:bg-[#2F1107]/80 h-12 px-4 py-2 rounded-full w-full cursor-pointer"
-                                  type="button"
-                                >
-                                  Verify Your Email
-                                </Link>
-                              </div>
                             </form>
                           </div>
                         </div>
