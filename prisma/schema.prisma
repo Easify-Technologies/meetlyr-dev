@@ -28,7 +28,7 @@ model User {
   incorrectHumor      String
   kindOfPeople        String[]
   password            String
-  oneLiner            String
+  oneLiner            String?
   isLoggedIn          Boolean  @default(false)
   isVerified          Boolean  @default(false)
   createdAt           DateTime @default(now())
