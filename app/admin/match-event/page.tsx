@@ -3,6 +3,7 @@
 import React from "react";
 import { useFetchEvents } from "@/app/queries/get-events";
 import useManualMatch from "@/app/queries/admin/manual-match";
+import Loader from "@/components/ui/loader";
 
 const AdminEventCard = ({ event }: any) => {
   const { mutate, isPending, data, isError, isSuccess } = useManualMatch();
@@ -45,11 +46,10 @@ const AdminEventCard = ({ event }: any) => {
 export default function MatchEventPage() {
   const { data, isLoading, isError } = useFetchEvents();
 
-  if (isLoading) return <p className="p-6">Loading events...</p>;
-  if (isError)
-    return <p className="p-6 text-red-500">Failed to load events.</p>;
+  if (isLoading) return <Loader />;
 
-  // ✅ Fix here
+  if (isError) return <p className="p-6 text-red-500">Failed to load events.</p>;
+  
   const events = Array.isArray(data) ? data : data?.events || [];
 
   return (

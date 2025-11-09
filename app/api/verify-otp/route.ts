@@ -52,38 +52,46 @@ export async function POST(request: NextRequest) {
     });
 
     const html = `
-    <div style="font-family: Arial, sans-serif; padding: 24px; background-color: #fdfdfd; border-radius: 8px; border: 1px solid #eee; max-width: 520px; margin: 20px auto;">
-      <div style="text-align: center; margin-bottom: 24px;">
-        <img src="/Mocha-e1760632297719.webp" alt="Meetlyr Logo" style="width: 120px; height: auto;" />
+    <div style="font-family: 'Arial', sans-serif; padding: 24px; background-color: #fdfdfd; border-radius: 10px; border: 1px solid #eee; max-width: 540px; margin: 20px auto;">
+      <div style="text-align: center; margin-bottom: 28px;">
+        <img src="https://meetlyr.com/wp-content/uploads/2025/10/18-e1761649684550.png" alt="Meetlyr Logo" style="width: 120px; height: auto;" />
       </div>
 
-      <h2 style="color: #3c3c3c; font-size: 20px; margin-bottom: 12px;">Hi ${
-        storedEmail.name || "there"
-      } 👋</h2>
+      <h2 style="color: #3c3c3c; font-size: 22px; margin-bottom: 10px; text-align: left;">
+        Hi ${storedEmail.name || "there"} 👋
+      </h2>
 
-      <p style="color: #555; font-size: 15px; line-height: 1.6; margin-bottom: 12px;">
-        Welcome to <strong>Meetlyr</strong>! 🎉 Your email has been successfully verified, and your account is now active.
+      <p style="color: #555; font-size: 15px; line-height: 1.7; margin-bottom: 12px;">
+        Welcome to <strong style="color: #6b4f4f;">Meetlyr</strong>! 🎉 Your email has been successfully verified, and your account is now active. We're thrilled to have you join our growing community of inspiring individuals.
       </p>
 
-      <p style="color: #555; font-size: 15px; line-height: 1.6; margin-bottom: 12px;">
-        You’re all set to start connecting with amazing people through Meetlyr. Check out the app to view your upcoming events, join conversations, and make meaningful connections.
+      <p style="color: #555; font-size: 15px; line-height: 1.7; margin-bottom: 16px;">
+        From spontaneous meetups ☕ to meaningful connections 💬 — Meetlyr is all about bringing people together in the real world. You're now ready to start exploring events, discovering new circles, and creating unforgettable moments.
       </p>
 
-      <div style="background-color: #faf6f4; border: 1px solid #eee; border-radius: 8px; padding: 16px; margin: 20px 0;">
-        <h3 style="margin: 0 0 8px 0; color: #6b4f4f;">Next Steps:</h3>
-        <ul style="padding-left: 20px; margin: 0; color: #555;">
-          <li>Open the Meetlyr app or website.</li>
-          <li>Complete your profile for better matches.</li>
-          <li>Join or explore nearby events.</li>
+      <div style="background-color: #faf6f4; border: 1px solid #eee; border-radius: 8px; padding: 16px; margin: 24px 0;">
+        <h3 style="margin: 0 0 8px 0; color: #6b4f4f; font-size: 16px;">Here’s what you can do next:</h3>
+        <ul style="padding-left: 20px; margin: 0; color: #555; line-height: 1.6; font-size: 15px;">
+          <li>Complete your profile to help others know you better.</li>
+          <li>Browse nearby events and join one that excites you.</li>
+          <li>Meet people who share your interests and passions.</li>
         </ul>
       </div>
 
-      <p style="color: #555; font-size: 15px; line-height: 1.6; margin-bottom: 12px;">
-        If you have any questions, visit our <a href="https://meetlyr.com/help" style="color: #6b4f4f; text-decoration: none; font-weight: bold;">Help Center</a> — we’re always happy to assist.
+      <div style="text-align: center; margin-top: 24px;">
+        <a href="https://meetlyr.com/" target="_blank" 
+          style="display: inline-block; background-color: #6b4f4f; color: #fff; text-decoration: none; font-size: 16px; padding: 14px 28px; border-radius: 50px; font-weight: 600;">
+          🚀 Get Started on Meetlyr
+        </a>
+      </div>
+
+      <p style="color: #666; font-size: 14px; margin-top: 28px; text-align: center; line-height: 1.6;">
+        Need help or have questions? Visit our 
+        <a href="https://meetlyr.com/how-it-works/" style="color: #6b4f4f; text-decoration: none; font-weight: bold;">Help Center</a> — we’re always here for you.
       </p>
 
-      <p style="color: #333; font-size: 15px; margin-top: 24px;">
-        See you soon,<br/>
+      <p style="color: #333; font-size: 15px; margin-top: 30px; text-align: center;">
+        With warmth,<br/>
         <strong>The Meetlyr Team ☕</strong>
       </p>
     </div>
@@ -92,7 +100,7 @@ export async function POST(request: NextRequest) {
     const registeredMessage = await transporter.sendMail({
       from: `"Meetlyr" <${process.env.SMTP_USER}>`,
       to: storedEmail,
-      subject: "🎉 Welcome to Meetlyr – Your Email Has Been Verified!",
+      subject: "Welcome to Meetlyr, Your Email’s Verified and You’re All Set to Connect ☕",
       html,
     });
 
