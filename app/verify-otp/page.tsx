@@ -21,7 +21,7 @@ const Page = () => {
             <div className="h-full flex flex-col p-4">
                 <div className="">
                     <div className="grid grid-cols-2 lg:grid-cols-[1fr_auto_1fr] items-center min-h-0 lg:min-h-20 p-4 w-full">
-                        <Link href="#" className="flex items-center gap-2 w-20">
+                        <Link href="/" className="flex items-center gap-2 w-20">
                             <Image
                                 src="/Mocha-e1760632297719.webp"
                                 alt="Meetly"

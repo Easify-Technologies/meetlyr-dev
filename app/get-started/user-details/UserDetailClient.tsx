@@ -46,14 +46,16 @@ const UserDetailClient = () => {
             {/* Header */}
             <div className="grid grid-cols-2 lg:grid-cols-[1fr_auto_1fr] items-center min-h-0 lg:min-h-20 p-4 w-full">
               <div className="flex items-center gap-2 w-20">
-                <Image
-                  src="/Mocha-e1760632297719.webp"
-                  alt="Meetly"
-                  width={200}
-                  height={200}
-                  quality={100}
-                  priority
-                />
+                <Link href="/">
+                  <Image
+                    src="/Mocha-e1760632297719.webp"
+                    alt="Meetly"
+                    width={200}
+                    height={200}
+                    quality={100}
+                    priority
+                  />
+                </Link>
               </div>
             </div>
 
@@ -138,19 +140,18 @@ const UserDetailClient = () => {
                     href={
                       isFormComplete
                         ? `/get-started/questions?city_id=${city_id}&name=${encodeURIComponent(
-                            name
-                          )}&email=${encodeURIComponent(
-                            email
-                          )}&phoneNumber=${encodeURIComponent(
-                            phoneNumber
-                          )}&password=${encodeURIComponent(password)}`
+                          name
+                        )}&email=${encodeURIComponent(
+                          email
+                        )}&phoneNumber=${encodeURIComponent(
+                          phoneNumber
+                        )}&password=${encodeURIComponent(password)}`
                         : "#"
                     }
-                    className={`inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm md:text-base font-medium transition-all select-none h-12 px-4 py-2 rounded-full w-full duration-500 ${
-                      isFormComplete
+                    className={`inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm md:text-base font-medium transition-all select-none h-12 px-4 py-2 rounded-full w-full duration-500 ${isFormComplete
                         ? "bg-[#FFD100] text-[#2F1107] hover:bg-[#2F1107] hover:text-[#FFD100]"
                         : "bg-gray-300 text-gray-600 cursor-not-allowed"
-                    }`}
+                      }`}
                   >
                     Next Page
                   </Link>
