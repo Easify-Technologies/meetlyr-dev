@@ -13,14 +13,12 @@ import { signOut } from 'next-auth/react';
 import { FaLocationArrow } from "react-icons/fa";
 import { CheckCircle } from "lucide-react";
 import { useFetchAllLocations } from "../queries/fetch-locations";
+import { useUpdateUserLocation } from '../queries/update-location';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import {
     Dialog,
-    DialogClose,
     DialogContent,
-    DialogDescription,
-    DialogFooter,
     DialogHeader,
     DialogTitle,
     DialogTrigger,
@@ -76,13 +74,13 @@ const Page = () => {
 
     const { data: profile, isLoading } = useProfileDetails(email);
     const { data: locations = [] } = useFetchAllLocations();
+    const { mutate, isPending } = useUpdateUserLocation(profile?.id);
 
     const [open, setOpen] = useState(false);
     const [formData, setFormData] = useState({
         city: profile?.city || "",
         country: profile?.country || "",
     });
-    console.log(formData);
 
     const countries = useMemo(() => {
         const unique = new Map<string, string>();
@@ -269,16 +267,14 @@ const Page = () => {
                                                                                         <Label
                                                                                             key={city.id}
                                                                                             htmlFor={city.city}
-                                                                                            className="relative cursor-pointer border rounded-lg overflow-hidden bg-card hover:shadow-md transition-all flex flex-col peer-checked:border-[#2f1107]"
+                                                                                            className={`relative cursor-pointer border-2 rounded-lg overflow-hidden bg-card hover:shadow-md transition-all flex flex-col ${formData.city === city.city ? 'border-[#2f1107] shadow-lg' : 'border-transparent'
+                                                                                                }`}
                                                                                         >
-                                                                                            {/* The actual radio input */}
                                                                                             <RadioGroupItem
                                                                                                 value={city.city}
                                                                                                 id={city.city}
-                                                                                                className="absolute opacity-0 peer"
+                                                                                                className="sr-only"
                                                                                             />
-
-                                                                                            {/* Image */}
                                                                                             <div className="aspect-[4/3] relative overflow-hidden bg-muted">
                                                                                                 <Image
                                                                                                     width={100}
@@ -292,10 +288,12 @@ const Page = () => {
                                                                                             <div className="p-3 text-center">
                                                                                                 <h3 className="font-medium text-sm line-clamp-1">{city.city}</h3>
                                                                                             </div>
-                                                                                            
-                                                                                            <div className="absolute inset-0 border-2 border-transparent rounded-lg pointer-events-none transition-all peer-checked:border-[#2f1107]">
-                                                                                                <CheckCircle className="hidden peer-checked:block absolute top-2 right-2 text-[#2f1107]" size={20} />
-                                                                                            </div>
+
+                                                                                            {formData.city === city.city && (
+                                                                                                <div className="absolute top-2 right-2">
+                                                                                                    <CheckCircle className="text-[#2f1107] bg-white rounded-full" size={24} />
+                                                                                                </div>
+                                                                                            )}
                                                                                         </Label>
                                                                                     ))}
                                                                                 </RadioGroup>
@@ -308,8 +306,8 @@ const Page = () => {
                                                                                     >
                                                                                         Back to Countries
                                                                                     </button>
-                                                                                    <button className='px-5 py-2 rounded-full font-semibold text-sm bg-[#ffd100] text-[#2f1107] hover:bg-[#ffd100]/70 transition-colors cursor-pointer' type="button">
-                                                                                        Save Location
+                                                                                    <button onClick={() => mutate(formData)} className='px-5 py-2 rounded-full font-semibold text-sm bg-[#ffd100] text-[#2f1107] hover:bg-[#ffd100]/70 transition-colors cursor-pointer' type="button" disabled={isPending}>
+                                                                                        {isPending ? "Saving..." : "Save Location"}
                                                                                     </button>
                                                                                 </div>
                                                                             </div>
@@ -531,7 +529,7 @@ const Page = () => {
                                                             </div>
                                                             <div className="flex flex-col w-full gap-2">
                                                                 <div data-orientation="horizontal" role="none" data-slot="separator" className="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px"></div>
-                                                                <Link href="https://meetlyr.com/terms-and-conditions/">
+                                                                <Link href="https://meetlyr.com/terms-and-conditions/" target="_blank" rel="noopener noreferrer">
                                                                     <div className="flex flex-row justify-between px-4 py-1 items-center hover:bg-muted/50 transition-colors">
                                                                         <div className="flex flex-col gap-1">
                                                                             <p className="text-base md:text-lg">Terms of Service</p>
@@ -543,7 +541,7 @@ const Page = () => {
                                                                     </div>
                                                                 </Link>
                                                                 <div data-orientation="horizontal" role="none" data-slot="separator" className="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px"></div>
-                                                                <Link href="https://meetlyr.com/terms-and-conditions/">
+                                                                <Link href="https://meetlyr.com/terms-and-conditions/" target="_blank" rel="noopener noreferrer">
                                                                     <div className="flex flex-row justify-between px-4 py-1 items-center hover:bg-muted/50 transition-colors">
                                                                         <div className="flex flex-col gap-1">
                                                                             <p className="text-base md:text-lg">Privacy Policy</p>
@@ -555,7 +553,7 @@ const Page = () => {
                                                                     </div>
                                                                 </Link>
                                                                 <div data-orientation="horizontal" role="none" data-slot="separator" className="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px"></div>
-                                                                <Link href="https://meetlyr.com/community-guidelines/">
+                                                                <Link href="https://meetlyr.com/community-guidelines/" target="_blank" rel="noopener noreferrer">
                                                                     <div className="flex flex-row justify-between px-4 py-1 items-center hover:bg-muted/50 transition-colors">
                                                                         <div className="flex flex-col gap-1">
                                                                             <p className="text-base md:text-lg">Community Guidelines</p>
