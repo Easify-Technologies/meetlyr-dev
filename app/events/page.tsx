@@ -12,7 +12,9 @@ import Loader from "@/components/ui/loader";
 import { toast } from "sonner";
 import { BellIcon, UtensilsCrossed } from "lucide-react";
 import { TbUsersGroup } from "react-icons/tb";
-import { MdOutlineArrowOutward } from "react-icons/md";
+import { MdOutlineArrowOutward, MdOutlineLocationOn } from "react-icons/md";
+import { LuCalendarClock,LuBookOpenText } from "react-icons/lu";
+import { CiCoffeeCup } from "react-icons/ci";
 import { FaRegCopy } from "react-icons/fa";
 import { SiCoffeescript } from "react-icons/si";
 import Link from "next/link";
@@ -85,20 +87,24 @@ const Page = () => {
                   {/* 🥘 CARD 1 - Dinner Event */}
                   <div className="bg-white border border-gray-100 shadow-sm rounded-3xl p-5 sm:p-6 flex flex-col justify-between hover:scale-105 transition-transform cursor-pointer duration-500">
                     <div>
-                      <div className="flex items-center gap-3 mb-2">
+                      <div className="flex items-center gap-3 mb-4">
                         <span className="bg-orange-100 text-orange-600 p-2.5 rounded-full text-xl">
                           <UtensilsCrossed />
                         </span>
                         <h2 className="text-xl font-bold">Dinner</h2>
                       </div>
-
-                      <p className="text-gray-700 font-semibold text-base">
-                        {formattedDate}
-                      </p>
-                      <p className="text-gray-700 font-semibold text-base">
-                        {item?.event?.city}, {item?.event?.country}
-                      </p>
-                      <p className="text-gray-700 font-semibold text-base">In English</p>
+                      <div className="flex items-center gap-1">
+                        <LuCalendarClock className="text-[#2f1107]" />
+                        <span className="text-gray-700 font-semibold text-base">{formattedDate}</span>
+                      </div>
+                      <div className="flex items-center gap-1 mt-1">
+                        <MdOutlineLocationOn className="text-[#2f1107]" />
+                        <span className="text-gray-700 font-semibold text-base">{item?.event?.city}, {item?.event?.country}</span>
+                      </div>
+                      <div className="flex items-center gap-1 mt-1">
+                        <LuBookOpenText className="text-[#2f1107]" />
+                        <span className="text-gray-700 font-semibold text-base">In English</span>
+                      </div>
                     </div>
                   </div>
 
@@ -113,10 +119,13 @@ const Page = () => {
                             </span>
                             <h2 className="text-xl font-bold">Café</h2>
                           </div>
-                          <h3 className="text-gray-900 text-2xl font-semibold">{cafe.name}</h3>
+                          <div className="flex items-center">
+                            <h3 className="text-gray-900 text-2xl font-semibold">{cafe.name}</h3>
+                          </div>
                           <Drawer>
-                            <DrawerTrigger className="underline text-neutral-800 font-semibold text-sm mt-1.5 cursor-pointer hover:text-[#2f1107] transition-colors duration-300">
-                              {cafe.address}
+                            <DrawerTrigger className="bg-[#ffd100] text-[#2f1107] px-3 py-2 rounded-md flex items-center gap-1 font-semibold text-sm mt-2 cursor-pointer transition-colors duration-300 hover:bg-[#2f1107] hover:text-[#ffd100]">
+                              <MdOutlineLocationOn size={18} />
+                              <span>{cafe.address}</span>
                             </DrawerTrigger>
                             <DrawerContent>
                               <DrawerHeader>
@@ -201,7 +210,7 @@ const Page = () => {
                   <h2 className="text-xl font-bold">Groups</h2>
                 </div>
                 <div>
-                  
+
                 </div>
               </div>
             </div>
