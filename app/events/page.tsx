@@ -3,20 +3,38 @@
 import React from "react";
 import { useSession } from "next-auth/react";
 import { useProfileDetails } from "../queries/profile";
-import { useMatchedGroupEvents } from "../queries/matched-group-events";
+import { useEventParticipant } from "../queries/participants";
+import { parseISO, format } from "date-fns";
 
 import Navbar from "@/components/ui/Navbar";
 import Loader from "@/components/ui/loader";
-import { BellIcon, UtensilsCrossed, Users2 } from "lucide-react";
+import { toast } from "sonner";
+import { BellIcon, UtensilsCrossed } from "lucide-react";
+import { MdOutlineArrowOutward } from "react-icons/md";
+import { FaRegCopy } from "react-icons/fa";
+import { SiCoffeescript } from "react-icons/si";
+import Link from "next/link";
+
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
+import Image from "next/image";
 
 const Page = () => {
   const { data: session } = useSession();
-  const userId = session?.user?.email ?? "";
+  const userEmail = session?.user?.email ?? "";
 
-  const { data: profile, isLoading } = useProfileDetails(userId);
-  const { data: groups, isPending } = useMatchedGroupEvents();
+  const { data: profile, isLoading } = useProfileDetails(userEmail);
+  const { data: participant } = useEventParticipant(profile?.id);
 
-  if (isLoading || isPending) return <Loader />;
+  if (isLoading) return <Loader />;
 
   return (
     <>
@@ -50,75 +68,159 @@ const Page = () => {
           </div>
         </div>
 
-        {/* Event Group Cards */}
-        <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-6xl">
-          {groups && groups.length > 0 ? (
-            groups.map((event) => (
-              <div
-                key={event.eventId}
-                className="bg-white rounded-3xl shadow-md border border-amber-100 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
-              >
-                {/* Café Image Placeholder */}
-                <div className="h-40 w-full bg-gradient-to-r from-amber-200 to-amber-100 flex items-center justify-center text-amber-700 text-lg font-semibold">
-                  ☕ {event.cafe?.name ?? "Café TBD"}
-                </div>
+        <div className="relative z-10 w-full max-w-6xl mx-auto px-4 pb-10">
+          <div className="grid gap-6 md:grid-cols-3">
+            {/* CARD 1 - Dinner */}
+            {participant?.map((item: any) => {
+              const joinedAt = parseISO(item.joinedAt);
+              const formattedDate = format(joinedAt, "EEEE, MMMM d 'at' h:mm a");
 
-                <div className="p-5 flex flex-col justify-between h-full">
-                  <div>
-                    {/* Event Details */}
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="bg-amber-50 p-3 rounded-full">
-                        <UtensilsCrossed className="w-6 h-6 text-amber-600" />
+              const cafe = item?.event?.cafe;
+
+              return (
+                <div key={item.id} className="space-y-5"> {/* spacing between the two boxes */}
+                  {/* 🥘 CARD 1 - Dinner Event */}
+                  <div className="bg-white border border-gray-100 shadow-sm rounded-3xl p-5 sm:p-6 flex flex-col justify-between hover:scale-105 transition-transform cursor-pointer duration-500">
+                    <div>
+                      <div className="flex items-center gap-3 mb-2">
+                        <span className="bg-orange-100 text-orange-600 p-2.5 rounded-full text-xl">
+                          <UtensilsCrossed />
+                        </span>
+                        <h2 className="text-xl font-bold">Dinner</h2>
                       </div>
-                      <div>
-                        <h3 className="text-lg font-semibold">
-                          {event.city ?? "Unknown City"}
-                        </h3>
-                        <p className="text-sm text-neutral-500">
-                          {new Date(event.date).toLocaleDateString("en-IN", {
-                            weekday: "long",
-                            month: "long",
-                            day: "numeric",
-                          })}
-                        </p>
-                      </div>
-                    </div>
 
-                    <hr className="border-neutral-200 my-3" />
-
-                    {/* Groups */}
-                    <div className="text-neutral-700 text-sm space-y-3">
-                      {event.groups.map((group, idx: number) => (
-                        <div
-                          key={idx}
-                          className="bg-amber-50 rounded-xl p-3 hover:bg-amber-100 transition-colors"
-                        >
-                          <div className="flex items-center gap-2 mb-1 text-amber-700 font-medium">
-                            <Users2 className="w-4 h-4" />
-                            <span>Group {idx + 1}</span>
-                          </div>
-                          <ul className="list-disc list-inside text-neutral-600 text-sm">
-                            {group.map((user) => (
-                              <li key={user.id}>
-                                {user.name}{" "}
-                                <span className="text-neutral-400 text-xs">
-                                  ({user.email})
-                                </span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      ))}
+                      <p className="text-gray-700 font-semibold text-base">
+                        {formattedDate}
+                      </p>
+                      <p className="text-gray-700 font-semibold text-base">
+                        {item?.event?.city}, {item?.event?.country}
+                      </p>
+                      <p className="text-gray-700 font-semibold text-base">In English</p>
                     </div>
                   </div>
+
+                  {/* ☕ CARD 2 - Café Info */}
+                  {cafe && (
+                    <div className="bg-white border border-gray-100 shadow-sm rounded-3xl p-5 sm:p-6 hover:scale-[1.02] transition-transform cursor-pointer duration-500">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
+
+                        {/* 🏠 Café Info */}
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-3">
+                            <span className="bg-orange-100 text-orange-600 p-2.5 rounded-full text-xl">
+                              <SiCoffeescript />
+                            </span>
+                            <h2 className="text-xl font-bold">Café</h2>
+                          </div>
+
+                          <h3 className="text-gray-900 text-2xl font-semibold">{cafe.name}</h3>
+                          <Drawer>
+                            <DrawerTrigger className="underline text-neutral-800 font-semibold text-sm mt-1.5 cursor-pointer hover:text-[#2f1107] transition-colors duration-300">
+                              {cafe.address}
+                            </DrawerTrigger>
+                            <DrawerContent>
+                              <DrawerHeader>
+                                <DrawerTitle className="text-[#2f1107] text-3xl font-semibold mb-2">
+                                  {cafe.name}
+                                </DrawerTitle>
+                                <DrawerDescription className="text-neutral-700 text-sm font-semibold">
+                                  {cafe.address}
+                                </DrawerDescription>
+                              </DrawerHeader>
+
+                              <DrawerFooter>
+                                {/* Apple Maps */}
+                                <Link
+                                  href={`https://maps.apple.com/?q=${encodeURIComponent(cafe.address)}`}
+                                  target="_blank"
+                                  className="flex bg-white shadow-md w-full items-center gap-2 px-2.5 py-3 mb-2 cursor-pointer rounded-xl border border-input"
+                                >
+                                  <MdOutlineArrowOutward />
+                                  <span className="text-base font-semibold text-[#2f1107]">
+                                    Open in Apple Maps
+                                  </span>
+                                </Link>
+
+                                {/* Google Maps */}
+                                <Link
+                                  target="_blank"
+                                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(cafe.address)}`}
+                                  className="flex bg-white shadow-md w-full items-center gap-2 px-2.5 py-3 mb-2 cursor-pointer rounded-xl border border-input"
+                                >
+                                  <MdOutlineArrowOutward />
+                                  <span className="text-base font-semibold text-[#2f1107]">
+                                    Open in Google Maps
+                                  </span>
+                                </Link>
+
+                                {/* Copy */}
+                                <button
+                                  onClick={() => {
+                                    navigator.clipboard.writeText(cafe.address);
+                                    toast.success("The café address has been copied to your clipboard.");
+                                  }}
+                                  type="button"
+                                  className="flex bg-white shadow-md w-full items-center gap-2 px-2.5 py-3 cursor-pointer rounded-xl border border-input"
+                                >
+                                  <FaRegCopy />
+                                  <span className="text-base font-semibold text-[#2f1107]">
+                                    Copy Address
+                                  </span>
+                                </button>
+
+                                <DrawerClose className="flex bg-[#ffd100] text-[#2f1107] shadow-md w-full text-center justify-center text-base font-semibold mt-3 items-center gap-2.5 px-2.5 py-3 mb-2 cursor-pointer rounded-xl hover:bg-[#2f1107] hover:text-[#ffd100] duration-500 transition-colors">
+                                  Cancel
+                                </DrawerClose>
+                              </DrawerFooter>
+                            </DrawerContent>
+                          </Drawer>
+                        </div>
+
+                        {cafe.imageUrl && (
+                          <div className="flex-shrink-0 w-full sm:w-52 h-40 sm:h-36 rounded-2xl overflow-hidden shadow-md">
+                            <Image
+                              src={cafe.imageUrl}
+                              alt={cafe.name}
+                              width={200}
+                              height={150}
+                              className="object-cover w-full h-full rounded-2xl"
+                              quality={100}
+                              priority
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+            {/* CARD 3 - Group */}
+            <div className="bg-white border border-gray-100 shadow-sm rounded-3xl p-5 sm:p-6 hover:shadow-md transition-all">
+              <h2 className="text-xl font-semibold mb-3">Group</h2>
+
+              <div className="text-[15px] text-gray-800 space-y-3">
+                <div>
+                  <p className="font-medium text-gray-900">Participants</p>
+                  <div className="flex gap-1 mt-1 text-xl">😊😊😊😊😊</div>
+                </div>
+
+                <div>
+                  <p className="font-medium text-gray-900">Industries</p>
+                  <ul className="list-none mt-1 space-y-1">
+                    <li>🤖 Technology</li>
+                    <li>🎭 Arts</li>
+                    <li>💸 Financial Services</li>
+                  </ul>
+                </div>
+
+                <div>
+                  <p className="font-medium text-gray-900">Nationalities</p>
+                  <p className="mt-1">🇨🇴 Colombia</p>
                 </div>
               </div>
-            ))
-          ) : (
-            <p className="text-center font-semibold text-xl text-neutral-500 mt-10 col-span-full">
-              No matched groups yet. Please check back soon!
-            </p>
-          )}
+            </div>
+          </div>
         </div>
       </section>
     </>
