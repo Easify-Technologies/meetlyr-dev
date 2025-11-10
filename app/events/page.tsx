@@ -4,7 +4,6 @@ import React from "react";
 import { useSession } from "next-auth/react";
 import { useProfileDetails } from "../queries/profile";
 import { useEventParticipant } from "../queries/participants";
-import { useMatchedGroupUsers } from "../queries/groups";
 import { parseISO, format } from "date-fns";
 
 import Navbar from "@/components/ui/Navbar";
@@ -13,8 +12,8 @@ import { toast } from "sonner";
 import { BellIcon, UtensilsCrossed } from "lucide-react";
 import { TbUsersGroup } from "react-icons/tb";
 import { MdOutlineArrowOutward, MdOutlineLocationOn } from "react-icons/md";
-import { LuCalendarClock,LuBookOpenText } from "react-icons/lu";
-import { CiCoffeeCup } from "react-icons/ci";
+import { LuCalendarClock, LuBookOpenText } from "react-icons/lu";
+import { BsFillEmojiTearFill } from "react-icons/bs";
 import { FaRegCopy } from "react-icons/fa";
 import { SiCoffeescript } from "react-icons/si";
 import Link from "next/link";
@@ -36,10 +35,9 @@ const Page = () => {
   const userEmail = session?.user?.email ?? "";
 
   const { data: profile, isLoading } = useProfileDetails(userEmail);
-  const { data: participant } = useEventParticipant(profile?.id);
-  const { data: groups } = useMatchedGroupUsers(profile?.id);
+  const { data: participant, isPending } = useEventParticipant(profile?.id);
 
-  if (isLoading) return <Loader />;
+  if (isLoading || isPending) return <Loader />;
 
   return (
     <>
@@ -73,149 +71,167 @@ const Page = () => {
           </div>
         </div>
 
-        <div className="relative z-10 w-full max-w-6xl mx-auto px-4 pb-10">
-          <div>
-            {/* CARD 1 - Dinner */}
-            {participant?.map((item: any) => {
-              const joinedAt = parseISO(item.joinedAt);
-              const formattedDate = format(joinedAt, "EEEE, MMMM d 'at' h:mm a");
+        {participant?.length > 0 ? (
+          <div className="relative z-10 w-full max-w-6xl mx-auto px-4 pb-10">
+            <div>
+              {/* CARD 1 - Dinner */}
+              {participant?.map((item: any) => {
+                const joinedAt = parseISO(item.joinedAt);
+                const formattedDate = format(joinedAt, "EEEE, MMMM d 'at' h:mm a");
 
-              const cafe = item?.event?.cafe;
+                const cafe = item?.event?.cafe;
 
-              return (
-                <div key={item.id} className="space-y-5"> {/* spacing between the two boxes */}
-                  {/* 🥘 CARD 1 - Dinner Event */}
-                  <div className="bg-white border border-gray-100 shadow-sm rounded-3xl p-5 sm:p-6 flex flex-col justify-between hover:scale-105 transition-transform cursor-pointer duration-500">
-                    <div>
-                      <div className="flex items-center gap-3 mb-4">
-                        <span className="bg-orange-100 text-orange-600 p-2.5 rounded-full text-xl">
-                          <UtensilsCrossed />
-                        </span>
-                        <h2 className="text-xl font-bold">Dinner</h2>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <LuCalendarClock className="text-[#2f1107]" />
-                        <span className="text-gray-700 font-semibold text-base">{formattedDate}</span>
-                      </div>
-                      <div className="flex items-center gap-1 mt-1">
-                        <MdOutlineLocationOn className="text-[#2f1107]" />
-                        <span className="text-gray-700 font-semibold text-base">{item?.event?.city}, {item?.event?.country}</span>
-                      </div>
-                      <div className="flex items-center gap-1 mt-1">
-                        <LuBookOpenText className="text-[#2f1107]" />
-                        <span className="text-gray-700 font-semibold text-base">In English</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* ☕ CARD 2 - Café Info */}
-                  {cafe && (
-                    <div className="bg-white border border-gray-100 shadow-sm rounded-3xl p-5 sm:p-6 hover:scale-[1.02] transition-transform cursor-pointer duration-500">
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-3">
-                            <span className="bg-orange-100 text-orange-600 p-2.5 rounded-full text-xl">
-                              <SiCoffeescript />
-                            </span>
-                            <h2 className="text-xl font-bold">Café</h2>
-                          </div>
-                          <div className="flex items-center">
-                            <h3 className="text-gray-900 text-2xl font-semibold">{cafe.name}</h3>
-                          </div>
-                          <Drawer>
-                            <DrawerTrigger className="bg-[#ffd100] text-[#2f1107] px-3 py-2 rounded-md flex items-center gap-1 font-semibold text-sm mt-2 cursor-pointer transition-colors duration-300 hover:bg-[#2f1107] hover:text-[#ffd100]">
-                              <MdOutlineLocationOn size={18} />
-                              <span>{cafe.address}</span>
-                            </DrawerTrigger>
-                            <DrawerContent>
-                              <DrawerHeader>
-                                <DrawerTitle className="text-[#2f1107] text-3xl font-semibold mb-2">
-                                  {cafe.name}
-                                </DrawerTitle>
-                                <DrawerDescription className="text-neutral-700 text-sm font-semibold">
-                                  {cafe.address}
-                                </DrawerDescription>
-                              </DrawerHeader>
-                              <DrawerFooter>
-                                {/* Apple Maps */}
-                                <Link
-                                  href={`https://maps.apple.com/?q=${encodeURIComponent(cafe.address)}`}
-                                  target="_blank"
-                                  className="flex bg-white shadow-md w-full items-center gap-2 px-2.5 py-3 mb-2 cursor-pointer rounded-xl border border-input"
-                                >
-                                  <MdOutlineArrowOutward />
-                                  <span className="text-base font-semibold text-[#2f1107]">
-                                    Open in Apple Maps
-                                  </span>
-                                </Link>
-                                {/* Google Maps */}
-                                <Link
-                                  target="_blank"
-                                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(cafe.address)}`}
-                                  className="flex bg-white shadow-md w-full items-center gap-2 px-2.5 py-3 mb-2 cursor-pointer rounded-xl border border-input"
-                                >
-                                  <MdOutlineArrowOutward />
-                                  <span className="text-base font-semibold text-[#2f1107]">
-                                    Open in Google Maps
-                                  </span>
-                                </Link>
-                                <button
-                                  onClick={() => {
-                                    navigator.clipboard.writeText(cafe.address);
-                                    toast.success("The café address has been copied to your clipboard.");
-                                  }}
-                                  type="button"
-                                  className="flex bg-white shadow-md w-full items-center gap-2 px-2.5 py-3 cursor-pointer rounded-xl border border-input"
-                                >
-                                  <FaRegCopy />
-                                  <span className="text-base font-semibold text-[#2f1107]">
-                                    Copy Address
-                                  </span>
-                                </button>
-
-                                <DrawerClose className="flex bg-[#ffd100] text-[#2f1107] shadow-md w-full text-center justify-center text-base font-semibold mt-3 items-center gap-2.5 px-2.5 py-3 mb-2 cursor-pointer rounded-xl hover:bg-[#2f1107] hover:text-[#ffd100] duration-500 transition-colors">
-                                  Cancel
-                                </DrawerClose>
-                              </DrawerFooter>
-                            </DrawerContent>
-                          </Drawer>
+                return (
+                  <div key={item.id} className="space-y-5"> {/* spacing between the two boxes */}
+                    {/* 🥘 CARD 1 - Dinner Event */}
+                    <div className="bg-white border border-gray-100 shadow-sm rounded-3xl p-5 sm:p-6 flex flex-col justify-between hover:scale-105 transition-transform cursor-pointer duration-500">
+                      <div>
+                        <div className="flex items-center gap-3 mb-4">
+                          <span className="bg-orange-100 text-orange-600 p-2.5 rounded-full text-xl">
+                            <UtensilsCrossed />
+                          </span>
+                          <h2 className="text-xl font-bold">Dinner</h2>
                         </div>
-
-                        {cafe.imageUrl && (
-                          <div className="flex-shrink-0 w-full sm:w-52 h-40 sm:h-36 rounded-2xl overflow-hidden shadow-md">
-                            <Image
-                              src={cafe.imageUrl}
-                              alt={cafe.name}
-                              width={200}
-                              height={150}
-                              className="object-cover w-full h-full rounded-2xl"
-                              quality={100}
-                              priority
-                            />
-                          </div>
-                        )}
+                        <div className="flex items-center gap-1">
+                          <LuCalendarClock className="text-[#2f1107]" />
+                          <span className="text-gray-700 font-semibold text-base">{formattedDate}</span>
+                        </div>
+                        <div className="flex items-center gap-1 mt-1">
+                          <MdOutlineLocationOn className="text-[#2f1107]" />
+                          <span className="text-gray-700 font-semibold text-base">{item?.event?.city}, {item?.event?.country}</span>
+                        </div>
+                        <div className="flex items-center gap-1 mt-1">
+                          <LuBookOpenText className="text-[#2f1107]" />
+                          <span className="text-gray-700 font-semibold text-base">In English</span>
+                        </div>
                       </div>
                     </div>
-                  )}
-                </div>
-              );
-            })}
-            {/* CARD 3 - Group */}
-            <div className="bg-white border border-gray-100 mt-5 shadow-sm rounded-3xl p-5 sm:p-6 hover:scale-[1.02] transition-transform cursor-pointer duration-500">
-              <div>
-                <div className="flex items-center gap-3 mb-2">
-                  <span className="bg-orange-100 text-orange-600 p-2.5 rounded-full text-xl">
-                    <TbUsersGroup />
-                  </span>
-                  <h2 className="text-xl font-bold">Groups</h2>
-                </div>
-                <div>
 
+                    {/* ☕ CARD 2 - Café Info */}
+                    {cafe && (
+                      <div className="bg-white border border-gray-100 shadow-sm rounded-3xl p-5 sm:p-6 hover:scale-[1.02] transition-transform cursor-pointer duration-500">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-3">
+                              <span className="bg-orange-100 text-orange-600 p-2.5 rounded-full text-xl">
+                                <SiCoffeescript />
+                              </span>
+                              <h2 className="text-xl font-bold">Café</h2>
+                            </div>
+                            <div className="flex items-center">
+                              <h3 className="text-gray-900 text-2xl font-semibold">{cafe.name}</h3>
+                            </div>
+                            <Drawer>
+                              <DrawerTrigger className="bg-[#ffd100] text-[#2f1107] px-3 py-2 rounded-md flex items-center gap-1 font-semibold text-sm mt-2 cursor-pointer transition-colors duration-300 hover:bg-[#2f1107] hover:text-[#ffd100]">
+                                <MdOutlineLocationOn size={18} />
+                                <span>{cafe.address}</span>
+                              </DrawerTrigger>
+                              <DrawerContent>
+                                <DrawerHeader>
+                                  <DrawerTitle className="text-[#2f1107] text-3xl font-semibold mb-2">
+                                    {cafe.name}
+                                  </DrawerTitle>
+                                  <DrawerDescription className="text-neutral-700 text-sm font-semibold">
+                                    {cafe.address}
+                                  </DrawerDescription>
+                                </DrawerHeader>
+                                <DrawerFooter>
+                                  {/* Apple Maps */}
+                                  <Link
+                                    href={`https://maps.apple.com/?q=${encodeURIComponent(cafe.address)}`}
+                                    target="_blank"
+                                    className="flex bg-white shadow-md w-full items-center gap-2 px-2.5 py-3 mb-2 cursor-pointer rounded-xl border border-input"
+                                  >
+                                    <MdOutlineArrowOutward />
+                                    <span className="text-base font-semibold text-[#2f1107]">
+                                      Open in Apple Maps
+                                    </span>
+                                  </Link>
+                                  {/* Google Maps */}
+                                  <Link
+                                    target="_blank"
+                                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(cafe.address)}`}
+                                    className="flex bg-white shadow-md w-full items-center gap-2 px-2.5 py-3 mb-2 cursor-pointer rounded-xl border border-input"
+                                  >
+                                    <MdOutlineArrowOutward />
+                                    <span className="text-base font-semibold text-[#2f1107]">
+                                      Open in Google Maps
+                                    </span>
+                                  </Link>
+                                  <button
+                                    onClick={() => {
+                                      navigator.clipboard.writeText(cafe.address);
+                                      toast.success("The café address has been copied to your clipboard.");
+                                    }}
+                                    type="button"
+                                    className="flex bg-white shadow-md w-full items-center gap-2 px-2.5 py-3 cursor-pointer rounded-xl border border-input"
+                                  >
+                                    <FaRegCopy />
+                                    <span className="text-base font-semibold text-[#2f1107]">
+                                      Copy Address
+                                    </span>
+                                  </button>
+
+                                  <DrawerClose className="flex bg-[#ffd100] text-[#2f1107] shadow-md w-full text-center justify-center text-base font-semibold mt-3 items-center gap-2.5 px-2.5 py-3 mb-2 cursor-pointer rounded-xl hover:bg-[#2f1107] hover:text-[#ffd100] duration-500 transition-colors">
+                                    Cancel
+                                  </DrawerClose>
+                                </DrawerFooter>
+                              </DrawerContent>
+                            </Drawer>
+                          </div>
+
+                          {cafe.imageUrl && (
+                            <div className="flex-shrink-0 w-full sm:w-52 h-40 sm:h-36 rounded-2xl overflow-hidden shadow-md">
+                              <Image
+                                src={cafe.imageUrl}
+                                alt={cafe.name}
+                                width={200}
+                                height={150}
+                                className="object-cover w-full h-full rounded-2xl"
+                                quality={100}
+                                priority
+                              />
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+              {/* CARD 3 - Group */}
+              <div className="bg-white border border-gray-100 mt-5 shadow-sm rounded-3xl p-5 sm:p-6 hover:scale-[1.02] transition-transform cursor-pointer duration-500">
+                <div>
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className="bg-orange-100 text-orange-600 p-2.5 rounded-full text-xl">
+                      <TbUsersGroup />
+                    </span>
+                    <h2 className="text-xl font-bold">Groups</h2>
+                  </div>
+                  <div>
+
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
+        ) : (
+          <div className="relative z-10 w-full max-w-md mx-auto">
+            <div className="bg-white shadow-sm border border-gray-100 rounded-3xl px-8 py-10 flex flex-col items-center justify-center text-center">
+              <div className="text-5xl mb-4 animate-bounce">
+                <BsFillEmojiTearFill className="text-[#fbbf24]" />
+              </div>
+              <h3 className="text-[#2f1107] font-bold text-2xl mb-2">No Events Found</h3>
+              <p className="text-neutral-600 text-sm font-medium">
+                Looks like there aren’t any upcoming events near you yet.
+              </p>
+              <p className="text-neutral-600 text-sm font-medium">
+                Check back soon or explore other cities 🌍
+              </p>
+            </div>
+          </div>
+        )}
+
       </section>
     </>
   );

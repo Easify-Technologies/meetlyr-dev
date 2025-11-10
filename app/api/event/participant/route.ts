@@ -6,11 +6,30 @@ export async function POST(req: NextRequest) {
     const { userId } = await req.json();
 
     if (!userId) {
-      return NextResponse.json({ error: "Missing userId" }, { status: 400 });
+      return NextResponse.json({ error: "Missing userId" }, { status: 500 });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { city: true, country: true },
+    });
+
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 500 });
     }
 
     const participant = await prisma.eventParticipant.findMany({
-      where: { userId },
+      where: {
+        userId,
+        event: {
+          cafe: {
+            location: {
+              city: { equals: user.city, mode: "insensitive" },
+              country: { equals: user.country, mode: "insensitive" },
+            },
+          },
+        },
+      },
       include: {
         event: {
           include: {
@@ -33,10 +52,14 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    return NextResponse.json(
-      { message: "Events Found", participant },
-      { status: 200 }
-    );
+    if (participant) {
+      return NextResponse.json(
+        { message: "Events Found", participant },
+        { status: 200 }
+      );
+    } else {
+      return NextResponse.json({ error: "No events found" }, { status: 500 });
+    }
   } catch (error) {
     console.error("Event fetch error:", error);
     return NextResponse.json(
