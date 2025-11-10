@@ -4,12 +4,14 @@ import React from "react";
 import { useSession } from "next-auth/react";
 import { useProfileDetails } from "../queries/profile";
 import { useEventParticipant } from "../queries/participants";
+import { useMatchedGroupUsers } from "../queries/groups";
 import { parseISO, format } from "date-fns";
 
 import Navbar from "@/components/ui/Navbar";
 import Loader from "@/components/ui/loader";
 import { toast } from "sonner";
 import { BellIcon, UtensilsCrossed } from "lucide-react";
+import { TbUsersGroup } from "react-icons/tb";
 import { MdOutlineArrowOutward } from "react-icons/md";
 import { FaRegCopy } from "react-icons/fa";
 import { SiCoffeescript } from "react-icons/si";
@@ -33,6 +35,7 @@ const Page = () => {
 
   const { data: profile, isLoading } = useProfileDetails(userEmail);
   const { data: participant } = useEventParticipant(profile?.id);
+  const { data: groups } = useMatchedGroupUsers(profile?.id);
 
   if (isLoading) return <Loader />;
 
@@ -69,7 +72,7 @@ const Page = () => {
         </div>
 
         <div className="relative z-10 w-full max-w-6xl mx-auto px-4 pb-10">
-          <div className="grid gap-6 md:grid-cols-3">
+          <div>
             {/* CARD 1 - Dinner */}
             {participant?.map((item: any) => {
               const joinedAt = parseISO(item.joinedAt);
@@ -103,8 +106,6 @@ const Page = () => {
                   {cafe && (
                     <div className="bg-white border border-gray-100 shadow-sm rounded-3xl p-5 sm:p-6 hover:scale-[1.02] transition-transform cursor-pointer duration-500">
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
-
-                        {/* 🏠 Café Info */}
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-3">
                             <span className="bg-orange-100 text-orange-600 p-2.5 rounded-full text-xl">
@@ -112,7 +113,6 @@ const Page = () => {
                             </span>
                             <h2 className="text-xl font-bold">Café</h2>
                           </div>
-
                           <h3 className="text-gray-900 text-2xl font-semibold">{cafe.name}</h3>
                           <Drawer>
                             <DrawerTrigger className="underline text-neutral-800 font-semibold text-sm mt-1.5 cursor-pointer hover:text-[#2f1107] transition-colors duration-300">
@@ -127,7 +127,6 @@ const Page = () => {
                                   {cafe.address}
                                 </DrawerDescription>
                               </DrawerHeader>
-
                               <DrawerFooter>
                                 {/* Apple Maps */}
                                 <Link
@@ -140,7 +139,6 @@ const Page = () => {
                                     Open in Apple Maps
                                   </span>
                                 </Link>
-
                                 {/* Google Maps */}
                                 <Link
                                   target="_blank"
@@ -152,8 +150,6 @@ const Page = () => {
                                     Open in Google Maps
                                   </span>
                                 </Link>
-
-                                {/* Copy */}
                                 <button
                                   onClick={() => {
                                     navigator.clipboard.writeText(cafe.address);
@@ -196,27 +192,16 @@ const Page = () => {
               );
             })}
             {/* CARD 3 - Group */}
-            <div className="bg-white border border-gray-100 shadow-sm rounded-3xl p-5 sm:p-6 hover:shadow-md transition-all">
-              <h2 className="text-xl font-semibold mb-3">Group</h2>
-
-              <div className="text-[15px] text-gray-800 space-y-3">
-                <div>
-                  <p className="font-medium text-gray-900">Participants</p>
-                  <div className="flex gap-1 mt-1 text-xl">😊😊😊😊😊</div>
+            <div className="bg-white border border-gray-100 mt-5 shadow-sm rounded-3xl p-5 sm:p-6 hover:scale-[1.02] transition-transform cursor-pointer duration-500">
+              <div>
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="bg-orange-100 text-orange-600 p-2.5 rounded-full text-xl">
+                    <TbUsersGroup />
+                  </span>
+                  <h2 className="text-xl font-bold">Groups</h2>
                 </div>
-
                 <div>
-                  <p className="font-medium text-gray-900">Industries</p>
-                  <ul className="list-none mt-1 space-y-1">
-                    <li>🤖 Technology</li>
-                    <li>🎭 Arts</li>
-                    <li>💸 Financial Services</li>
-                  </ul>
-                </div>
-
-                <div>
-                  <p className="font-medium text-gray-900">Nationalities</p>
-                  <p className="mt-1">🇨🇴 Colombia</p>
+                  
                 </div>
               </div>
             </div>

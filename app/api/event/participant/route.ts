@@ -13,29 +13,35 @@ export async function POST(req: NextRequest) {
       where: { userId },
       include: {
         event: {
-            include: {
-                cafe: {
-                    select: {
-                        id: true,
-                        name: true,
-                        location: {
-                            select: {
-                                city: true,
-                                country: true
-                            }
-                        },
-                        address: true,
-                        imageUrl: true
-                    }
-                }
-            }
-        }
+          include: {
+            cafe: {
+              select: {
+                id: true,
+                name: true,
+                location: {
+                  select: {
+                    city: true,
+                    country: true,
+                  },
+                },
+                address: true,
+                imageUrl: true,
+              },
+            },
+          },
+        },
       },
     });
 
-    return NextResponse.json({ message: "Events Found", participant }, { status: 200 });
+    return NextResponse.json(
+      { message: "Events Found", participant },
+      { status: 200 }
+    );
   } catch (error) {
     console.error("Event fetch error:", error);
-    return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Something went wrong" },
+      { status: 500 }
+    );
   }
 }
