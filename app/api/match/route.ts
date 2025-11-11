@@ -1,17 +1,20 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
+// Simple string similarity (1 if equal ignoring case)
 function similarity(a: string, b: string): number {
   if (!a || !b) return 0;
   return a.toLowerCase() === b.toLowerCase() ? 1 : 0;
 }
 
+// Array similarity (based on overlapping elements)
 function arraySimilarity(a: string[], b: string[]): number {
   if (!a.length || !b.length) return 0;
   const overlap = a.filter((item) => b.includes(item)).length;
   return overlap / Math.max(a.length, b.length);
 }
 
+// Compute match score between two users
 function computeScore(u: any, c: any): number {
   let score = 0;
   score += 1 * similarity(u.connectionStyles, c.connectionStyles);
@@ -34,6 +37,7 @@ function formGroups(users: any[], groupSize = 3) {
   for (let i = 0; i < users.length; i++) {
     if (used.has(users[i].id)) continue;
     const seed = users[i];
+
     const candidates = users
       .filter((u) => u.id !== seed.id && !used.has(u.id))
       .map((u) => ({
@@ -46,15 +50,18 @@ function formGroups(users: any[], groupSize = 3) {
     const group = [seed, ...candidates];
     group.forEach((u) => used.add(u.id));
 
-    groups.push({
-      members: group,
-      avgScore:
-        group.reduce((sum, u, _, arr) => {
-          const others = arr.filter((x) => x.id !== u.id);
-          const total = others.reduce((s, o) => s + computeScore(u, o), 0);
-          return sum + total / others.length;
-        }, 0) / group.length,
-    });
+    // ✅ Fix: handle 1-member group safely
+    const avgScore =
+      group.length > 1
+        ? group.reduce((sum, u, _, arr) => {
+            const others = arr.filter((x) => x.id !== u.id);
+            if (!others.length) return sum; // avoid NaN
+            const total = others.reduce((s, o) => s + computeScore(u, o), 0);
+            return sum + total / others.length;
+          }, 0) / group.length
+        : 0;
+
+    groups.push({ members: group, avgScore });
   }
 
   return groups.sort((a, b) => b.avgScore - a.avgScore);
@@ -64,12 +71,17 @@ export async function POST(req: NextRequest) {
   try {
     const { userId, mode = "single" } = await req.json();
 
-    // Get base user (for single mode)
+    if (!userId && mode === "single") {
+      return NextResponse.json(
+        { error: "Missing userId for single mode" },
+        { status: 400 }
+      );
+    }
+
     const user = userId
       ? await prisma.user.findUnique({ where: { id: userId } })
       : null;
 
-    // Fetch relevant users
     const users = await prisma.user.findMany({
       where: {
         ...(user
@@ -82,13 +94,14 @@ export async function POST(req: NextRequest) {
     if (!users.length)
       return NextResponse.json({ message: "No users found" }, { status: 404 });
 
-    // ---------- 1:1 MATCH ----------
+    // 1️⃣ One-on-one matching
     if (mode === "single" && user) {
       const scored = users.map((c) => ({
         user: c,
         score: computeScore(user, c),
       }));
       scored.sort((a, b) => b.score - a.score);
+
       return NextResponse.json({
         success: true,
         type: "single",
@@ -96,7 +109,7 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // ---------- GROUP MATCH ----------
+    // 2️⃣ Group matching
     if (mode === "group") {
       const groups = formGroups(users);
       return NextResponse.json({
@@ -116,7 +129,7 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json(
-      { error: "Invalid mode or missing userId" },
+      { error: "Invalid mode or missing parameters" },
       { status: 400 }
     );
   } catch (err) {

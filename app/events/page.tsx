@@ -4,6 +4,7 @@ import React from "react";
 import { useSession } from "next-auth/react";
 import { useProfileDetails } from "../queries/profile";
 import { useEventParticipant } from "../queries/participants";
+import { useMatchedGroupUsers } from "../queries/groups";
 import { parseISO, format } from "date-fns";
 
 import Navbar from "@/components/ui/Navbar";
@@ -36,6 +37,8 @@ const Page = () => {
 
   const { data: profile, isLoading } = useProfileDetails(userEmail);
   const { data: participant, isPending } = useEventParticipant(profile?.id);
+  const { data: matches } = useMatchedGroupUsers(profile?.id);
+  console.log(matches);
 
   if (isLoading || isPending) return <Loader />;
 
@@ -47,7 +50,6 @@ const Page = () => {
         {/* Decorative Backgrounds */}
         <div className="absolute top-0 left-0 w-40 h-40 bg-amber-100 rounded-full blur-3xl opacity-40"></div>
         <div className="absolute bottom-0 right-0 w-56 h-56 bg-amber-200 rounded-full blur-3xl opacity-40"></div>
-
         {/* Header */}
         <div className="relative z-10 w-full max-w-6xl mx-auto mb-10">
           <div className="flex justify-between items-start flex-wrap gap-4">
@@ -70,7 +72,6 @@ const Page = () => {
             </button>
           </div>
         </div>
-
         {participant?.length > 0 ? (
           <div className="relative z-10 w-full max-w-6xl mx-auto px-4 pb-10">
             <div>
@@ -106,7 +107,6 @@ const Page = () => {
                         </div>
                       </div>
                     </div>
-
                     {/* ☕ CARD 2 - Café Info */}
                     {cafe && (
                       <div className="bg-white border border-gray-100 shadow-sm rounded-3xl p-5 sm:p-6 hover:scale-[1.02] transition-transform cursor-pointer duration-500">
@@ -179,7 +179,6 @@ const Page = () => {
                               </DrawerContent>
                             </Drawer>
                           </div>
-
                           {cafe.imageUrl && (
                             <div className="flex-shrink-0 w-full sm:w-52 h-40 sm:h-36 rounded-2xl overflow-hidden shadow-md">
                               <Image
@@ -231,7 +230,6 @@ const Page = () => {
             </div>
           </div>
         )}
-
       </section>
     </>
   );
