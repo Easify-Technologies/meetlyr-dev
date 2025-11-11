@@ -121,8 +121,11 @@ export async function POST(req: NextRequest) {
           members: g.members.map((m: any) => ({
             id: m.id,
             name: m.name,
+            oneLiner: m.oneLiner,
             city: m.city,
+            country: m.country,
             cafeId: m.cafeId,
+            avatar: m.avatar
           })),
         })),
       });

@@ -37,10 +37,9 @@ const Page = () => {
 
   const { data: profile, isLoading } = useProfileDetails(userEmail);
   const { data: participant, isPending } = useEventParticipant(profile?.id);
-  const { data: matches } = useMatchedGroupUsers(profile?.id);
-  console.log(matches);
+  const { data: matches, isPending: matchesPending } = useMatchedGroupUsers(profile?.id);
 
-  if (isLoading || isPending) return <Loader />;
+  if (isLoading || isPending || matchesPending) return <Loader />;
 
   return (
     <>
@@ -201,15 +200,53 @@ const Page = () => {
               {/* CARD 3 - Group */}
               <div className="bg-white border border-gray-100 mt-5 shadow-sm rounded-3xl p-5 sm:p-6 hover:scale-[1.02] transition-transform cursor-pointer duration-500">
                 <div>
-                  <div className="flex items-center gap-3 mb-2">
+                  <div className="flex items-center gap-3 mb-3">
                     <span className="bg-orange-100 text-orange-600 p-2.5 rounded-full text-xl">
                       <TbUsersGroup />
                     </span>
                     <h2 className="text-xl font-bold">Groups</h2>
                   </div>
-                  <div>
-
-                  </div>
+                  {matches?.groups?.[0]?.members?.length > 0 ? (
+                    <div>
+                      <h4 className="text-neutral-700 font-semibold text-base mb-4">
+                        Participants ({matches.groups[0].members.length})
+                      </h4>
+                      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {matches.groups[0].members.map((member) => (
+                          <div
+                            key={member.id}
+                            className="flex items-center gap-3 bg-gradient-to-br from-orange-50 to-white border border-gray-100 rounded-2xl p-3 hover:shadow-md transition-all"
+                          >
+                            <Image
+                              src={member.avatar}
+                              alt={member.name}
+                              width={48}
+                              height={48}
+                              className="rounded-full w-12 h-12 object-cover bg-cover"
+                            />
+                            <div className="flex flex-col">
+                              <h3 className="font-semibold text-lg text-[#2f1107]">{member.name}</h3>
+                              <p className="text-sm text-gray-500 font-semibold line-clamp-2">
+                                {member.oneLiner
+                                  ?.split(",")
+                                  .map((word: string) => word.trim())
+                                  .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
+                                  .join(", ")
+                                }
+                              </p>
+                              <span className="text-xs text-orange-600 font-semibold mt-1">
+                                {member.city}, {member.country}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <h3 className="text-center text-xl font-semibold text-neutral-700">
+                      Unfortunately, no groups are formed!
+                    </h3>
+                  )}
                 </div>
               </div>
             </div>
