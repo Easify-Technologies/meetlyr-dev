@@ -18,6 +18,7 @@ import { BsFillEmojiTearFill } from "react-icons/bs";
 import { FaRegCopy } from "react-icons/fa";
 import { SiCoffeescript } from "react-icons/si";
 import Link from "next/link";
+import Image from "next/image";
 
 import {
   Drawer,
@@ -29,7 +30,6 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import Image from "next/image";
 
 const Page = () => {
   const { data: session } = useSession();

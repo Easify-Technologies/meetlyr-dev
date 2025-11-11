@@ -3,7 +3,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt";
 
 export async function POST(req: NextRequest) {
     try {
@@ -28,12 +27,6 @@ export async function POST(req: NextRequest) {
                 { status: 400 }
             );
         }
-
-        const isMatch = await bcrypt.compare(password, admin.password);
-        if (!isMatch) return NextResponse.json(
-            { error: "Invalid Credentials", isLoggedIn: false },
-            { status: 400 }
-        );
 
         await prisma.admin.update({
             where: { id: admin.id },
