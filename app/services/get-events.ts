@@ -20,7 +20,7 @@ export async function getEvents(city?: string, filterDays?: string) {
 export async function fetchEvents() {
   try {
     const res = await axios.get("/api/event/fetch-events");
-    return res.data; // ✅ return the whole object (e.g. { events: [...] })
+    return res.data;
   } catch (error) {
     const axiosErr = error as AxiosError<ApiError>;
     throw new Error(axiosErr.response?.data?.error || "Something went wrong");

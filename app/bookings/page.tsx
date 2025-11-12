@@ -11,7 +11,6 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { useGetAllEvents } from "../queries/get-events";
 import { parseISO, format } from "date-fns";
-// import { useJoinEvent } from '../queries/useJoinEvent';
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { useJoinEvent } from "../queries/useJoinEvents";
@@ -56,13 +55,13 @@ const Page = () => {
       {
         userId: profile?.id!,
         eventId: booking,
-        token: session.user.accessToken, // ✅ guaranteed string now
+        token: session.user.accessToken,
       },
 
       {
         onSuccess: (data) => {
           toast.success(data?.message || "Successfully joined the event!");
-          router.push("/events"); // or redirect to some success page
+          router.push("/events");
         },
         onError: (error: any) => {
           toast.error(error?.message || "Failed to join event");

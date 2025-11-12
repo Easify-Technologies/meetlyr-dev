@@ -5,17 +5,17 @@ import { getEvents } from "../services/get-events";
 import { fetchEvents } from "../services/get-events";
 
 type Event = {
-    id: string;
-    date: string;
-    city: string;
-    country: string;
-    cafeId?: string | null;
-    createdAt: string;
-    isClosed: boolean;
-    createdBy: string;
-    bookingOpen?: string | null;
-    bookingClose?: string | null;
-    status?: string | null;
+  id: string;
+  date: string;
+  city: string;
+  country: string;
+  cafeId?: string | null;
+  createdAt: string;
+  isClosed: boolean;
+  createdBy: string;
+  bookingOpen?: string | null;
+  bookingClose?: string | null;
+  status?: string | null;
 };
 
 export function useGetAllEvents(city?: string, filterDays?: string) {

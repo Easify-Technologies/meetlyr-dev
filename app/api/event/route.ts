@@ -100,10 +100,24 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const city = searchParams.get("city");
+    const filterDays = searchParams.get("filterDays");
 
-    const where: any = {};
+    const now = new Date();
+    const where: any = {
+      date: { gte: now },
+    };
+
     if (city) {
       where.city = city;
+    }
+
+    if (filterDays) {
+      const days = parseInt(filterDays);
+      if (!isNaN(days) && days > 0) {
+        const futureDate = new Date();
+        futureDate.setDate(futureDate.getDate() + days);
+        where.date.lte = futureDate;
+      }
     }
 
     const events = await prisma.event.findMany({
