@@ -1,5 +1,4 @@
 import axios, { AxiosError } from "axios";
-import { signIn } from "next-auth/react";
 
 interface ApiError {
   error: string;
@@ -10,11 +9,8 @@ export async function adminLogin(data: { email: string; password: string }) {
     const response = await axios.post("/api/admin/login", data);
 
     if (response.status === 201) {
-      await signIn("credentials", {
-        redirect: false,
-        email: data.email,
-        password: data.password,
-      });
+      const token = response.data.token;
+      localStorage.setItem("admin_token", token);
     }
 
     return response.data;
