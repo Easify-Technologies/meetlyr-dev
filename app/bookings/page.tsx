@@ -104,7 +104,7 @@ const Page = () => {
                       <div className="flex justify-center items-center py-2">
                         <Link
                           href="#"
-                          className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+                          className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-[#2f1107] transition-colors"
                         >
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -122,7 +122,7 @@ const Page = () => {
                             <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path>
                             <circle cx="12" cy="10" r="3"></circle>
                           </svg>
-                          <p className="text-sm text-center underline decoration-dashed">
+                          <p className="text-base text-center underline decoration-dashed">
                             {profile?.city}, {profile?.country}
                           </p>
                         </Link>

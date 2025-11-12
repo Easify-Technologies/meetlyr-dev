@@ -6,6 +6,7 @@ import { verifyAuthToken } from "@/lib/auth";
 function getNextSundays(count: number): Date[] {
   const sundays: Date[] = [];
   const now = new Date();
+  
   let nextSunday = new Date(now);
   nextSunday.setDate(now.getDate() + ((7 - now.getDay()) % 7 || 7));
   nextSunday.setHours(10, 0, 0, 0); // 10 AM
@@ -35,7 +36,10 @@ export async function POST(request: NextRequest) {
     const locations = await prisma.location.findMany();
 
     if (locations.length === 0) {
-      return NextResponse.json({ message: "No locations found" }, { status: 400 });
+      return NextResponse.json(
+        { message: "No locations found" },
+        { status: 400 }
+      );
     }
 
     const sundays = getNextSundays(4);
@@ -103,8 +107,12 @@ export async function GET(request: NextRequest) {
     const filterDays = searchParams.get("filterDays");
 
     const now = new Date();
+    const expiredDate = new Date(now.getTime() + 48 * 60 * 60 * 1000);
+
     const where: any = {
-      date: { gte: now },
+      date: {
+        gte: expiredDate,
+      },
     };
 
     if (city) {
@@ -123,12 +131,17 @@ export async function GET(request: NextRequest) {
     const events = await prisma.event.findMany({
       where,
       orderBy: { date: "asc" },
+      take: 4
     });
 
     return NextResponse.json({ success: true, events });
   } catch (error: any) {
     return NextResponse.json(
-      { success: false, message: "Failed to fetch events", error: error.message },
+      {
+        success: false,
+        message: "Failed to fetch events",
+        error: error.message,
+      },
       { status: 500 }
     );
   }
