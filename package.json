@@ -2,13 +2,14 @@
   "name": "meetly",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
     "lint": "eslint",
     "postinstall": "prisma generate",
-     "webhook": "ts-node webhook.ts"
+    "webhook": "ts-node webhook.ts"
   },
   "dependencies": {
     "@azure-rest/ai-vision-face": "^1.0.0-beta.3",
