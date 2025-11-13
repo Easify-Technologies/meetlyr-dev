@@ -6,6 +6,8 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import PhoneNumberInput from "@/components/comp-46";
 import { Eye, EyeOff } from "lucide-react";
+import { IoMdArrowRoundBack } from "react-icons/io";
+import { useRouter } from "next/navigation";
 
 interface UserDetailsProps {
   name: string;
@@ -15,6 +17,7 @@ interface UserDetailsProps {
 }
 
 const UserDetailClient = () => {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const city_id = searchParams.get("city_id") ?? "";
 
@@ -44,21 +47,19 @@ const UserDetailClient = () => {
         <div className="w-full lg:w-1/2 flex flex-col overflow-y-auto h-full">
           <div className="h-full flex flex-col p-4">
             {/* Header */}
-            <div className="grid grid-cols-2 lg:grid-cols-[1fr_auto_1fr] items-center min-h-0 lg:min-h-20 p-4 w-full">
-              <div className="flex items-center gap-2 w-20">
+              <div className="flex items-center justify-between gap-2 px-4 pb-5 w-full">
+                <IoMdArrowRoundBack size={24} className="cursor-pointer w-10 h-10 rounded-full p-2 flex items-center justify-center text-[#2f1107] hover:bg-[#2f1710] hover:text-white" onClick={() => router.back()}/>
                 <Link href="/">
                   <Image
                     src="/Mocha-e1760632297719.webp"
                     alt="Meetly"
-                    width={200}
-                    height={200}
+                    width={100}
+                    height={100}
                     quality={100}
                     priority
                   />
                 </Link>
               </div>
-            </div>
-
             {/* Main Content */}
             <div className="flex-1 min-h-0 overflow-y-auto">
               <div className="h-full flex flex-col">
@@ -77,7 +78,7 @@ const UserDetailClient = () => {
                     name="name"
                     onChange={handleChange}
                     placeholder="Your full name"
-                    className="bg-muted px-5 py-2 outline-none border-0 rounded-full w-full h-12 text-[#2F1107] font-medium text-base"
+                    className="bg-muted px-5 py-3 outline-none border-0 rounded-full w-full h-12 text-[#2F1107] font-medium text-base"
                   />
 
                   {/* Email */}
@@ -153,7 +154,7 @@ const UserDetailClient = () => {
                         : "bg-gray-300 text-gray-600 cursor-not-allowed"
                       }`}
                   >
-                    Next Page
+                    Next
                   </Link>
                 </div>
               </div>

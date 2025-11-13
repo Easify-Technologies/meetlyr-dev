@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { ChevronDownIcon } from "lucide-react";
+import { IoMdArrowRoundBack } from "react-icons/io";
 import { Label } from "@/components/ui/label";
 import OneLinerDropdown from "@/components/comp-234";
 import Link from "next/link";
@@ -92,23 +93,18 @@ const AboutClient = () => {
                 <div className="flex-1 min-h-0 flex flex-col lg:flex-row">
                     <div className="w-full lg:w-1/2 flex flex-col overflow-y-auto h-full">
                         <div className="h-full flex flex-col p-4">
-                            <div className="">
-                                <div className="grid grid-cols-2 lg:grid-cols-[1fr_auto_1fr] items-center min-h-0 lg:min-h-20 p-4 w-full">
-                                    <div className="flex items-center gap-2 w-20">
-                                        <Link href="/">
-                                            <Image
-                                                src="/Mocha-e1760632297719.webp"
-                                                alt="Meetly"
-                                                width={200}
-                                                height={200}
-                                                quality={100}
-                                                priority
-                                            />
-                                        </Link>
-                                    </div>
-                                    <div className="hidden lg:flex items-center gap-6"></div>
-                                    <div className="flex items-center justify-end"></div>
-                                </div>
+                            <div className="flex items-center justify-between gap-2 px-4 pb-5 w-full">
+                                <IoMdArrowRoundBack size={24} className="cursor-pointer w-10 h-10 rounded-full p-2 flex items-center justify-center text-[#2f1107] hover:bg-[#2f1710] hover:text-white" onClick={() => router.back()} />
+                                <Link href="/">
+                                    <Image
+                                        src="/Mocha-e1760632297719.webp"
+                                        alt="Meetly"
+                                        width={100}
+                                        height={100}
+                                        quality={100}
+                                        priority
+                                    />
+                                </Link>
                             </div>
                             <div className="flex-1 min-h-0 overflow-y-auto">
                                 <div className="h-full flex flex-col">
