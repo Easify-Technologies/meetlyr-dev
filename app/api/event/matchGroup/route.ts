@@ -6,12 +6,12 @@ import { formEventGroups } from "@/lib/matchGroup";
 export async function GET() {
   try {
     const now = new Date();
-    const in48h = new Date(now.getTime() + 1 * 60 * 60 * 1000);
+    const in10min = new Date(now.getTime() + 10 * 60 * 1000); // 10 minutes
 
     // 🧭 1. Find all upcoming events within 48h that are open
     const events = await prisma.event.findMany({
       where: {
-        date: { lte: in48h, gte: now },
+        date: { lte: in10min, gte: now },
         isClosed: false,
       },
       include: {
