@@ -22,12 +22,8 @@ export async function POST(req: NextRequest) {
       where: {
         userId,
         event: {
-          cafe: {
-            location: {
-              city: { equals: user.city, mode: "insensitive" },
-              country: { equals: user.country, mode: "insensitive" },
-            },
-          },
+          city: { equals: user.city, mode: "insensitive" },
+          country: { equals: user.country, mode: "insensitive" },
         },
       },
       include: {
@@ -37,12 +33,6 @@ export async function POST(req: NextRequest) {
               select: {
                 id: true,
                 name: true,
-                location: {
-                  select: {
-                    city: true,
-                    country: true,
-                  },
-                },
                 address: true,
                 imageUrl: true,
               },
@@ -51,6 +41,8 @@ export async function POST(req: NextRequest) {
         },
       },
     });
+
+    console.log(participant);
 
     if (participant) {
       return NextResponse.json(
