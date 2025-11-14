@@ -5,13 +5,14 @@ import { useSession } from "next-auth/react";
 import { useProfileDetails } from "../queries/profile";
 import { useEventParticipant } from "../queries/participants";
 import { useMatchedGroupUsers } from "../queries/groups";
+import { useCancelMyEvent } from "../queries/cancel-event";
 import { parseISO, format } from "date-fns";
 
 import Navbar from "@/components/ui/Navbar";
 import Loader from "@/components/ui/loader";
 import { toast } from "sonner";
 import { BellIcon, UtensilsCrossed } from "lucide-react";
-import { TbUsersGroup } from "react-icons/tb";
+import { TbUsersGroup, TbCancel } from "react-icons/tb";
 import { MdOutlineArrowOutward, MdOutlineLocationOn } from "react-icons/md";
 import { LuCalendarClock, LuBookOpenText } from "react-icons/lu";
 import { BsFillEmojiTearFill } from "react-icons/bs";
@@ -38,6 +39,7 @@ const Page = () => {
   const { data: profile, isLoading } = useProfileDetails(userEmail);
   const { data: participant, isPending } = useEventParticipant(profile?.id);
   const { data: matches, isPending: matchesPending } = useMatchedGroupUsers(profile?.id);
+  const { mutate, isPending: cancelEventPending } = useCancelMyEvent();
 
   if (isLoading || isPending || matchesPending) return <Loader />;
 
@@ -104,6 +106,18 @@ const Page = () => {
                           <LuBookOpenText className="text-[#2f1107]" />
                           <span className="text-gray-700 font-semibold text-base">In English</span>
                         </div>
+                        {item?.user?.payment[0]?.mode === "subscription" && (
+                          <button onClick={() =>
+                            mutate({
+                              userId: item?.userId,
+                              eventId: item?.event?.id,
+                              mode: item?.user?.payment[0]?.mode,
+                            })
+                          } disabled={cancelEventPending} type="button" className="flex items-center gap-1 mt-3 bg-red-100 text-red-500 px-4 py-2 rounded-md font-semibold hover:bg-red-500 hover:text-white transition-colors duration-300 cursor-pointer">
+                            <TbCancel />
+                            <span>{cancelEventPending ? "Cancelling..." : "Cancel my event"}</span>
+                          </button>
+                        )}
                       </div>
                     </div>
                     {/* ☕ CARD 2 - Café Info */}

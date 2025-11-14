@@ -2,12 +2,11 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
-import { IoMdArrowRoundBack } from "react-icons/io";
 import { useRouter, useSearchParams } from "next/navigation";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
+import Link from "next/link";
 
 const QuestionClient = () => {
   const router = useRouter();
@@ -156,18 +155,23 @@ const QuestionClient = () => {
         <div className="flex-1 min-h-0 flex flex-col lg:flex-row">
           <div className="w-full lg:w-1/2 flex flex-col overflow-y-auto h-full">
             <div className="h-full flex flex-col p-4">
-              <div className="flex items-center justify-between gap-2 px-4 pb-5 w-full">
-                <IoMdArrowRoundBack size={24} className="cursor-pointer w-10 h-10 rounded-full p-2 flex items-center justify-center text-[#2f1107] hover:bg-[#2f1710] hover:text-white" onClick={() => router.back()} />
-                <Link href="/">
-                  <Image
-                    src="/Mocha-e1760632297719.webp"
-                    alt="Meetly"
-                    width={100}
-                    height={100}
-                    quality={100}
-                    priority
-                  />
-                </Link>
+              <div className="">
+                <div className="grid grid-cols-2 lg:grid-cols-[1fr_auto_1fr] items-center min-h-0 lg:min-h-20 p-4 w-full">
+                  <div className="flex items-center gap-2 w-20">
+                    <Link href="/">
+                      <Image
+                        src="/Mocha-e1760632297719.webp"
+                        alt="Meetly"
+                        width={200}
+                        height={200}
+                        quality={100}
+                        priority
+                      />
+                    </Link>
+                  </div>
+                  <div className="hidden lg:flex items-center gap-6"></div>
+                  <div className="flex items-center justify-end"></div>
+                </div>
               </div>
               <div className="flex-1 min-h-0 overflow-y-auto">
                 <div className="h-full flex flex-col">
@@ -264,7 +268,10 @@ const QuestionClient = () => {
                       )}
                     </div>
                   </div>
-                  <div className="p-4 bg-background">
+                  <div className="p-4 bg-background flex items-center justify-center gap-4">
+                    <button className="bg-[#ffd100] cursor-pointer h-12 px-4 py-2 rounded-full w-full text-sm md:text-base font-medium transition-all duration-500 hover:bg-[#2f1107] hover:text-white" onClick={() => router.back()} type="button">
+                      Back
+                    </button>
                     <button
                       type="button"
                       onClick={handleNext}

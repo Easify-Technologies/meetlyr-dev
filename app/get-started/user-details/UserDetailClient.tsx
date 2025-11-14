@@ -4,9 +4,9 @@ import React, { useState } from "react";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { usePersistentForm } from "@/hooks/usePersistantForm";
 import PhoneNumberInput from "@/components/comp-46";
 import { Eye, EyeOff } from "lucide-react";
-import { IoMdArrowRoundBack } from "react-icons/io";
 import { useRouter } from "next/navigation";
 
 interface UserDetailsProps {
@@ -22,12 +22,15 @@ const UserDetailClient = () => {
   const city_id = searchParams.get("city_id") ?? "";
 
   const [showPassword, setShowPassword] = useState(false);
-  const [formData, setFormData] = useState<UserDetailsProps>({
-    name: "",
-    email: "",
-    phoneNumber: "",
-    password: "",
-  });
+  const [formData, setFormData] = usePersistentForm<UserDetailsProps>(
+    "user-details-form",
+    {
+      name: "",
+      email: "",
+      phoneNumber: "",
+      password: "",
+    }
+  );
 
   const { name, email, phoneNumber, password } = formData;
 
@@ -38,7 +41,14 @@ const UserDetailClient = () => {
 
   // ✅ Disable "Next" if form incomplete
   const isFormComplete =
-    name.trim() && email.trim() && phoneNumber.trim() && password.trim();
+    name?.trim() !== "" &&
+    email?.trim() !== "" &&
+    phoneNumber?.trim() !== "" &&
+    password?.trim() !== "";
+
+  const handleNextClick = () => {
+    localStorage.removeItem("user-details-form");
+  };
 
   return (
     <div className="flex flex-col h-full">
@@ -47,19 +57,18 @@ const UserDetailClient = () => {
         <div className="w-full lg:w-1/2 flex flex-col overflow-y-auto h-full">
           <div className="h-full flex flex-col p-4">
             {/* Header */}
-              <div className="flex items-center justify-between gap-2 px-4 pb-5 w-full">
-                <IoMdArrowRoundBack size={24} className="cursor-pointer w-10 h-10 rounded-full p-2 flex items-center justify-center text-[#2f1107] hover:bg-[#2f1710] hover:text-white" onClick={() => router.back()}/>
-                <Link href="/">
-                  <Image
-                    src="/Mocha-e1760632297719.webp"
-                    alt="Meetly"
-                    width={100}
-                    height={100}
-                    quality={100}
-                    priority
-                  />
-                </Link>
-              </div>
+            <div className="flex items-center gap-2 px-4 pb-5 w-full">
+              <Link href="/">
+                <Image
+                  src="/Mocha-e1760632297719.webp"
+                  alt="Meetly"
+                  width={100}
+                  height={100}
+                  quality={100}
+                  priority
+                />
+              </Link>
+            </div>
             {/* Main Content */}
             <div className="flex-1 min-h-0 overflow-y-auto">
               <div className="h-full flex flex-col">
@@ -136,8 +145,12 @@ const UserDetailClient = () => {
                 </form>
 
                 {/* ✅ Footer Buttons */}
-                <div className="p-4 bg-background">
+                <div className="p-4 bg-background flex items-center justify-center gap-4">
+                  <button className="bg-[#ffd100] cursor-pointer h-12 px-4 py-2 rounded-full w-full text-sm md:text-base font-medium transition-all duration-500 hover:bg-[#2f1107] hover:text-white" onClick={() => router.back()} type="button">
+                    Back
+                  </button>
                   <Link
+                    onClick={handleNextClick}
                     href={
                       isFormComplete
                         ? `/get-started/questions?city_id=${city_id}&name=${encodeURIComponent(
@@ -150,8 +163,8 @@ const UserDetailClient = () => {
                         : "#"
                     }
                     className={`inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm md:text-base font-medium transition-all select-none h-12 px-4 py-2 rounded-full w-full duration-500 ${isFormComplete
-                        ? "bg-[#FFD100] text-[#2F1107] hover:bg-[#2F1107] hover:text-[#FFD100]"
-                        : "bg-gray-300 text-gray-600 cursor-not-allowed"
+                      ? "bg-[#FFD100] text-[#2F1107] hover:bg-[#2F1107] hover:text-[#FFD100]"
+                      : "bg-gray-300 text-gray-600 cursor-not-allowed"
                       }`}
                   >
                     Next

@@ -110,7 +110,7 @@ const Page = () => {
                       <div className="flex justify-center items-center">
                         <Link
                           href="#"
-                          className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-[#2f1107] transition-colors"
+                          className="flex items-center gap-2 text-sm font-medium text-[#2f1107]"
                         >
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -158,7 +158,8 @@ const Page = () => {
                                     const isEventBooked =
                                       Array.isArray(event?.participants) &&
                                       event.participants.length > 0 &&
-                                      event.participants[0]?.eventId === event?.id;
+                                      event.participants[0]?.eventId === event?.id &&
+                                      event.participants[0]?.userId === profile?.id;
 
                                     return (
                                       <div

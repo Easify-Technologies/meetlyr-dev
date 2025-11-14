@@ -39,14 +39,15 @@ const Page = () => {
                     <form className="flex flex-col  w-full gap-4 max-w-sm">
                         <h1 className="text-4xl text-[#2f1107] font-semibold md:text-5xl lg:text-6xl text-center mb-4">Verify Your OTP</h1>
                         <div className="grid w-full items-center justify-center gap-3">
-                            <div className="relative">
-                                <div className="space-y-2 text-center">
+                            <div className="relative flex justify-center">
+                                <div className="space-y-2 text-center mx-auto">
                                     <InputOTP
+                                        className="flex justify-center"
                                         maxLength={6}
                                         value={otp}
                                         onChange={(value) => setOtp(value)}
                                     >
-                                        <InputOTPGroup>
+                                        <InputOTPGroup className="flex justify-center gap-2">
                                             <InputOTPSlot index={0} />
                                             <InputOTPSlot index={1} />
                                             <InputOTPSlot index={2} />
@@ -55,6 +56,7 @@ const Page = () => {
                                             <InputOTPSlot index={5} />
                                         </InputOTPGroup>
                                     </InputOTP>
+
                                     <div className="text-center mt-3 text-[#2f1107] font-semibold text-sm">
                                         {otp === "" ? (
                                             <>Enter your one-time password.</>
@@ -65,10 +67,10 @@ const Page = () => {
                                 </div>
                             </div>
                             {isError && (
-                                <p data-slot="form-message" className="text-destructive text-sm">{(error as Error).message}</p>
+                                <div data-slot="form-message" className="text-destructive text-sm text-center w-full md:whitespace-nowrap font-semibold">{(error as Error).message}</div>
                             )}
                             {isSuccess && data?.message && (
-                                <p data-slot="form-message" className="text-green-500 text-sm">{data.message}</p>
+                                <div data-slot="form-message" className="text-green-500 text-sm text-center w-full md:whitespace-nowrap font-semibold">{data.message}</div>
                             )}
                         </div>
                         <div className="flex-1 flex flex-col gap-4 justify-center items-center">

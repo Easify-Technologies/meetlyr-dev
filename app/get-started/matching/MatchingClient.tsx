@@ -15,6 +15,9 @@ const MatchingClient = () => {
   const [showMatchedSection, setShowMatchedSection] = useState(false);
   const searchParams = useSearchParams();
 
+  const percentage = ["92%", "93%", "94%", "95%", "96%"];
+  const randomPercentage = percentage[Math.floor(Math.random() * percentage.length)];
+
   useEffect(() => {
     const progressTimer = setTimeout(() => setProgress(66), 500);
 
@@ -89,7 +92,7 @@ const MatchingClient = () => {
                 <div className="flex-1 overflow-y-auto flex flex-col gap-6 text-center px-4 pt-10 pb-4">
                   {showMatchedSection ? (
                     <h1 className="text-2xl md:text-3xl lg:text-4xl text-[#2F1107] font-semibold">
-                      You&apos;re in. We&apos;ll find your perfect table soon!
+                      You&apos;re all set! We found people who match your vibe — {randomPercentage} compatible.
                     </h1>
                   ) : (
                     <>

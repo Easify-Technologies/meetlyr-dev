@@ -48,7 +48,7 @@ const AboutClient = () => {
     };
 
     const handleNext = async () => {
-        if (!formData.gender || !date || !formData.oneLiner || !is18OrOlder(date)) return;
+        if (!formData.gender || !date || !formData.oneLiner || !is18OrOlder(date) || !avatarFile) return;
 
         const params = new URLSearchParams(window.location.search);
 
@@ -233,7 +233,10 @@ const AboutClient = () => {
                                         </div>
                                     </form>
                                     {error && <p className="text-red-500 text-base font-semibold">{error}</p>}
-                                    <div className="p-4 bg-background">
+                                    <div className="p-4 bg-background flex items-center justify-center gap-4">
+                                        <button className="bg-[#ffd100] cursor-pointer h-12 px-4 py-2 rounded-full w-full text-sm md:text-base font-medium transition-all duration-500 hover:bg-[#2f1107] hover:text-white" onClick={() => router.back()} type="button">
+                                            Back
+                                        </button>
                                         <button
                                             type="button"
                                             onClick={handleNext}

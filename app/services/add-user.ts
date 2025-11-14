@@ -40,12 +40,15 @@ export async function addUser(data: any) {
     });
 
     if (response.status === 201) {
-      await signIn("credentials", {
-        redirect: true,
+      const login = await signIn("credentials", {
+        redirect: false,
         email: data.email,
         password: data.password,
-        callbackUrl: "/email-verification",
       });
+
+      if (!login?.error) {
+        window.location.href = "/verify-otp";
+      }
     }
 
     return response.data;

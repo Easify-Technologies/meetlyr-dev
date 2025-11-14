@@ -46,6 +46,9 @@ export const authOptions: NextAuthOptions = {
   },
 
   callbacks: {
+    redirect({ url, baseUrl }) {
+      return url.startsWith("/") ? baseUrl + url : url;
+    },
     async jwt({ token, user }) {
       // When user logs in, attach token
       if (user?.accessToken) {

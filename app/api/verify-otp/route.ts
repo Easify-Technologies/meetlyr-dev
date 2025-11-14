@@ -104,15 +104,20 @@ export async function POST(request: NextRequest) {
       html,
     });
 
-    if(registeredMessage) {
-      return NextResponse.json({ message: "Registration successful! A confirmation email has been sent to your inbox." }, { status: 200 });
-    }
-    else {
+    if (registeredMessage.accepted && registeredMessage.accepted.length > 0) {
       return NextResponse.json(
-      { error: "Email cannot be sent. Please try again later." },
+        {
+          success: true,
+          message: "Registration successful",
+        },
+        { status: 200 }
+      );
+    }
+
+    return NextResponse.json(
+      { error: "Email could not be sent. Please try again later." },
       { status: 500 }
     );
-    }
   } catch (error) {
     console.error("Error verifying OTP:", error);
     return NextResponse.json(

@@ -39,6 +39,17 @@ export async function POST(req: NextRequest) {
             },
           },
         },
+        user: {
+          select: {
+            payment: {
+              select: {
+                mode: true,
+                status: true,
+                stripeSessionId: true,
+              }
+            },
+          }
+        }
       },
     });
 
