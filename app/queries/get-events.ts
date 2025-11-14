@@ -13,6 +13,10 @@ type Event = {
   createdAt: string;
   isClosed: boolean;
   createdBy: string;
+  participants?: {
+    userId: string;
+    eventId: string;
+  }
   bookingOpen?: string | null;
   bookingClose?: string | null;
   status?: string | null;

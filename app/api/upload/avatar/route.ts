@@ -1,5 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { v2 as cloudinary } from "cloudinary";
+import streamifier from "streamifier";
+
+export const config = {
+  api: {
+    bodyParser: false,
+    sizeLimit: "10mb",
+  },
+};
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
@@ -16,25 +24,34 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
     }
 
-    // Convert file to buffer
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    // Convert buffer to base64 for Cloudinary upload
-    const base64Data = `data:${file.type};base64,${buffer.toString("base64")}`;
+    const uploadPromise = () =>
+      new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          {
+            folder: "user_avatars",
+            transformation: [{ width: 512, height: 512, crop: "limit" }],
+          },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          }
+        );
 
-    const uploadResponse = await cloudinary.uploader.upload(base64Data, {
-      folder: "user_avatars", // optional: folder name in Cloudinary
-      transformation: [{ width: 512, height: 512, crop: "limit" }], // optional
-    });
+        streamifier.createReadStream(buffer).pipe(uploadStream);
+      });
+
+    const result: any = await uploadPromise();
 
     return NextResponse.json({
       success: true,
-      url: uploadResponse.secure_url,
-      public_id: uploadResponse.public_id,
+      url: result.secure_url,
+      public_id: result.public_id,
     });
   } catch (error) {
-    console.error("Upload error:", error);
+    console.error("Upload failed:", error);
     return NextResponse.json({ error: "Upload failed" }, { status: 500 });
   }
 }

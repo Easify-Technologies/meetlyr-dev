@@ -130,6 +130,14 @@ export async function GET(request: NextRequest) {
 
     const events = await prisma.event.findMany({
       where,
+      include: {
+        participants: {
+          select: {
+            userId: true,
+            eventId: true,
+          }
+        }
+      },
       orderBy: { date: "asc" },
       take: 4
     });

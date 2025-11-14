@@ -209,7 +209,7 @@ const PaymentClient = () => {
                 type="button"
                 onClick={handleCheckOut}
                 disabled={loading}
-                className={`rounded-full w-full py-3 text-base font-semibold transition-colors duration-500 ${
+                className={`rounded-full cursor-pointer w-full py-3 text-base font-semibold transition-colors duration-500 ${
                   loading
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-[#2f1107] text-white hover:bg-[#ffd100] hover:text-[#2f1107]"

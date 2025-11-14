@@ -27,6 +27,7 @@ const Page = () => {
 
   const { mutate: joinEvent, isPending } = useJoinEvent();
 
+
   if (isLoading) return <Loader />;
 
   const handleBooking = () => {
@@ -51,13 +52,18 @@ const Page = () => {
       return;
     }
 
+    // Ensure we have a profile id before calling the API
+    if (!profile?.id) {
+      toast.error("Unable to find user profile. Please try again.");
+      return;
+    }
+
     joinEvent(
       {
-        userId: profile?.id!,
+        userId: profile.id,
         eventId: booking,
         token: session.user.accessToken,
       },
-
       {
         onSuccess: (data) => {
           toast.success(data?.message || "Successfully joined the event!");
@@ -99,9 +105,9 @@ const Page = () => {
 
                 {/* MAIN CONTENT */}
                 <div className="h-full flex flex-col overflow-hidden lg:overflow-visible lg:bg-popover">
-                  <div className="hidden lg:block flex-shrink-0 p-4">
+                  <div className="flex-shrink-0 md:py-8 py-16">
                     <div className="relative z-10 rounded-full">
-                      <div className="flex justify-center items-center py-2">
+                      <div className="flex justify-center items-center">
                         <Link
                           href="#"
                           className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-[#2f1107] transition-colors"
@@ -122,7 +128,7 @@ const Page = () => {
                             <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path>
                             <circle cx="12" cy="10" r="3"></circle>
                           </svg>
-                          <p className="text-base text-center underline decoration-dashed">
+                          <p className="md:text-base text-xl font-semibold text-center underline decoration-dashed">
                             {profile?.city}, {profile?.country}
                           </p>
                         </Link>
@@ -149,56 +155,51 @@ const Page = () => {
                                       "EEEE, MMM do h:mm a"
                                     );
 
+                                    const isEventBooked =
+                                      Array.isArray(event?.participants) &&
+                                      event.participants.length > 0 &&
+                                      event.participants[0]?.eventId === event?.id;
+
                                     return (
                                       <div
                                         key={event?.id}
-                                        className="relative flex w-full items-center gap-2 border border-input p-4 rounded-full shadow-xs outline-none has-data-[state=checked]:border-bg-[#2F1107]/50 hover:bg-[#2F1107]/10"
+                                        className="relative flex w-full items-center gap-2 border border-input p-4 rounded-full shadow-xs outline-none has-[data-state=checked]:border-[#2F1107]/50 hover:bg-[#2F1107]/10"
                                       >
-                                        <RadioGroupItem
-                                          value={event?.id}
-                                          id={event?.id}
-                                          className="order-1 after:absolute after:inset-0 cursor-pointer border-[#2F1107]
-                                          text-[#2F1107]
-                                          data-[state=checked]:bg-[#2F1107]
-                                          data-[state=checked]:border-[#2F1107]
-                                          data-[state=checked]:text-[#2F1107]"
-                                        />
-                                        <div className="grid grow gap-2">
-                                          <Label
-                                            htmlFor={event?.id}
-                                            className="flex items-center gap-2"
-                                          >
-                                            <h4 className="font-semibold md:text-xl text-lg text-[#2F1107]">
-                                              {formattedEventDate.split(
-                                                " "
-                                              )[0] +
-                                                " " +
-                                                formattedEventDate.split(
-                                                  " "
-                                                )[1] +
-                                                " " +
-                                                formattedEventDate.split(
-                                                  " "
-                                                )[2]}
-                                            </h4>
-                                            <div className="flex items-start text-center justify-center bg-[#2F1107] rounded-full px-3 py-2">
-                                              <span className="text-lg font-medium text-white leading-none">
-                                                {
-                                                  formattedEventDate.split(
-                                                    " "
-                                                  )[3]
-                                                }
-                                              </span>
-                                              <span className="text-[10px] text-white ml-1 leading-none translate-y--1">
-                                                {
-                                                  formattedEventDate.split(
-                                                    " "
-                                                  )[4]
-                                                }
-                                              </span>
-                                            </div>
-                                          </Label>
-                                        </div>
+                                        <>
+                                          <RadioGroupItem
+                                            value={event?.id}
+                                            id={event?.id}
+                                            disabled={isEventBooked}
+                                            className="order-1 after:absolute after:inset-0 cursor-pointer border-[#2F1107]
+                                            text-[#2F1107]
+                                            data-[state=checked]:bg-[#2F1107]
+                                            data-[state=checked]:border-[#2F1107]
+                                            data-[state=checked]:text-[#2F1107]"
+                                          />
+                                          <div className="grid grow gap-2">
+                                            <Label
+                                              htmlFor={event?.id}
+                                              className="flex items-center gap-2"
+                                            >
+                                              <h4 className="font-semibold md:text-xl text-lg text-[#2F1107]">
+                                                {formattedEventDate.split(" ")[0] +
+                                                  " " +
+                                                  formattedEventDate.split(" ")[1] +
+                                                  " " +
+                                                  formattedEventDate.split(" ")[2]}
+                                              </h4>
+
+                                              <div className="flex items-start text-center justify-center bg-[#2F1107] rounded-full px-3 py-2">
+                                                <span className="text-lg font-medium text-white leading-none">
+                                                  {formattedEventDate.split(" ")[3]}
+                                                </span>
+                                                <span className="text-[10px] text-white ml-1 leading-none translate-y--1">
+                                                  {formattedEventDate.split(" ")[4]}
+                                                </span>
+                                              </div>
+                                            </Label>
+                                          </div>
+                                        </>
                                       </div>
                                     );
                                   })}
@@ -232,10 +233,10 @@ const Page = () => {
               </div>
             </div>
           </div>
-        </div>
+        </div >
 
         {/* RIGHT SIDE IMAGE */}
-        <div className="hidden lg:flex lg:w-1/2 relative items-center justify-center overflow-hidden bg-muted">
+        <div div className="hidden lg:flex lg:w-1/2 relative items-center justify-center overflow-hidden bg-muted" >
           <Image
             alt="bookings"
             src="/photo-1629914707102-d04d7262ef96.jpeg"
@@ -244,8 +245,8 @@ const Page = () => {
             priority
             className="object-cover"
           />
-        </div>
-      </div>
+        </div >
+      </div >
     </>
   );
 };
