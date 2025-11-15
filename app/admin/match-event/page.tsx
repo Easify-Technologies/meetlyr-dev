@@ -13,6 +13,7 @@ const AdminEventCard = ({ event }: any) => {
     <div className="p-4 border rounded-lg bg-white shadow-sm mb-4">
       <h3 className="font-semibold text-lg">{event.city}</h3>
       <p>{new Date(event.date).toLocaleString()}</p>
+      <p className="mt-1 font-semibold text-neutral-600">{event?.participants.length} Participant(s)</p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-3">
         {event?.participants.map((p) => {
@@ -25,7 +26,6 @@ const AdminEventCard = ({ event }: any) => {
               key={p.id}
               className="bg-white rounded-3xl px-5 py-6 shadow-md border border-gray-100 hover:shadow-lg hover:scale-[1.02] transition duration-300 cursor-pointer"
             >
-              <h4 className="text-sm font-semibold mb-2">{event?.participants.length} Participant(s)</h4>
               {/* Top Section */}
               <div className="flex items-center gap-2">
                 <Image
