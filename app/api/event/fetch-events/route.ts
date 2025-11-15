@@ -5,6 +5,10 @@ import { NextResponse } from "next/server";
 export async function GET() {
   try {
     const events = await prisma.event.findMany({
+      orderBy: [
+        { city: "asc" },
+        { date: "asc" },
+      ],
       include: {
         cafe: {
           select: { name: true },
@@ -25,8 +29,7 @@ export async function GET() {
             },
           },
         },
-      },
-      orderBy: { date: "asc" },
+      }
     });
 
     return NextResponse.json({ events });

@@ -1,12 +1,23 @@
 'use client';
 
+import React, { useEffect } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
-import React from 'react';
+import { useRouter } from "next/navigation";
 
 import { IoMdCloseCircle } from "react-icons/io";
 
 const Page = () => {
+  const router = useRouter();
+
+  useEffect(() => {
+    // Redirect after 2 seconds
+    const timer = setTimeout(() => {
+      router.push("/bookings");
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <>
       <section className="w-full min-h-screen bg-gradient-to-b from-amber-50 to-white flex items-center justify-center px-4 md:px-6 py-16 relative overflow-hidden">
@@ -23,17 +34,10 @@ const Page = () => {
               <IoMdCloseCircle size={30} className="text-red-600" />
               <h3 className="text-3xl md:text-4xl font-bold text-[#2f1107]">Payment Failed!</h3>
             </div>
-            
+
             <p className="text-muted-foreground font-medium text-sm mt-2">
               Sorry we had an issue confirming your payment. Please try again.
             </p>
-
-            <Link
-              href="/bookings"
-              className="px-6 mt-5 py-3 rounded-full bg-[#2f1107] text-white text-sm font-semibold shadow-md transition-colors hover:bg-[#ffd100] hover:text-[#2f1107] duration-500"
-            >
-              Back Home
-            </Link>
           </div>
 
           {/* Image Section */}

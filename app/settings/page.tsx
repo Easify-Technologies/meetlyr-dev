@@ -306,7 +306,12 @@ const Page = () => {
                                                                                     >
                                                                                         Back to Countries
                                                                                     </button>
-                                                                                    <button onClick={() => mutate(formData)} className='px-5 py-2 rounded-full font-semibold text-sm bg-[#ffd100] text-[#2f1107] hover:bg-[#ffd100]/70 transition-colors cursor-pointer' type="button" disabled={isPending}>
+                                                                                    <button onClick={() => {
+                                                                                        mutate(formData);
+                                                                                        setTimeout(() => {
+                                                                                            setOpen(false);
+                                                                                        }, 1000);
+                                                                                    }} className='px-5 py-2 rounded-full font-semibold text-sm bg-[#ffd100] text-[#2f1107] hover:bg-[#ffd100]/70 transition-colors cursor-pointer' type="button" disabled={isPending}>
                                                                                         {isPending ? "Saving..." : "Save Location"}
                                                                                     </button>
                                                                                 </div>
@@ -573,7 +578,7 @@ const Page = () => {
                                                                 </svg>
                                                                 Logout
                                                             </button>
-                                                            <div className='pb-16 md:pb-0'>
+                                                            {/* <div className='pb-16 md:pb-0'>
                                                                 <button data-slot="dialog-trigger" className="inline-flex cursor-pointer items-center justify-center gap-2 whitespace-nowrap text-sm md:text-base font-medium transition-all select-none disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg:not([class*='size-'])]:size-4 shrink-0 [&amp;_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:hover:bg-accent/50 h-12 px-4 py-2 rounded-full w-full text-destructive hover:text-destructive hover:bg-destructive/10" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="radix-«rbh»" data-state="closed">
                                                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-trash2 lucide-trash-2 h-4 w-4 mr-2" aria-hidden="true">
                                                                         <path d="M3 6h18"></path>
@@ -584,7 +589,7 @@ const Page = () => {
                                                                     </svg>
                                                                     Delete Account
                                                                 </button>
-                                                            </div>
+                                                            </div> */}
                                                         </div>
                                                     </div>
                                                 </div>

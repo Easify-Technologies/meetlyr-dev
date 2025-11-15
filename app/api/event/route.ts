@@ -136,6 +136,12 @@ export async function GET(request: NextRequest) {
             userId: true,
             eventId: true,
           }
+        },
+        payment: {
+          select: {
+            id: true,
+            status: true,
+          }
         }
       },
       orderBy: { date: "asc" },

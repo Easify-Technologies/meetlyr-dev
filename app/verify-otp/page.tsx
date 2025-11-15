@@ -37,8 +37,9 @@ const Page = () => {
                 </div>
                 <div className="flex-1 min-h-0 overflow-y-auto flex flex-col justify-center items-center">
                     <form className="flex flex-col  w-full gap-4 max-w-sm">
-                        <h1 className="text-4xl text-[#2f1107] font-semibold md:text-5xl lg:text-6xl text-center mb-4">Verify Your OTP</h1>
+                        <h1 className="text-4xl text-[#2f1107] font-semibold md:text-5xl lg:text-6xl text-center">Verify Your OTP</h1>
                         <div className="grid w-full items-center justify-center gap-3">
+                            <h4 className='text-sm text-neutral-600 font-semibold text-center mb-2'>An OTP has been sent to your Email address. Please confirm it.</h4>
                             <div className="relative flex justify-center">
                                 <div className="space-y-2 text-center mx-auto">
                                     <InputOTP

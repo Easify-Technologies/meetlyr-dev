@@ -1,10 +1,6 @@
 import axios, { AxiosError } from "axios";
 import { signIn } from "next-auth/react";
 
-interface ApiError {
-  error: string;
-}
-
 export async function addUser(data: any) {
   try {
     const formData = new FormData();
@@ -53,7 +49,7 @@ export async function addUser(data: any) {
 
     return response.data;
   } catch (error) {
-    const axiosErr = error as AxiosError<ApiError>;
-    throw new Error(axiosErr.response?.data?.error || "Something went wrong");
+    const backendError = (error as AxiosError<any>)?.response?.data?.error;
+    throw new Error(backendError || "Registration failed");
   }
 }

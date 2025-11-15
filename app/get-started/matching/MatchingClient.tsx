@@ -13,6 +13,7 @@ const MatchingClient = () => {
   const router = useRouter();
   const [progress, setProgress] = useState(10);
   const [showMatchedSection, setShowMatchedSection] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const searchParams = useSearchParams();
 
   const percentage = ["90%", "91%", "92%", "93%", "94%", "95%", "96%", "97%"];
@@ -24,15 +25,11 @@ const MatchingClient = () => {
     const redirectTimer = setTimeout(async () => {
       setShowMatchedSection(true);
 
-      // Extract all query params
       const params = Object.fromEntries(searchParams.entries());
-
-      // Convert the comma-separated peopleType string into an array
       const peopleTypeArray = params.peopleType
         ? params.peopleType.split(",")
         : [];
 
-      // Build user data (no cafe_id here)
       const userData = {
         name: params.name || "",
         email: params.email || "",
@@ -54,12 +51,10 @@ const MatchingClient = () => {
         password: params.password || "",
       };
 
-      console.log("Registering user:", userData);
-
       try {
         await addUser(userData);
       } catch (error) {
-        console.error("Registration failed:", error);
+        setErrorMessage(error.message);
       }
     }, 1000);
 
@@ -68,6 +63,7 @@ const MatchingClient = () => {
       clearTimeout(redirectTimer);
     };
   }, [searchParams]);
+
 
   return (
     <div className="flex flex-col h-full">
@@ -101,6 +97,9 @@ const MatchingClient = () => {
                       </h1>
                       <Progress value={progress} className="w-full" />
                     </>
+                  )}
+                  {errorMessage && (
+                    <p className="text-red-600 text-center text-sm mt-4">{errorMessage}</p>
                   )}
                 </div>
               </div>

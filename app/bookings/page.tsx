@@ -157,9 +157,11 @@ const Page = () => {
 
                                     const isEventBooked =
                                       Array.isArray(event?.participants) &&
-                                      event.participants.length > 0 &&
-                                      event.participants[0]?.eventId === event?.id &&
-                                      event.participants[0]?.userId === profile?.id;
+                                      event.participants.some(
+                                        (p) => p.userId === profile?.id && p.eventId === event?.id
+                                      ) &&
+                                      Array.isArray(event?.payment) &&
+                                      event.payment.some((pay) => pay.status === "paid");
 
                                     return (
                                       <div
@@ -171,17 +173,11 @@ const Page = () => {
                                             value={event?.id}
                                             id={event?.id}
                                             disabled={isEventBooked}
-                                            className="order-1 after:absolute after:inset-0 cursor-pointer border-[#2F1107]
-                                            text-[#2F1107]
-                                            data-[state=checked]:bg-[#2F1107]
-                                            data-[state=checked]:border-[#2F1107]
-                                            data-[state=checked]:text-[#2F1107]"
+                                            className="order-1 after:absolute after:inset-0 cursor-pointer border-[#2F1107] text-[#2F1107] data-[state=checked]:bg-[#2F1107] data-[state=checked]:border-[#2F1107] data-[state=checked]:text-[#2F1107]"
                                           />
+
                                           <div className="grid grow gap-2">
-                                            <Label
-                                              htmlFor={event?.id}
-                                              className="flex items-center gap-2"
-                                            >
+                                            <Label htmlFor={event?.id} className="flex items-center gap-2">
                                               <h4 className="font-semibold md:text-xl text-lg text-[#2F1107]">
                                                 {formattedEventDate.split(" ")[0] +
                                                   " " +
@@ -237,7 +233,7 @@ const Page = () => {
         </div >
 
         {/* RIGHT SIDE IMAGE */}
-        <div div className="hidden lg:flex lg:w-1/2 relative items-center justify-center overflow-hidden bg-muted" >
+        <div className="hidden lg:flex lg:w-1/2 relative items-center justify-center overflow-hidden bg-muted" >
           <Image
             alt="bookings"
             src="/photo-1629914707102-d04d7262ef96.jpeg"

@@ -16,7 +16,11 @@ type Event = {
   participants?: {
     userId: string;
     eventId: string;
-  }
+  },
+  payment?: {
+    id: string;
+    status: string;
+  },
   bookingOpen?: string | null;
   bookingClose?: string | null;
   status?: string | null;
