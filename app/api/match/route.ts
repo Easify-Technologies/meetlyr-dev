@@ -73,10 +73,7 @@ function formGroups(users: any[], groupSize = 3) {
       group.length > 1
         ? group.reduce((sum, u, _, arr) => {
             const others = arr.filter((x) => x.id !== u.id);
-            const total = others.reduce(
-              (s, o) => s + computeScore(u, o),
-              0
-            );
+            const total = others.reduce((s, o) => s + computeScore(u, o), 0);
             return sum + total / others.length;
           }, 0) / group.length
         : 0;
@@ -113,10 +110,7 @@ export async function POST(req: NextRequest) {
 
       user = await prisma.user.findUnique({ where: { id: userId } });
       if (!user)
-        return NextResponse.json(
-          { error: "User not found" },
-          { status: 404 }
-        );
+        return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     /* ---------------------------------------------------
@@ -125,14 +119,16 @@ export async function POST(req: NextRequest) {
 
     const users = await prisma.user.findMany({
       where: {
-        isLoggedIn: true,
         payment: { some: { status: "paid" } },
 
+        // Exclude logged-in user (PREVENT SELF-MATCHING)
+        id: { not: userId },
+
+        // Match same city + country when user is provided
         ...(user
           ? {
               city: user.city,
               country: user.country,
-              id: { not: user.id },
             }
           : {}),
       },
