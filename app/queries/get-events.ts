@@ -20,6 +20,8 @@ type Event = {
   payment?: {
     id: string;
     status: string;
+    mode: string;
+    userId: string;
   },
   bookingOpen?: string | null;
   bookingClose?: string | null;

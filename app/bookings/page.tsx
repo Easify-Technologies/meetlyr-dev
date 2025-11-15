@@ -155,13 +155,28 @@ const Page = () => {
                                       "EEEE, MMM do h:mm a"
                                     );
 
-                                    const isEventBooked =
+                                    const isParticipant =
                                       Array.isArray(event?.participants) &&
                                       event.participants.some(
                                         (p) => p.userId === profile?.id && p.eventId === event?.id
-                                      ) &&
+                                      );
+                                    const hasBlockingPayment =
                                       Array.isArray(event?.payment) &&
-                                      event.payment.some((pay) => pay.status === "paid");
+                                      event.payment.some((pay) => {
+                                        // Normalize fields that various backends might use
+                                        const status = pay.status;
+                                        const mode = pay.mode;
+                                        const payUserId = pay.userId;
+
+                                        const isPaid = status === "paid";
+                                        const isSubscription = typeof mode === "string" && mode.toLowerCase() === "subscription";
+
+                                        const belongsToUser = payUserId ? payUserId === profile?.id : true;
+
+                                        return belongsToUser && (isPaid || isSubscription);
+                                      });
+
+                                      const isEventBooked = isParticipant && hasBlockingPayment;
 
                                     return (
                                       <div

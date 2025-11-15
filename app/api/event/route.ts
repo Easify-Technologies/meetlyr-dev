@@ -141,6 +141,8 @@ export async function GET(request: NextRequest) {
           select: {
             id: true,
             status: true,
+            mode: true,
+            userId: true
           }
         }
       },
