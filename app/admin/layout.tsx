@@ -8,7 +8,7 @@ import { MdMenu } from "react-icons/md"
 import { IoHomeOutline } from "react-icons/io5"
 import { LuCircleUserRound } from "react-icons/lu";
 import { FaMapLocationDot } from "react-icons/fa6";
-import { MdEvent, MdCoffee } from "react-icons/md";
+import { MdEvent, MdCoffee, MdEventSeat } from "react-icons/md";
 import { IoIosLogOut } from "react-icons/io";
 import { GiForkKnifeSpoon } from "react-icons/gi";
 import {
@@ -25,8 +25,7 @@ import {
 } from "@/components/ui/sidebar"
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname()
-  const { data: session } = useSession()
+  const pathname = usePathname();
 
   if (pathname === "/admin/login") {
     return <>{children}</>
@@ -37,8 +36,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     { icon: LuCircleUserRound, label: "Users", path: "/admin/users" },
     { icon: FaMapLocationDot, label: "Locations", path: "/admin/locations" },
     { icon: MdEvent, label: "Events", path: "/admin/events" },
+    { icon: MdEventSeat, label: "Event Participants", path: "/admin/participants" },
     { icon: MdCoffee, label: "Cafes", path: "/admin/cafe" },
-    {icon: GiForkKnifeSpoon, label: "Manual Matching", path: "/admin/match-event"},
+    { icon: GiForkKnifeSpoon, label: "Manual Matching", path: "/admin/match-event"},
     { icon: IoIosLogOut, label: "Logout", path: "/admin/login" },
   ]
 
@@ -94,7 +94,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           {/* Header */}
           <header className="w-full fixed bg-white shadow-md border-b border-[#ecedf2] top-0 left-0 z-[99] h-16 md:h-20">
             <div className="flex items-center justify-between h-full px-6 md:px-[45px]">
-              <Link href="/" className="flex items-center gap-2">
+              <Link href="/dashboard" className="flex items-center gap-2">
                 <Image
                   className="object-cover hidden md:block"
                   src="/Mocha-e1760632297719.webp"

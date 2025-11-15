@@ -80,7 +80,7 @@ const PaymentClient = () => {
               <div className="flex flex-col w-full gap-1 items-stretch justify-start flex-nowrap">
                 <div className="flex flex-row gap-1 items-center justify-start flex-nowrap">
                   <h1 className="text-2xl md:text-3xl font-bold font-serif">
-                    Book your next Kin
+                    Book your next Event
                   </h1>
                 </div>
                 <p className="text-base text-muted-foreground">

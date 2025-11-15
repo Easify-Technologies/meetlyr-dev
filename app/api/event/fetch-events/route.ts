@@ -19,6 +19,8 @@ export async function GET() {
                 id: true,
                 name: true,
                 email: true,
+                avatar: true,
+                oneLiner: true,
               },
             },
           },
