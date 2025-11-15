@@ -15,7 +15,7 @@ const MatchingClient = () => {
   const [showMatchedSection, setShowMatchedSection] = useState(false);
   const searchParams = useSearchParams();
 
-  const percentage = ["92%", "93%", "94%", "95%", "96%"];
+  const percentage = ["90%", "91%", "92%", "93%", "94%", "95%", "96%", "97%"];
   const randomPercentage = percentage[Math.floor(Math.random() * percentage.length)];
 
   useEffect(() => {

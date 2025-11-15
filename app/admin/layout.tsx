@@ -36,7 +36,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     { icon: LuCircleUserRound, label: "Users", path: "/admin/users" },
     { icon: FaMapLocationDot, label: "Locations", path: "/admin/locations" },
     { icon: MdEvent, label: "Events", path: "/admin/events" },
-    { icon: MdEventSeat, label: "Event Participants", path: "/admin/participants" },
     { icon: MdCoffee, label: "Cafes", path: "/admin/cafe" },
     { icon: GiForkKnifeSpoon, label: "Manual Matching", path: "/admin/match-event"},
     { icon: IoIosLogOut, label: "Logout", path: "/admin/login" },

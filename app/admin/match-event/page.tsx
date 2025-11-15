@@ -25,7 +25,7 @@ const AdminEventCard = ({ event }: any) => {
               key={p.id}
               className="bg-white rounded-3xl px-5 py-6 shadow-md border border-gray-100 hover:shadow-lg hover:scale-[1.02] transition duration-300 cursor-pointer"
             >
-              <h4 className="text-sm font-semibold mb-2">Participant(s)</h4>
+              <h4 className="text-sm font-semibold mb-2">{event?.participants.length} Participant(s)</h4>
               {/* Top Section */}
               <div className="flex items-center gap-2">
                 <Image
