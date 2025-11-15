@@ -7,10 +7,11 @@ type ApiError = { error: string };
 
 const fetchMatchedGroup = async (
   userId: string,
+  eventId: string,
   mode: "group" | "single" = "group"
 ) => {
   try {
-    const res = await axios.post("/api/match", { userId, mode });
+    const res = await axios.post("/api/match", { userId, mode, eventId });
     return res.data;
   } catch (error) {
     const axiosErr = error as AxiosError<ApiError>;
@@ -18,11 +19,11 @@ const fetchMatchedGroup = async (
   }
 };
 
-export function useMatchedGroupUsers(userId: string) {
+export function useMatchedGroupUsers(userId: string, eventId: string) {
   return useQuery({
-    queryKey: ["matched-users", userId],
-    queryFn: () => fetchMatchedGroup(userId, "group"),
-    enabled: !!userId,
+    queryKey: ["matched-users", userId, eventId],
+    queryFn: () => fetchMatchedGroup(userId, eventId, "group"),
+    enabled: !!userId && !!eventId,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
     retry: false,
