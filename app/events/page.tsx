@@ -41,7 +41,9 @@ const Page = () => {
   const { data: matches, isPending: matchesPending } = useMatchedGroupUsers(profile?.id, participant?.[0]?.eventId);
   const { mutate, isPending: cancelEventPending } = useCancelMyEvent();
 
-  if (isLoading || isPending || matchesPending) return <Loader />;
+  if (isLoading || isPending) return <Loader />;
+
+  if (participant?.length > 0 && matchesPending) return <Loader />;
 
   return (
     <>
