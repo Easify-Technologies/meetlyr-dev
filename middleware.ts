@@ -6,6 +6,7 @@ const PROTECTED_ROUTES = [
   "/bookings",
   "/settings",
   "/payment",
+  "/connect",
   "/events",
   "/personal-information",
 ];

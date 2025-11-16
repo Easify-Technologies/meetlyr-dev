@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -99,6 +99,20 @@ const QuestionClient = () => {
   const currentConfig = stepConfig[step];
   const options = currentConfig.options;
 
+  const handleBackButton = () => {
+    if (step > 1) {
+      setStep(step - 1);
+
+      // Clear UI selections for previous step
+      setSelectedStyle("");
+      setSelectedMulti([]);
+      setSliderValue([10]);
+    } else {
+      // If at step 1 → go back to user-details page
+      router.push(`/get-started/user-details?city_id=${searchParams.get("city_id") ?? ""}`);
+    }
+  };
+
   const isDisabled = (() => {
     if (currentConfig.type === "radio") return !selectedStyle;
     if (currentConfig.type === "slider") return !(sliderValue && sliderValue.length > 0);
@@ -136,6 +150,9 @@ const QuestionClient = () => {
       setSliderValue([10]);
     } else {
       console.log("✅ Final Form Data:", updatedForm);
+
+      localStorage.removeItem("user-details-form");
+
       router.push(`/get-started/about?${params.toString()}`);
     }
   };
@@ -148,6 +165,31 @@ const QuestionClient = () => {
       return [...prev, val];
     });
   };
+
+  useEffect(() => {
+    const params = Object.fromEntries(searchParams.entries());
+
+    // Find the highest completed step based on URL params
+    const stepKeys = Object.values(stepConfig).map((c) => c.key);
+
+    let lastStep = 1;
+    for (let i = 0; i < stepKeys.length; i++) {
+      if (params[stepKeys[i]]) lastStep = i + 1;
+    }
+
+    setStep(lastStep);
+  }, []);
+
+  useEffect(() => {
+    const params = Object.fromEntries(searchParams.entries());
+    const { key, type } = currentConfig;
+
+    if (!params[key]) return;
+
+    if (type === "radio") setSelectedStyle(params[key]);
+    if (type === "slider") setSliderValue([Number(params[key])]);
+    if (type === "multi") setSelectedMulti(params[key].split(","));
+  }, [step, searchParams]);
 
   return (
     <>
@@ -269,7 +311,7 @@ const QuestionClient = () => {
                     </div>
                   </div>
                   <div className="p-4 bg-background flex items-center justify-center gap-4">
-                    <button className="bg-[#ffd100] cursor-pointer h-12 px-4 py-2 rounded-full w-full text-sm md:text-base font-medium transition-all duration-500 hover:bg-[#2f1107] hover:text-white" onClick={() => router.back()} type="button">
+                    <button className="bg-[#ffd100] cursor-pointer h-12 px-4 py-2 rounded-full w-full text-sm md:text-base font-medium transition-all duration-500 hover:bg-[#2f1107] hover:text-white" onClick={handleBackButton} type="button">
                       Back
                     </button>
                     <button

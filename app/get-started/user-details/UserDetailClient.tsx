@@ -46,10 +46,6 @@ const UserDetailClient = () => {
     phoneNumber?.trim() !== "" &&
     password?.trim() !== "";
 
-  const handleNextClick = () => {
-    localStorage.removeItem("user-details-form");
-  };
-
   return (
     <div className="flex flex-col h-full">
       <div className="flex-1 min-h-0 flex flex-col lg:flex-row">
@@ -150,7 +146,6 @@ const UserDetailClient = () => {
                     Back
                   </button>
                   <Link
-                    onClick={handleNextClick}
                     href={
                       isFormComplete
                         ? `/get-started/questions?city_id=${city_id}&name=${encodeURIComponent(

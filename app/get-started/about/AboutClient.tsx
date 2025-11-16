@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -19,6 +19,7 @@ import Link from "next/link";
 
 const AboutClient = () => {
     const router = useRouter();
+    const params = new URLSearchParams(window.location.search);
 
     const [avatarFile, setAvatarFile] = useState<File | null>(null);
     const [open, setOpen] = useState(false);
@@ -46,7 +47,7 @@ const AboutClient = () => {
 
         return ageDiff > 18 || (ageDiff === 18 && hasHadBirthdayThisYear);
     };
-
+    
     const handleNext = async () => {
         if (!formData.gender || !date || !formData.oneLiner || !is18OrOlder(date) || !avatarFile) return;
 
@@ -86,6 +87,30 @@ const AboutClient = () => {
         router.replace(`?${params.toString()}`, { scroll: false });
         router.push(`/get-started/matching?${params.toString()}`);
     };
+
+    const handleBack = () => {
+        const params = new URLSearchParams(window.location.search);
+        router.push(`/get-started/questions?${params.toString()}`);
+    };
+
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+
+        const gender = params.get("gender");
+        const dateOfBirth = params.get("dateOfBirth");
+        const oneLiner = params.get("oneLiner");
+
+        setFormData(prev => ({
+            ...prev,
+            gender: gender ?? prev.gender,
+            dateOfBirth: dateOfBirth ?? prev.dateOfBirth,
+            oneLiner: oneLiner ?? prev.oneLiner
+        }));
+
+        if (dateOfBirth) {
+            setDate(new Date(dateOfBirth));
+        }
+    }, []);
 
     return (
         <>
@@ -234,7 +259,7 @@ const AboutClient = () => {
                                     </form>
                                     {error && <p className="text-red-500 text-base font-semibold">{error}</p>}
                                     <div className="p-4 bg-background flex items-center justify-center gap-4">
-                                        <button className="bg-[#ffd100] cursor-pointer h-12 px-4 py-2 rounded-full w-full text-sm md:text-base font-medium transition-all duration-500 hover:bg-[#2f1107] hover:text-white" onClick={() => router.back()} type="button">
+                                        <button className="bg-[#ffd100] cursor-pointer h-12 px-4 py-2 rounded-full w-full text-sm md:text-base font-medium transition-all duration-500 hover:bg-[#2f1107] hover:text-white" onClick={handleBack} type="button">
                                             Back
                                         </button>
                                         <button
