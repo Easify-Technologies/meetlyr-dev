@@ -12,7 +12,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { ChevronDownIcon } from "lucide-react";
-import { IoMdArrowRoundBack } from "react-icons/io";
 import { Label } from "@/components/ui/label";
 import OneLinerDropdown from "@/components/comp-234";
 import Link from "next/link";
@@ -119,7 +118,6 @@ const AboutClient = () => {
                     <div className="w-full lg:w-1/2 flex flex-col overflow-y-auto h-full">
                         <div className="h-full flex flex-col p-4">
                             <div className="flex items-center justify-between gap-2 px-4 pb-5 w-full">
-                                <IoMdArrowRoundBack size={24} className="cursor-pointer w-10 h-10 rounded-full p-2 flex items-center justify-center text-[#2f1107] hover:bg-[#2f1710] hover:text-white" onClick={() => router.back()} />
                                 <Link href="/">
                                     <Image
                                         src="/Mocha-e1760632297719.webp"

@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 import { useVerifyOTP } from '../queries/verify-otp';
+import { useSendOTP } from '../queries/send-otp';
 import {
     InputOTP,
     InputOTPGroup,
@@ -15,6 +16,7 @@ const Page = () => {
     const [otp, setOtp] = useState("");
 
     const { mutate, isPending, isSuccess, isError, data, error } = useVerifyOTP();
+    const { mutate: sendOtp, isPending: resendPending, isSuccess: resendSuccess } = useSendOTP();
 
     return (
         <>
@@ -65,6 +67,9 @@ const Page = () => {
                                             <>You entered: {otp}</>
                                         )}
                                     </div>
+                                    <button onClick={() => sendOtp} type="button" className='underline text-sm text-neutral-700 font-semibold cursor-pointer hover:text-[#2f1107]'>
+                                        {resendPending ? "Resending..." : resendSuccess ? "OTP Sent!" : "Resend OTP"}
+                                    </button>
                                 </div>
                             </div>
                             {isError && (

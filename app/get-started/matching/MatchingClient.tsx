@@ -99,7 +99,24 @@ const MatchingClient = () => {
                     </>
                   )}
                   {errorMessage && (
-                    <p className="text-red-600 text-center text-sm mt-4">{errorMessage}</p>
+                    errorMessage === "User already exists" ? (
+                      <div className="flex flex-col gap-1 items-center mt-5">
+                        <p className="text-green-600 font-semibold text-base">
+                          Looks like you&apos;re already registered!
+                        </p>
+                        <p className="text-neutral-700 text-sm">
+                          Please sign in to access your account.
+                        </p>
+                        <Link
+                          href="/login"
+                          className="underline text-blue-600 font-semibold text-base mt-1"
+                        >
+                          Login to your account
+                        </Link>
+                      </div>
+                    ) : (
+                      <p className="text-red-600 font-semibold text-base mt-5">{errorMessage}</p>
+                    )
                   )}
                 </div>
               </div>
