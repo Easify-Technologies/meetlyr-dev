@@ -109,14 +109,15 @@ model Event {
 
 model EventParticipant {
   id       String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId   String   @db.ObjectId
+
+  userId   String?  @db.ObjectId
   eventId  String   @db.ObjectId
   joinedAt DateTime @default(now())
 
   status String?
 
-  user  User  @relation(fields: [userId], references: [id])
-  event Event @relation(fields: [eventId], references: [id])
+  user  User?  @relation(fields: [userId], references: [id], onDelete: SetNull)
+  event Event  @relation(fields: [eventId], references: [id])
 }
 
 model MatchGroup {
@@ -144,13 +145,14 @@ model Admin {
 
 model Payment {
   id              String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId          String   @db.ObjectId
+
+  userId          String?  @db.ObjectId
   eventId         String   @db.ObjectId
   stripeSessionId String   @unique
   mode            String
   status          String
   createdAt       DateTime @default(now())
 
-  user  User  @relation(fields: [userId], references: [id])
-  event Event @relation(fields: [eventId], references: [id])
+  user  User?  @relation(fields: [userId], references: [id], onDelete: SetNull)
+  event Event  @relation(fields: [eventId], references: [id])
 }

@@ -33,61 +33,101 @@ export async function POST(request: NextRequest) {
     }
 
     const adminId = auth.adminId;
-    const locations = await prisma.location.findMany();
+    const body = await request.json();
+    
+    // Get the selected location and cafe from request body
+    const { locationId, cafeId, numberOfWeeks = 4 } = body;
 
-    if (locations.length === 0) {
+    if (!locationId) {
       return NextResponse.json(
-        { message: "No locations found" },
+        { message: "Location ID is required" },
         { status: 400 }
       );
     }
 
-    const sundays = getNextSundays(4);
+    // Fetch the specific location
+    const location = await prisma.location.findUnique({
+      where: { id: locationId }
+    });
+
+    if (!location) {
+      return NextResponse.json(
+        { message: "Location not found" },
+        { status: 404 }
+      );
+    }
+
+    // If cafeId is provided, validate it belongs to the location
+    let cafe = null;
+    if (cafeId) {
+      cafe = await prisma.cafe.findFirst({
+        where: {
+          id: cafeId,
+          locationId: locationId
+        }
+      });
+
+      if (!cafe) {
+        return NextResponse.json(
+          { message: "Cafe not found in the selected location" },
+          { status: 400 }
+        );
+      }
+    }
+
+    const sundays = getNextSundays(numberOfWeeks);
     const createdEvents = [];
 
-    for (const location of locations) {
-      for (const sunday of sundays) {
-        // Check for existing event to avoid duplicates
-        const existing = await prisma.event.findFirst({
-          where: {
-            date: sunday,
-            locationId: location.id,
-          },
-        });
+    for (const sunday of sundays) {
+      // Check for existing event to avoid duplicates
+      const existing = await prisma.event.findFirst({
+        where: {
+          date: sunday,
+          locationId: location.id,
+          ...(cafeId && { cafeId: cafeId }) // Also check cafe if provided
+        },
+      });
 
-        if (existing) continue;
+      if (existing) continue;
 
-        // ✅ Booking opens 3 weeks before the event
-        const bookingOpen = new Date(sunday);
-        bookingOpen.setDate(sunday.getDate() - 21);
-        bookingOpen.setHours(10, 0, 0, 0);
+      // ✅ Booking opens 3 weeks before the event
+      const bookingOpen = new Date(sunday);
+      bookingOpen.setDate(sunday.getDate() - 21);
+      bookingOpen.setHours(10, 0, 0, 0);
 
-        // ✅ Booking closes Friday 10 AM before the Sunday event
-        const bookingClose = new Date(sunday);
-        bookingClose.setDate(sunday.getDate() - 2); // Friday before Sunday
-        bookingClose.setHours(10, 0, 0, 0);
+      // ✅ Booking closes Friday 10 AM before the Sunday event
+      const bookingClose = new Date(sunday);
+      bookingClose.setDate(sunday.getDate() - 2); // Friday before Sunday
+      bookingClose.setHours(10, 0, 0, 0);
 
-        // ✅ Create the event
-        const event = await prisma.event.create({
-          data: {
-            date: sunday,
-            city: location.city,
-            country: location.country,
-            createdBy: adminId,
-            locationId: location.id,
-            bookingOpen,
-            bookingClose,
-            status: "Open",
-          },
-        });
+      // ✅ Create the event data
+      const eventData: any = {
+        date: sunday,
+        city: location.city,
+        country: location.country,
+        createdBy: adminId,
+        locationId: location.id,
+        bookingOpen,
+        bookingClose,
+        status: "Open",
+      };
 
-        createdEvents.push(event);
+      // Add cafeId if provided
+      if (cafeId) {
+        eventData.cafeId = cafeId;
       }
+
+      // ✅ Create the event
+      const event = await prisma.event.create({
+        data: eventData,
+      });
+
+      createdEvents.push(event);
     }
 
     return NextResponse.json({
       success: true,
-      message: "Events created for all locations for next 4 Sundays",
+      message: `Events created for ${location.city}, ${location.country}${cafe ? ` at ${cafe.name}` : ''} for next ${numberOfWeeks} Sundays`,
       createdCount: createdEvents.length,
       events: createdEvents,
     });

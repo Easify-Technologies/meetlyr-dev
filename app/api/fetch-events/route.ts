@@ -1,35 +1,55 @@
-// import prisma from "@/lib/prisma";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
     const events = await prisma.event.findMany({
+      orderBy: [
+        { city: "asc" },
+        { date: "asc" }
+      ],
       include: {
-        cafe: {
-          select: { name: true },
-        },
-        admin: {
-          select: { email: true },
-        },
         participants: {
           include: {
             user: {
               select: {
-                id: true,
                 name: true,
-                email: true,
-              },
-            },
-          },
+                avatar: true
+              }
+            }
+          }
         },
+        cafe: {
+          select: {
+            name: true,
+            address: true,
+            imageUrl: true
+          }
+        },
+        location: {
+          select: {
+            city: true,
+            country: true
+          }
+        }
       },
-      orderBy: { date: "asc" },
+      where: {
+        date: {
+          gte: new Date()
+        }
+      }
     });
 
-    return NextResponse.json({ events });
-  } catch (error) {
-    console.error("❌ Error fetching events:", error);
-    return NextResponse.json({ error: "Failed to fetch events" }, { status: 500 });
+    return NextResponse.json({ success: true, events });
+  } catch (error: any) {
+    console.error("Fetch events error:", error);
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Failed to fetch events",
+        error: error.message,
+      },
+      { status: 500 }
+    );
   }
 }
