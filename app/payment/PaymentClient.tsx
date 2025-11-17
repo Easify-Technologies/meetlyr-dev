@@ -126,7 +126,7 @@ const PaymentClient = () => {
                           : "text-[#2F1107]"
                       }`}
                     >
-                      $300.00
+                      $15.00
                     </span>
                   </div>
                   <span
@@ -181,7 +181,7 @@ const PaymentClient = () => {
                           : "text-[#2F1107]"
                       }`}
                     >
-                      $30.00 / month
+                      $5.00 / month
                     </span>
                   </div>
                   <span

@@ -8,7 +8,8 @@ type ApiError = { error: string };
 const fetchEventParticipant = async (userId: string) => {
   try {
     const res = await axios.post("/api/event/participant", { userId });
-    return res.data.participant;
+
+    return res.data.participantEvents ?? [];
   } catch (error) {
     const axiosErr = error as AxiosError<ApiError>;
     throw new Error(axiosErr.response?.data?.error || "Something went wrong");

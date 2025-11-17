@@ -38,12 +38,14 @@ const Page = () => {
 
   const { data: profile, isLoading } = useProfileDetails(userEmail);
   const { data: participant, isPending } = useEventParticipant(profile?.id);
-  const { data: matches, isPending: matchesPending } = useMatchedGroupUsers(profile?.id, participant?.[0]?.eventId);
   const { mutate, isPending: cancelEventPending } = useCancelMyEvent();
 
-  if (isLoading || isPending) return <Loader />;
+  const eventStatus = participant?.[0]?.event?.status;
+  const eventId = participant?.[0]?.eventId;
 
-  if (participant?.length > 0 && matchesPending) return <Loader />;
+  const { data: matches, isPending: matchesPending } = useMatchedGroupUsers(eventId);
+
+  if (isLoading || isPending) return <Loader />;
 
   return (
     <>
@@ -214,24 +216,26 @@ const Page = () => {
                 );
               })}
               {/* CARD 3 - Group */}
-              {matchesPending ? (
-                <div className="text-center py-6">
-                  <Loader />
-                </div>
-              ) : matches?.groups?.[0]?.members?.length > 0 ? (
-                <div className="bg-white border border-gray-100 mt-5 shadow-sm rounded-3xl p-5 sm:p-6 hover:scale-[1.02] transition-transform cursor-pointer duration-500">
-                  <div>
-                    <div className="flex items-center gap-3 mb-3">
-                      <span className="bg-orange-100 text-orange-600 p-2.5 rounded-full text-xl">
-                        <TbUsersGroup />
-                      </span>
-                      <h2 className="text-xl font-bold">Groups</h2>
+              {eventStatus === "Matched" && (
+                <>
+                  {matchesPending ? (
+                    <div className="text-center py-6">
+                      <Loader />
                     </div>
-                    {matches?.groups?.[0]?.members?.length > 0 ? (
+                  ) : matches?.groups?.[0]?.members?.length > 0 ? (
+                    <div className="bg-white border border-gray-100 mt-5 shadow-sm rounded-3xl p-5 sm:p-6 hover:scale-[1.02] transition-transform cursor-pointer duration-500">
                       <div>
+                        <div className="flex items-center gap-3 mb-3">
+                          <span className="bg-orange-100 text-orange-600 p-2.5 rounded-full text-xl">
+                            <TbUsersGroup />
+                          </span>
+                          <h2 className="text-xl font-bold">Groups</h2>
+                        </div>
+
                         <h4 className="text-neutral-700 font-semibold text-base mb-4">
                           Participants ({matches.groups[0].members.length})
                         </h4>
+
                         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                           {matches.groups[0].members.map((member) => (
                             <div
@@ -250,10 +254,9 @@ const Page = () => {
                                 <p className="text-sm text-gray-500 font-semibold line-clamp-2">
                                   {member.oneLiner
                                     ?.split(",")
-                                    .map((word: string) => word.trim())
-                                    .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
-                                    .join(", ")
-                                  }
+                                    .map((w) => w.trim())
+                                    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+                                    .join(", ")}
                                 </p>
                                 <span className="text-xs text-orange-600 font-semibold mt-1">
                                   {member.city}, {member.country}
@@ -263,17 +266,13 @@ const Page = () => {
                           ))}
                         </div>
                       </div>
-                    ) : (
-                      <h3 className="text-center text-xl font-semibold text-neutral-700">
-                        Unfortunately, no groups are formed!
-                      </h3>
-                    )}
-                  </div>
-                </div>
-              ) : (
-                <h3 className="text-center text-xl font-semibold text-neutral-700">
-                  Unfortunately, no groups are formed!
-                </h3>
+                    </div>
+                  ) : (
+                    <h3 className="text-center mt-4 text-xl font-semibold text-neutral-700">
+                      Unfortunately, no groups are formed!
+                    </h3>
+                  )}
+                </>
               )}
             </div>
           </div>

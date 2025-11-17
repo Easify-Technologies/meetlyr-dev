@@ -1,29 +1,21 @@
 "use client";
 
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 
-type ApiError = { error: string };
+const fetchMatchedGroup = async (eventId: string) => {
+  const res = await axios.get("/api/groups", {
+    params: { eventId },
+  });
 
-const fetchMatchedGroup = async (
-  userId: string,
-  eventId: string,
-  mode: "group" | "single" = "group"
-) => {
-  try {
-    const res = await axios.post("/api/match", { userId, mode, eventId });
-    return res.data;
-  } catch (error) {
-    const axiosErr = error as AxiosError<ApiError>;
-    throw new Error(axiosErr.response?.data?.error || "Something went wrong");
-  }
+  return res.data;
 };
 
-export function useMatchedGroupUsers(userId: string, eventId: string) {
+export function useMatchedGroupUsers(eventId?: string) {
   return useQuery({
-    queryKey: ["matched-users", userId, eventId],
-    queryFn: () => fetchMatchedGroup(userId, eventId, "group"),
-    enabled: !!userId && !!eventId,
+    queryKey: ["matched-group", eventId],
+    queryFn: () => fetchMatchedGroup(eventId!),
+    enabled: !!eventId, // Only run if eventId exists
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
     retry: false,

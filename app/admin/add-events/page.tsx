@@ -17,9 +17,9 @@ import Loader from '@/components/ui/loader';
 
 interface EventsProps {
     date: string;
-    city: string;
     country: string;
-    cafeId?: string;
+    city: string;
+    locationId: string;
 }
 
 const Page = () => {
@@ -29,7 +29,7 @@ const Page = () => {
         date: "",
         city: "",
         country: "",
-        cafeId: ""
+        locationId: ""
     });
 
     const { data: cafes, isFetching } = useFetchAllCafes();
@@ -58,8 +58,13 @@ const Page = () => {
     };
 
     const handleSaveEvent = () => {
-        mutate(formData);
-    }
+        mutate({
+            date: formData.date,
+            country: formData.country,
+            city: formData.city,
+            locationId: formData.locationId,
+        });
+    };
 
     if (isFetching) return <Loader />
 
@@ -118,16 +123,17 @@ const Page = () => {
                                     </PopoverContent>
                                 </Popover>
                                 <select
-                                    name="cafeId"
+                                    name="locationId"
                                     id="cafe"
                                     onChange={handleInputChange}
-                                    value={formData.cafeId}
+                                    value={formData.locationId}
                                     disabled={!formData.city}
-                                    className="file:text-foreground mb-5 placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground border-input flex h-16 w-full min-w-0 rounded-full border bg-muted px-5 py-2 text-base transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium md:text-sm"
+                                    className="file:text-foreground mb-5 placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground border-input flex h-16 w-full rounded-full border bg-muted px-5 py-2"
                                 >
                                     <option value="">Select Café</option>
+
                                     {filteredCafes.map((cafe: any) => (
-                                        <option key={cafe.id} value={cafe.id}>
+                                        <option key={cafe.id} value={cafe.location?.id}>
                                             {cafe.name}
                                         </option>
                                     ))}
