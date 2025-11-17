@@ -4,70 +4,50 @@ import { prisma } from "@/lib/prisma";
 export async function POST(req: NextRequest) {
   try {
     const { userId } = await req.json();
-
     if (!userId) {
-      return NextResponse.json({ error: "Missing userId" }, { status: 500 });
+      return NextResponse.json({ error: "Missing userId" }, { status: 400 });
     }
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { city: true, country: true },
+      select: { city: true, country: true }
     });
 
-    if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 500 });
-    }
+    if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
-    const participant = await prisma.eventParticipant.findMany({
+    const participantEvents = await prisma.eventParticipant.findMany({
       where: {
         userId,
         event: {
           city: { equals: user.city, mode: "insensitive" },
-          country: { equals: user.country, mode: "insensitive" },
-        },
+          country: { equals: user.country, mode: "insensitive" }
+        }
       },
       include: {
         event: {
           include: {
             cafe: {
-              select: {
-                id: true,
-                name: true,
-                address: true,
-                imageUrl: true,
-              },
+              select: { id: true, name: true, address: true, imageUrl: true }
             },
-          },
+            matchGroups: true // <-- this is SAFE (read-only)
+          }
         },
         user: {
           select: {
             payment: {
-              select: {
-                mode: true,
-                status: true,
-                stripeSessionId: true,
-              }
-            },
+              select: { mode: true, status: true, stripeSessionId: true }
+            }
           }
         }
-      },
+      }
     });
 
-    console.log(participant);
-
-    if (participant) {
-      return NextResponse.json(
-        { message: "Events Found", participant },
-        { status: 200 }
-      );
-    } else {
-      return NextResponse.json({ error: "No events found" }, { status: 500 });
-    }
+    return NextResponse.json(
+      { message: "Events Found", participantEvents },
+      { status: 200 }
+    );
   } catch (error) {
     console.error("Event fetch error:", error);
-    return NextResponse.json(
-      { error: "Something went wrong" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
