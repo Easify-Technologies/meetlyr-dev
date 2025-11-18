@@ -163,7 +163,6 @@ const Page = () => {
                                     const hasBlockingPayment =
                                       Array.isArray(event?.payment) &&
                                       event.payment.some((pay) => {
-                                        // Normalize fields that various backends might use
                                         const status = pay.status;
                                         const mode = pay.mode;
                                         const payUserId = pay.userId;
@@ -176,7 +175,7 @@ const Page = () => {
                                         return belongsToUser && (isPaid || isSubscription);
                                       });
 
-                                      const isEventBooked = isParticipant && hasBlockingPayment;
+                                    const isEventBooked = isParticipant && hasBlockingPayment;
 
                                     return (
                                       <div
@@ -191,26 +190,30 @@ const Page = () => {
                                             className="order-1 after:absolute after:inset-0 cursor-pointer border-[#2F1107] text-[#2F1107] data-[state=checked]:bg-[#2F1107] data-[state=checked]:border-[#2F1107] data-[state=checked]:text-[#2F1107]"
                                           />
 
-                                          <div className="grid grow gap-2">
-                                            <Label htmlFor={event?.id} className="flex items-center gap-2">
-                                              <h4 className="font-semibold md:text-xl text-lg text-[#2F1107]">
-                                                {formattedEventDate.split(" ")[0] +
-                                                  " " +
-                                                  formattedEventDate.split(" ")[1] +
-                                                  " " +
-                                                  formattedEventDate.split(" ")[2]}
-                                              </h4>
+                                          {isEventBooked ? (
+                                            <h4 className="w-full text-base text-[#2f1107] font-semibold">Event Already Booked!</h4>
+                                          ) : (
+                                            <div className="grid grow gap-2">
+                                              <Label htmlFor={event?.id} className="flex items-center gap-2">
+                                                <h4 className="font-semibold md:text-xl text-lg text-[#2F1107]">
+                                                  {formattedEventDate.split(" ")[0] +
+                                                    " " +
+                                                    formattedEventDate.split(" ")[1] +
+                                                    " " +
+                                                    formattedEventDate.split(" ")[2]}
+                                                </h4>
 
-                                              <div className="flex items-start text-center justify-center bg-[#2F1107] rounded-full px-3 py-2">
-                                                <span className="text-lg font-medium text-white leading-none">
-                                                  {formattedEventDate.split(" ")[3]}
-                                                </span>
-                                                <span className="text-[10px] text-white ml-1 leading-none translate-y--1">
-                                                  {formattedEventDate.split(" ")[4]}
-                                                </span>
-                                              </div>
-                                            </Label>
-                                          </div>
+                                                <div className="flex items-start text-center justify-center bg-[#2F1107] rounded-full px-3 py-2">
+                                                  <span className="text-lg font-medium text-white leading-none">
+                                                    {formattedEventDate.split(" ")[3]}
+                                                  </span>
+                                                  <span className="text-[10px] text-white ml-1 leading-none translate-y--1">
+                                                    {formattedEventDate.split(" ")[4]}
+                                                  </span>
+                                                </div>
+                                              </Label>
+                                            </div>
+                                          )}
                                         </>
                                       </div>
                                     );

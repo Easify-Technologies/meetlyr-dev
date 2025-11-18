@@ -13,7 +13,8 @@ import Loader from "@/components/ui/loader";
 import { toast } from "sonner";
 import { BellIcon, UtensilsCrossed } from "lucide-react";
 import { TbUsersGroup, TbCancel } from "react-icons/tb";
-import { MdOutlineArrowOutward, MdOutlineLocationOn } from "react-icons/md";
+import { GrGroup } from "react-icons/gr";
+import { MdOutlineArrowOutward, MdOutlineLocationOn, MdEventNote } from "react-icons/md";
 import { LuCalendarClock, LuBookOpenText } from "react-icons/lu";
 import { BsFillEmojiTearFill } from "react-icons/bs";
 import { FaRegCopy } from "react-icons/fa";
@@ -85,6 +86,9 @@ const Page = () => {
                 const joinedAt = parseISO(item.joinedAt);
                 const formattedDate = format(joinedAt, "EEEE, MMMM d 'at' h:mm a");
 
+                const eventDate = parseISO(item.event.date);
+                const formattedEventDate = format(eventDate, "EEEE, MMMM d, yyyy 'at' h:mm a");
+
                 const cafe = item?.event?.cafe;
 
                 return (
@@ -100,7 +104,13 @@ const Page = () => {
                         </div>
                         <div className="flex items-center gap-1">
                           <LuCalendarClock className="text-[#2f1107]" />
-                          <span className="text-gray-700 font-semibold text-base">{formattedDate}</span>
+                          <span className="text-gray-700 font-semibold text-base">
+                            Joined us on {formattedDate}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1 mt-1">
+                          <MdEventNote className="text-[#2f1107]" />
+                          <span className="text-gray-700 font-semibold text-base">Event scheduled for {formattedEventDate}</span>
                         </div>
                         <div className="flex items-center gap-1 mt-1">
                           <MdOutlineLocationOn className="text-[#2f1107]" />
@@ -109,6 +119,12 @@ const Page = () => {
                         <div className="flex items-center gap-1 mt-1">
                           <LuBookOpenText className="text-[#2f1107]" />
                           <span className="text-gray-700 font-semibold text-base">In English</span>
+                        </div>
+                        <div className="flex items-center gap-1 mt-1">
+                          <GrGroup className="text-[#2f1107]" />
+                          <span className="text-gray-700 font-semibold text-base">
+                            Members: {item?.event?.matchGroups?.[0]?.members?.length ?? 0} participant(s)
+                          </span>
                         </div>
                         {item?.user?.payment[0]?.mode === "subscription" && (
                           <button onClick={() =>
