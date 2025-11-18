@@ -29,13 +29,15 @@ export async function POST(req: Request) {
   const body = await req.text();
 
   let event: Stripe.Event;
+
   try {
     event = stripe.webhooks.constructEvent(
       body,
       sig,
       process.env.STRIPE_WEBHOOK_SECRET!
     );
-  } catch (err: any) {
+  } 
+  catch (err: any) {
     console.error("❌ Webhook signature verification failed:", err.message);
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
@@ -61,7 +63,8 @@ export async function POST(req: Request) {
           where: { stripeSessionId: session.id },
           data: { status: "paid" },
         });
-      } else {
+      } 
+      else {
         await prisma.payment.create({
           data: {
             userId,
@@ -109,9 +112,9 @@ export async function POST(req: Request) {
             html,
           });
         }
-
         // If it's a single payment for an event
-      } else if (mode === "payment" && eventId) {
+      } 
+      else if (mode === "payment" && eventId) {
         await prisma.eventParticipant.create({
           data: { userId, eventId },
         });
@@ -145,7 +148,6 @@ export async function POST(req: Request) {
       );
       break;
     }
-
     case "customer.subscription.deleted": {
       const subscription = event.data.object as Stripe.Subscription;
       const userId = subscription.metadata?.userId;
@@ -163,11 +165,9 @@ export async function POST(req: Request) {
       }
       break;
     }
-
     default:
       console.log(`Unhandled event type: ${event.type}`);
   }
-
   return NextResponse.json({ received: true });
 }
 
