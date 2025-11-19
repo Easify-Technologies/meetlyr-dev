@@ -18,7 +18,7 @@ const AdminEventCard = ({ event }: any) => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-3">
         {event?.participants.map((p) => {
           const name = p?.user?.name || "Anonymous User";
-          const profileImage = p?.user?.avatar || "/default-avatar.png";
+          const profileImage = p?.user?.avatar || "/diversity.png";
           const oneLiner = p?.user?.oneLiner || "";
 
           return (
