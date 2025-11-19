@@ -70,12 +70,6 @@ const Page = () => {
                 </span>
               </h1>
             </div>
-            <button
-              type="button"
-              className="p-3 bg-white text-neutral-600 rounded-full shadow-md hover:shadow-lg transition-all cursor-pointer hover:bg-[#ffd100] hover:text-[#2f1107] duration-500"
-            >
-              <BellIcon className="w-5 h-5" />
-            </button>
           </div>
         </div>
         {participant?.length > 0 ? (
@@ -102,30 +96,32 @@ const Page = () => {
                           </span>
                           <h2 className="text-xl font-bold">Meetup</h2>
                         </div>
-                        <div className="flex items-center gap-1">
-                          <LuCalendarClock className="text-[#2f1107]" />
+                        <div className="flex items-center gap-2">
+                          <LuCalendarClock className="text-[#2f1107] md:mt-0 -mt-[22px]" />
                           <span className="text-gray-700 font-semibold text-base">
                             Joined us on {formattedDate}
                           </span>
                         </div>
-                        <div className="flex items-center gap-1 mt-1">
-                          <MdEventNote className="text-[#2f1107]" />
+                        <div className="flex items-center gap-2 mt-1.5">
+                          <MdEventNote className="text-[#2f1107] md:mt-0 -mt-[22px]" />
                           <span className="text-gray-700 font-semibold text-base">Event scheduled for {formattedEventDate}</span>
                         </div>
-                        <div className="flex items-center gap-1 mt-1">
+                        <div className="flex items-center gap-2 mt-1.5">
                           <MdOutlineLocationOn className="text-[#2f1107]" />
                           <span className="text-gray-700 font-semibold text-base">{item?.event?.city}, {item?.event?.country}</span>
                         </div>
-                        <div className="flex items-center gap-1 mt-1">
+                        <div className="flex items-center gap-2 mt-1.5">
                           <LuBookOpenText className="text-[#2f1107]" />
                           <span className="text-gray-700 font-semibold text-base">In English</span>
                         </div>
-                        <div className="flex items-center gap-1 mt-1">
-                          <GrGroup className="text-[#2f1107]" />
-                          <span className="text-gray-700 font-semibold text-base">
-                            Members: {item?.event?.matchGroups?.[0]?.members?.length ?? 0} participant(s)
-                          </span>
-                        </div>
+                        {eventStatus === "Matched" && (
+                          <div className="flex items-center gap-2 mt-1.5">
+                            <GrGroup className="text-[#2f1107]" />
+                            <span className="text-gray-700 font-semibold text-base">
+                              Members: {item?.event?.matchGroups?.[0]?.members?.length ?? 0} participant(s)
+                            </span>
+                          </div>
+                        )}
                         {item?.user?.payment[0]?.mode === "subscription" && (
                           <button onClick={() =>
                             mutate({
@@ -156,7 +152,7 @@ const Page = () => {
                             </div>
                             <Drawer>
                               <DrawerTrigger className="bg-[#ffd100] text-[#2f1107] px-3 py-2 rounded-md flex items-center gap-1 font-semibold text-sm mt-2 cursor-pointer transition-colors duration-300 hover:bg-[#2f1107] hover:text-[#ffd100]">
-                                <MdOutlineLocationOn size={18} />
+                                <MdOutlineLocationOn size={18} className="md:mt-0 -mt-[18px]" />
                                 <span>{cafe.address}</span>
                               </DrawerTrigger>
                               <DrawerContent>
@@ -259,14 +255,13 @@ const Page = () => {
                               className="flex items-center gap-3 bg-gradient-to-br from-orange-50 to-white border border-gray-100 rounded-2xl p-3 hover:shadow-md transition-all"
                             >
                               <Image
-                                src={member.avatar}
+                                src="/diversity.png"
                                 alt={member.name}
                                 width={48}
                                 height={48}
                                 className="rounded-full w-12 h-12 object-cover bg-cover"
                               />
                               <div className="flex flex-col">
-                                <h3 className="font-semibold text-lg text-[#2f1107]">{member.name}</h3>
                                 <p className="text-sm text-gray-500 font-semibold line-clamp-2">
                                   {member.oneLiner
                                     ?.split(",")

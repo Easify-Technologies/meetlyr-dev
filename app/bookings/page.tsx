@@ -180,18 +180,35 @@ const Page = () => {
                                     return (
                                       <div
                                         key={event?.id}
-                                        className={`relative flex w-full items-center gap-2 border border-input ${isEventBooked ? "bg-muted": "bg-inherit"} p-4 rounded-full shadow-xs outline-none has-[data-state=checked]:border-[#2F1107]/50 hover:bg-[#2F1107]/10`}
+                                        onClick={isEventBooked ? () => router.push("/events") : undefined}
+                                        className={`relative flex w-full items-center gap-2 border border-input ${isEventBooked ? "bg-muted" : "bg-inherit"
+                                          } p-4 rounded-full shadow-xs outline-none has-[data-state=checked]:border-[#2F1107]/50 hover:bg-[#2F1107]/10`}
                                       >
                                         <>
                                           <RadioGroupItem
                                             value={event?.id}
                                             id={event?.id}
-                                            disabled={isEventBooked}
                                             className="order-1 after:absolute after:inset-0 cursor-pointer border-[#2F1107] text-[#2F1107] data-[state=checked]:bg-[#2F1107] data-[state=checked]:border-[#2F1107] data-[state=checked]:text-[#2F1107]"
                                           />
 
                                           {isEventBooked ? (
-                                            <div className="w-full text-base text-[#2f1107] font-semibold">Event Already Booked!</div>
+                                            <div className="w-full flex md:flex-row flex-col md:items-center items-start md:gap-2.5 gap-2">
+                                              <span className="md:text-base text-sm text-[#2f1107] font-semibold">Event Already Booked!</span>
+                                              <div className="bg-[#2F1107] rounded-full px-3 py-2">
+                                                <span className="md:text-lg text-sm font-medium text-white leading-none">
+                                                  {formattedEventDate.split(" ")[0] +
+                                                    " " +
+                                                    formattedEventDate.split(" ")[1] +
+                                                    " " +
+                                                    formattedEventDate.split(" ")[2] +
+                                                    " " +
+                                                    formattedEventDate.split(" ")[3] +
+                                                    " " + 
+                                                    formattedEventDate.split(" ")[4]
+                                                    }
+                                                </span>
+                                              </div>
+                                            </div>
                                           ) : (
                                             <div className="grid grow gap-2">
                                               <Label htmlFor={event?.id} className="flex items-center gap-2">
