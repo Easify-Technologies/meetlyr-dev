@@ -33,8 +33,13 @@ function isProtectedRoute(pathname: string) {
 }
 
 export async function middleware(req: NextRequest) {
+  const response = NextResponse.next();
   const { pathname } = req.nextUrl;
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+
+  response.headers.set("Cache-Control", "no-store");
+  response.headers.set("Pragma", "no-cache");
+  response.headers.set("Expires", "0");
 
   // 1. Protected routes → must be logged in
   if (isProtectedRoute(pathname) && !token) {
@@ -53,7 +58,7 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL("/bookings", req.url));
   }
 
-  return NextResponse.next();
+  return response;
 }
 
 // ROUTES WHERE MIDDLEWARE SHOULD RUN

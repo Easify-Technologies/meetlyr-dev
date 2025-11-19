@@ -72,15 +72,17 @@ export async function POST(request: NextRequest) {
     });
 
     // Send joining email
-    await sendMeetupEmail({
-      to: participant.user.email,
-      groupNames: participant.user.name,
-      date: event.date.toISOString(),
-      cafe: {
-        name: event.cafe?.name || "Cafe",
-        address: event.cafe?.address || "Address not available"
-      }
-    });
+    if (participant.user) {
+      await sendMeetupEmail({
+        to: participant.user.email,
+        groupNames: participant.user.name,
+        date: event.date.toISOString(),
+        cafe: {
+          name: event.cafe?.name || "Cafe",
+          address: event.cafe?.address || "Address not available"
+        }
+      });
+    }
 
     return NextResponse.json({
       success: true,

@@ -180,7 +180,7 @@ const Page = () => {
                                     return (
                                       <div
                                         key={event?.id}
-                                        className="relative flex w-full items-center gap-2 border border-input p-4 rounded-full shadow-xs outline-none has-[data-state=checked]:border-[#2F1107]/50 hover:bg-[#2F1107]/10"
+                                        className={`relative flex w-full items-center gap-2 border border-input ${isEventBooked ? "bg-muted": "bg-inherit"} p-4 rounded-full shadow-xs outline-none has-[data-state=checked]:border-[#2F1107]/50 hover:bg-[#2F1107]/10`}
                                       >
                                         <>
                                           <RadioGroupItem
@@ -191,7 +191,7 @@ const Page = () => {
                                           />
 
                                           {isEventBooked ? (
-                                            <h4 className="w-full text-base text-[#2f1107] font-semibold">Event Already Booked!</h4>
+                                            <div className="w-full text-base text-[#2f1107] font-semibold">Event Already Booked!</div>
                                           ) : (
                                             <div className="grid grow gap-2">
                                               <Label htmlFor={event?.id} className="flex items-center gap-2">
@@ -202,7 +202,6 @@ const Page = () => {
                                                     " " +
                                                     formattedEventDate.split(" ")[2]}
                                                 </h4>
-
                                                 <div className="flex items-start text-center justify-center bg-[#2F1107] rounded-full px-3 py-2">
                                                   <span className="text-lg font-medium text-white leading-none">
                                                     {formattedEventDate.split(" ")[3]}
