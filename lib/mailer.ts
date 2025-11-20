@@ -45,7 +45,7 @@ export async function sendMeetupEmail({
     </p>
 
     <p>
-      <strong>But where is the dinner?</strong>
+      <strong>But where is the Meetup?</strong>
       You'll find out in the app on the morning of the event.
       All information will always be here:
       <a href="https://app.meetlyr.com/" target="_blank" rel="noopener noreferrer">

@@ -11,16 +11,16 @@ export async function POST(req: NextRequest) {
     }
 
     // 🔒 Prevent double matching
-    const existingMatch = await prisma.matchGroup.findFirst({
-      where: { eventId },
-    });
+    // const existingMatch = await prisma.matchGroup.findFirst({
+    //   where: { eventId },
+    // });
 
-    if (existingMatch) {
-      return NextResponse.json(
-        { error: "Matching already done for this event" },
-        { status: 400 }
-      );
-    }
+    // if (existingMatch) {
+    //   return NextResponse.json(
+    //     { error: "Matching already done for this event" },
+    //     { status: 400 }
+    //   );
+    // }
 
     // ✅ Ensure event exists
     const event = await prisma.event.findUnique({
@@ -46,8 +46,6 @@ export async function POST(req: NextRequest) {
       where: { id: eventId },
       data: {
         cafeId: cafes,
-        isClosed: true,
-        status: "Matched",
       },
     });
 

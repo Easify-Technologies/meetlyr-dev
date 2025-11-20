@@ -5,7 +5,6 @@ import { useFetchEvents } from "@/app/queries/get-events";
 // import useManualMatch from "@/app/queries/admin/manual-match";
 import { useManualGroup } from "@/app/queries/admin/manual-group";
 import { useFetchManualGroups } from "@/app/queries/admin/manual-group";
-import { sendMeetupEmail } from "@/lib/mailer";
 import Loader from "@/components/ui/loader";
 import Image from "next/image";
 import { IoIosClose } from "react-icons/io";
@@ -35,6 +34,8 @@ const AdminEventCard = ({ event }: any) => {
 
   const [selectedParticipants, setSelectedParticipants] = useState<string[]>([]);
   const [showGroupInput, setShowGroupInput] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
   const [cafes, setCafes] = useState([]);
   const [formData, setFormData] = useState({
     groupName: "",
@@ -68,49 +69,61 @@ const AdminEventCard = ({ event }: any) => {
   }
 
   const handleSendConfirmation = async () => {
+    setLoading(true);
+
     try {
-      if (!existingGroups || existingGroups.length === 0) return;
+      if (!existingGroups || existingGroups.length === 0) {
+        setLoading(false);
+        return;
+      }
 
       for (const group of existingGroups) {
-        // Get participant objects for this group
         const matchedMembers = group.members
           .map((participantId: string) =>
             event.participants.find((p: any) => p.id === participantId)
           )
           .filter(Boolean);
 
-        // Collect emails of the members
         const to = matchedMembers
           .map((member: any) => member.user?.email)
           .filter(Boolean);
 
-        if (!to.length) continue; // nothing to send for this group
+        if (!to.length) continue;
 
-        // Build groupNames as "Alice, Bob, Charlie"
         const groupNames = matchedMembers
           .map((member: any) => member.user?.name || "Guest")
           .join(", ");
 
-        // Use event date or group-specific date if you have it
         const date = event?.date || new Date().toISOString();
 
-        await fetch("/api/admin/send-meetup-email", {
+        const response = await fetch("/api/admin/send-meetup-email", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
+            eventId: event.id,
             to,
             groupNames,
             cafe: group.cafe,
             date,
           }),
         });
+
+        const data = await response.json();
+        if(response.ok || response.status === 200) {
+          setMessage(data.message);
+        }
+        else {
+          setMessage(data.error);
+        }
       }
 
-      // You can swap this for your toast system (sonner etc.)
       alert("Confirmation emails sent!");
+      window.location.reload();
     } catch (error) {
       console.error(error);
       alert("Failed to send confirmation emails");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -292,7 +305,28 @@ const AdminEventCard = ({ event }: any) => {
       </div>
 
       {existingGroups && existingGroups.length > 0 && (
-        <button onClick={handleSendConfirmation} className="bg-[#2f1107] text-[#ffd100] mt-4 rounded-md p-3 cursor-pointer transition-colors duration-300 hover:bg-[#ffd100] font-semibold hover:text-[#2f1107]" type="button">Send Confirmation</button>
+        event?.status !== "Matched" ? (
+          <button
+            onClick={handleSendConfirmation}
+            disabled={loading}
+            type="button"
+            className="bg-[#2f1107] text-[#ffd100] mt-4 rounded-md p-3 cursor-pointer transition-colors duration-300 hover:bg-[#ffd100] font-semibold hover:text-[#2f1107]"
+          >
+            {loading ? "Sending..." : "Send Confirmation"}
+          </button>
+        ) : (
+          <button
+            type="button"
+            disabled
+            className="bg-neutral-300 text-neutral-600 mt-4 rounded-md p-3 cursor-not-allowed font-semibold"
+          >
+            Confirmed
+          </button>
+        )
+      )}
+
+      {message && (
+        <p className="text-neutral-700 font-semibold mt-2.5 text-base">{message}</p>
       )}
 
       {/* <button
