@@ -2,9 +2,10 @@
 
 import React, { useEffect, useId, useState } from "react";
 import { useFetchEvents } from "@/app/queries/get-events";
-import useManualMatch from "@/app/queries/admin/manual-match";
+// import useManualMatch from "@/app/queries/admin/manual-match";
 import { useManualGroup } from "@/app/queries/admin/manual-group";
 import { useFetchManualGroups } from "@/app/queries/admin/manual-group";
+import { sendMeetupEmail } from "@/lib/mailer";
 import Loader from "@/components/ui/loader";
 import Image from "next/image";
 import { IoIosClose } from "react-icons/io";
@@ -28,7 +29,7 @@ import axios from "axios";
 
 const AdminEventCard = ({ event }: any) => {
   const id = useId();
-  const { mutate, isPending, data, isError, isSuccess } = useManualMatch();
+  // const { mutate, isPending, data, isError, isSuccess } = useManualMatch();
   const { mutate: mutateGroup, isSuccess: groupSuccess, data: groupData, error, isError: groupError } = useManualGroup();
   const { data: existingGroups } = useFetchManualGroups(event.id);
 
@@ -65,6 +66,53 @@ const AdminEventCard = ({ event }: any) => {
       selectedParticipants: selectedParticipants
     });
   }
+
+  const handleSendConfirmation = async () => {
+    try {
+      if (!existingGroups || existingGroups.length === 0) return;
+
+      for (const group of existingGroups) {
+        // Get participant objects for this group
+        const matchedMembers = group.members
+          .map((participantId: string) =>
+            event.participants.find((p: any) => p.id === participantId)
+          )
+          .filter(Boolean);
+
+        // Collect emails of the members
+        const to = matchedMembers
+          .map((member: any) => member.user?.email)
+          .filter(Boolean);
+
+        if (!to.length) continue; // nothing to send for this group
+
+        // Build groupNames as "Alice, Bob, Charlie"
+        const groupNames = matchedMembers
+          .map((member: any) => member.user?.name || "Guest")
+          .join(", ");
+
+        // Use event date or group-specific date if you have it
+        const date = event?.date || new Date().toISOString();
+
+        await fetch("/api/admin/send-meetup-email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            to,
+            groupNames,
+            cafe: group.cafe,
+            date,
+          }),
+        });
+      }
+
+      // You can swap this for your toast system (sonner etc.)
+      alert("Confirmation emails sent!");
+    } catch (error) {
+      console.error(error);
+      alert("Failed to send confirmation emails");
+    }
+  };
 
   useEffect(() => {
     if (!event?.locationId) return;
@@ -190,20 +238,62 @@ const AdminEventCard = ({ event }: any) => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-5">
         {existingGroups && existingGroups.length > 0 ? (
           <div className="bg-white rounded-3xl p-4 shadow-md border border-gray-100 hover:shadow-lg hover:scale-[1.02] transition duration-300 cursor-pointer">
-            {existingGroups.map((group: any) => (
-              <div key={group.id}>
-                <h4 className="text-xl font-semibold text-[#2f1107] mb-2">{group.groupName}</h4>
-                <p className="text-base font-semibold text-neutral-600 mb-1">Cafe Name: {group.cafe.name}</p>
-                <p className="text-base font-semibold text-neutral-600 mb-1">Cafe Address: {group.cafe.address}</p>
-                <p className="text-base font-semibold text-[#2f1107] mb-3">Total Members: {group.members.length}</p>
-                
-              </div>
-            ))}
+            {existingGroups.map((group: any) => {
+              const matchedMembers = group.members
+                .map((participantId: string) =>
+                  event.participants.find((p: any) => p.id === participantId)
+                )
+                .filter(Boolean);
+
+              return (
+                <div key={group.id} className="p-4 rounded-xl mb-4">
+                  <h4 className="text-xl font-semibold text-[#2f1107] mb-2">{group.groupName}</h4>
+                  <p className="text-base font-semibold text-neutral-600 mb-1">
+                    Cafe Name: {group.cafe.name}
+                  </p>
+                  <p className="text-base font-semibold text-neutral-600 mb-1">
+                    Cafe Address: {group.cafe.address}
+                  </p>
+                  <p className="text-base font-semibold text-[#2f1107] mb-3">
+                    Total Members: {group.members.length}
+                  </p>
+
+                  <div className="space-y-3">
+                    {matchedMembers.map((member: any) => {
+                      const name = member.user?.name || "Anonymous User";
+                      const profileImage = member.user?.avatar || "/diversity.png";
+                      const oneLiner = member.user?.oneLiner || "";
+
+                      return (
+                        <div key={member.id} className="flex items-center gap-3">
+                          <Image
+                            className="rounded-full w-10 h-10 object-cover"
+                            src={profileImage}
+                            alt={name}
+                            width={40}
+                            height={40}
+                          />
+
+                          <div>
+                            <p className="font-medium">{name}</p>
+                            <p className="text-xs text-muted-foreground">{oneLiner}</p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         ) : (
           <p className="text-neutral-600 font-semibold text-base col-span-full">No groups created yet.</p>
         )}
       </div>
+
+      {existingGroups && existingGroups.length > 0 && (
+        <button onClick={handleSendConfirmation} className="bg-[#2f1107] text-[#ffd100] mt-4 rounded-md p-3 cursor-pointer transition-colors duration-300 hover:bg-[#ffd100] font-semibold hover:text-[#2f1107]" type="button">Send Confirmation</button>
+      )}
 
       {/* <button
         onClick={() => mutate(event.id)}
