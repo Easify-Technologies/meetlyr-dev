@@ -3,6 +3,8 @@
 import React, { useEffect, useId, useState } from "react";
 import { useFetchEvents } from "@/app/queries/get-events";
 import useManualMatch from "@/app/queries/admin/manual-match";
+import { useManualGroup } from "@/app/queries/admin/manual-group";
+import { useFetchManualGroups } from "@/app/queries/admin/manual-group";
 import Loader from "@/components/ui/loader";
 import Image from "next/image";
 import { IoIosClose } from "react-icons/io";
@@ -27,11 +29,21 @@ import axios from "axios";
 const AdminEventCard = ({ event }: any) => {
   const id = useId();
   const { mutate, isPending, data, isError, isSuccess } = useManualMatch();
+  const { mutate: mutateGroup, isSuccess: groupSuccess, data: groupData, error, isError: groupError } = useManualGroup();
+  const { data: existingGroups } = useFetchManualGroups(event.id);
 
   const [selectedParticipants, setSelectedParticipants] = useState<string[]>([]);
   const [showGroupInput, setShowGroupInput] = useState(false);
   const [cafes, setCafes] = useState([]);
-  const [groupName, setGroupName] = useState("");
+  const [formData, setFormData] = useState({
+    groupName: "",
+    cafes: ""
+  });
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  }
 
   const toggleSelection = (id: string) => {
     setSelectedParticipants(prev =>
@@ -42,7 +54,16 @@ const AdminEventCard = ({ event }: any) => {
   };
 
   const triggerShowGroupInput = () => {
-    setShowGroupInput(prev => !prev);
+    setShowGroupInput(true);
+  }
+
+  const handleManualGroupCreation = () => {
+    mutateGroup({
+      eventId: event.id,
+      groupName: formData.groupName,
+      cafes: formData.cafes,
+      selectedParticipants: selectedParticipants
+    });
   }
 
   useEffect(() => {
@@ -131,7 +152,7 @@ const AdminEventCard = ({ event }: any) => {
               </Command>
             </PopoverContent>
           </Popover>
-          <select name="cafes" id="cafes" className="h-12 px-1 border rounded-md bg-white text-[#2F1107] font-medium text-base w-56 outline-0" >
+          <select name="cafes" id="cafes" onChange={handleInputChange} value={formData.cafes} className="h-12 px-1 border rounded-md bg-white text-[#2F1107] font-medium text-base w-56 outline-0" >
             <option value="">Select Cafe</option>
             {cafes.map((ca: any) => (
               <option key={ca.id} value={ca.id}>{ca.name}</option>
@@ -139,45 +160,52 @@ const AdminEventCard = ({ event }: any) => {
           </select>
           {showGroupInput && (
             <div className="bg-muted flex items-center justify-between px-4 py-3 outline-none border-0 rounded-full h-12">
-              <input type="text" className="text-[#2F1107] font-medium text-base w-[inherit] outline-0" placeholder="Group Name" name="group_name" id="group_name" value={groupName} onChange={(e) => setGroupName(e.target.value)} />
-              <IoIosClose className="cursor-pointer" size={20} onClick={triggerShowGroupInput} />
+              <input type="text" className="text-[#2F1107] font-medium text-base w-[inherit] outline-0" placeholder="Group Name" name="groupName" value={formData.groupName} onChange={handleInputChange} />
+              <IoIosClose className="cursor-pointer" size={20} onClick={() => setShowGroupInput(false)} />
             </div>
           )}
-          <button type="button" onClick={triggerShowGroupInput} className="bg-[#2f1107] text-[#ffd100] rounded-md py-3 px-4 cursor-pointer transition-colors duration-300 hover:bg-[#ffd100] font-semibold hover:text-[#2f1107]">Create Group</button>
+          <button
+            type="button"
+            onClick={() => {
+              if (!showGroupInput) {
+                triggerShowGroupInput();
+              } else {
+                handleManualGroupCreation();
+              }
+            }}
+            disabled={groupSuccess}
+            className="bg-[#2f1107] text-[#ffd100] rounded-md py-3 px-4 cursor-pointer transition-colors duration-300 hover:bg-[#ffd100] font-semibold hover:text-[#2f1107]">
+            {groupSuccess ? "Creating..." : "Create Group"}
+          </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-5">
-        {event?.participants.map((p) => {
-          const name = p?.user?.name || "Anonymous User";
-          const profileImage = p?.user?.avatar || "/diversity.png";
-          const oneLiner = p?.user?.oneLiner || "";
+      {groupError && (
+        <p data-slot="form-message" className="text-red-500 mt-2.5 font-semibold text-sm">{(error as Error).message}</p>
+      )}
+      {groupSuccess && groupData?.message && (
+        <p data-slot="form-message" className="text-green-500 mt-2.5 font-semibold text-sm">{groupData.message}</p>
+      )}
 
-          return (
-            <div
-              key={p.id}
-              className="bg-white rounded-3xl px-5 py-6 shadow-md border border-gray-100 hover:shadow-lg hover:scale-[1.02] transition duration-300 cursor-pointer"
-            >
-              {/* Top Section */}
-              <div className="flex items-center gap-2">
-                <Image
-                  src={profileImage}
-                  alt={name}
-                  width={36}
-                  height={36}
-                  className="h-9 w-9 rounded-full object-cover border-2 border-yellow-300 shadow-sm"
-                />
-                <div>
-                  <h3 className="text-lg font-bold text-[#2f1107]">{name}</h3>
-                  <p className="text-sm text-neutral-700 font-semibold">{oneLiner}</p>
-                </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-5">
+        {existingGroups && existingGroups.length > 0 ? (
+          <div className="bg-white rounded-3xl p-4 shadow-md border border-gray-100 hover:shadow-lg hover:scale-[1.02] transition duration-300 cursor-pointer">
+            {existingGroups.map((group: any) => (
+              <div key={group.id}>
+                <h4 className="text-xl font-semibold text-[#2f1107] mb-2">{group.groupName}</h4>
+                <p className="text-base font-semibold text-neutral-600 mb-1">Cafe Name: {group.cafe.name}</p>
+                <p className="text-base font-semibold text-neutral-600 mb-1">Cafe Address: {group.cafe.address}</p>
+                <p className="text-base font-semibold text-[#2f1107] mb-3">Total Members: {group.members.length}</p>
+                
               </div>
-            </div>
-          );
-        })}
+            ))}
+          </div>
+        ) : (
+          <p className="text-neutral-600 font-semibold text-base col-span-full">No groups created yet.</p>
+        )}
       </div>
 
-      <button
+      {/* <button
         onClick={() => mutate(event.id)}
         disabled={isPending || event.isClosed}
         className={`mt-5 px-4 py-2 rounded-full ${event.isClosed
@@ -193,11 +221,11 @@ const AdminEventCard = ({ event }: any) => {
       </button>
 
       {isSuccess && (
-        <p className="text-green-600 mt-2">
+        <p className="text-green-600 font-semibold mt-2">
           ✅ {data.message} ({data.totalGroups} groups formed)
         </p>
       )}
-      {isError && <p className="text-red-500 mt-2">Matching Already Done.</p>}
+      {isError && <p className="text-red-500 font-semibold mt-2">Matching Already Done.</p>} */}
     </div>
   );
 };
@@ -207,7 +235,7 @@ export default function MatchEventPage() {
 
   if (isLoading) return <Loader />;
 
-  if (isError) return <p className="p-6 text-red-500">Failed to load events.</p>;
+  if (isError) return <p className="p-6 text-red-500 text-base font-semibold">Failed to load events.</p>;
 
   const events = Array.isArray(data) ? data : data?.events || [];
 
