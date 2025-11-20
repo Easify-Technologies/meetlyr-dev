@@ -130,6 +130,7 @@ model MatchGroup {
 
   // Added from Groups spec
   cafeId      String? @db.ObjectId
+  groupName   String?
   groupNumber Int?
   cafe        Cafe?   @relation(fields: [cafeId], references: [id])
 }
