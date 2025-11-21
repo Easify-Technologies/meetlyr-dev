@@ -227,7 +227,7 @@ const AdminEventCard = ({ event }: any) => {
           )}
           {event?.status === "Matched" ? (
             <button disabled type="button" className="bg-muted-foreground rounded-md py-3 px-4 text-gray-800 font-semibold cursor-not-allowed">
-              Groups Formed
+              Groups Created
             </button>
           ) : (
             <button

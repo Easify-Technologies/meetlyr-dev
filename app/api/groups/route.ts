@@ -1,51 +1,63 @@
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { NextResponse } from "next/server";
 
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const eventId = searchParams.get("eventId");
 
     if (!eventId) {
-      return NextResponse.json({ error: "Missing eventId" }, { status: 400 });
+      return NextResponse.json({ error: "eventId is required" }, { status: 400 });
     }
 
-    // Fetch match group
-    const match = await prisma.matchGroup.findFirst({
+    const groups = await prisma.matchGroup.findMany({
       where: { eventId },
-      include: { cafe: true },
-    });
-
-    if (!match) {
-      return NextResponse.json({ groups: [] });
-    }
-
-    const memberIds = match.members.map(id => id.toString());
-    
-    const members = await prisma.user.findMany({
-      where: { id: { in: memberIds } },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        avatar: true,
-        city: true,
-        country: true,
-        oneLiner: true,
+      include: {
+        cafe: {
+          select: { name: true, address: true, imageUrl: true },
+        },
       },
     });
 
-    return NextResponse.json({
-      groups: [
-        {
-          id: match.id,
-          cafe: match.cafe,
-          members,
+    const finalGroups = [];
+
+    for (const group of groups) {
+      const participantRecords = await prisma.eventParticipant.findMany({
+        where: {
+          id: {
+            in: group.members.map(id => id),
+          },
         },
-      ],
-    });
-  } catch (err: any) {
-    console.error("Match Group error:", err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+        select: { userId: true },
+      });
+
+      const userIds = participantRecords
+        .map(p => p.userId)
+        .filter((u): u is string => u != null);
+
+      const users = await prisma.user.findMany({
+        where: { id: { in: userIds } },
+        select: {
+          id: true,
+          city: true,
+          country: true,
+          oneLiner: true,
+        },
+      });
+
+      finalGroups.push({
+        ...group,
+        members: users,
+      });
+    }
+
+    return NextResponse.json(finalGroups, { status: 200 });
+
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json(
+      { error: "Something went wrong" },
+      { status: 500 }
+    );
   }
 }

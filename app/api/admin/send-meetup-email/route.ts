@@ -4,33 +4,53 @@ import { prisma } from "@/lib/prisma";
 
 export async function POST(req: Request) {
   try {
-    const { to, groupNames, cafe, date, eventId } = await req.json();
+    const { eventId, cafe, date } = await req.json();
 
-    if (!to || !groupNames || !cafe || !date) {
+    if (!eventId || !cafe || !date) {
       return NextResponse.json({ error: "Missing fields" }, { status: 400 });
     }
 
-    await sendMeetupEmail({
-      to, // string or string[]
-      groupNames, // "Alice, Bob"
-      cafe, // { name, address }
-      date, // ISO string or date string
+    // Fetch match group
+    const group = await prisma.matchGroup.findFirst({
+      where: { eventId },
     });
 
-    const event = await prisma.event.update({
+    if (!group) {
+      return NextResponse.json({ error: "Group not found" }, { status: 404 });
+    }
+
+    // Convert eventParticipant IDs → user details
+    const participants = await prisma.eventParticipant.findMany({
+      where: { id: { in: group.members } },
+      include: { user: true }, // user = { name, email }
+    });
+
+    // Send individual emails (skip participants without a linked user)
+    for (const p of participants) {
+      if (!p.user || !p.user.email) {
+        console.warn("Skipping participant without user or email:", p.id);
+        continue;
+      }
+      await sendMeetupEmail({
+        to: p.user.email,
+        groupNames: p.user.name ?? "", // PERSONALIZED
+        cafe,
+        date,
+      });
+    }
+
+    // Update event status
+    await prisma.event.update({
       where: { id: eventId },
-      data: {
-        isClosed: true,
-        status: "Matched",
-      },
+      data: { isClosed: true, status: "Matched" },
     });
 
-    return NextResponse.json({ success: true, message: "Confirmation Email Sent!" }, { status: 200 });
+    return NextResponse.json(
+      { success: true, message: "Emails sent successfully!" },
+      { status: 200 }
+    );
   } catch (error) {
     console.error("Error sending meetup email:", error);
-    return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

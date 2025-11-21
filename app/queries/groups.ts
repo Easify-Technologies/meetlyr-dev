@@ -4,11 +4,15 @@ import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 
 const fetchMatchedGroup = async (eventId: string) => {
-  const res = await axios.get("/api/groups", {
-    params: { eventId },
-  });
+  try {
+    const res = await axios.get("/api/groups", {
+      params: { eventId },
+    });
 
-  return res.data;
+    return res.data;
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 export function useMatchedGroupUsers(eventId?: string) {
