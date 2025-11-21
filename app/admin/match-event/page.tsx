@@ -109,7 +109,7 @@ const AdminEventCard = ({ event }: any) => {
         });
 
         const data = await response.json();
-        if(response.ok || response.status === 200) {
+        if (response.ok || response.status === 200) {
           setMessage(data.message);
         }
         else {
@@ -225,28 +225,39 @@ const AdminEventCard = ({ event }: any) => {
               <IoIosClose className="cursor-pointer" size={20} onClick={() => setShowGroupInput(false)} />
             </div>
           )}
-          <button
-            type="button"
-            onClick={() => {
-              if (!showGroupInput) {
-                triggerShowGroupInput();
-              } else {
-                handleManualGroupCreation();
-              }
-            }}
-            disabled={groupSuccess}
-            className="bg-[#2f1107] text-[#ffd100] rounded-md py-3 px-4 cursor-pointer transition-colors duration-300 hover:bg-[#ffd100] font-semibold hover:text-[#2f1107]">
-            {groupSuccess ? "Creating..." : "Create Group"}
-          </button>
+          {event?.status === "Matched" ? (
+            <button disabled type="button" className="bg-muted-foreground rounded-md py-3 px-4 text-gray-800 font-semibold cursor-not-allowed">
+              Groups Formed
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={
+                () => {
+                  if (!showGroupInput) {
+                    triggerShowGroupInput();
+                  } else {
+                    handleManualGroupCreation();
+                  }
+                }}
+              disabled={groupSuccess}
+              className="bg-[#2f1107] text-[#ffd100] rounded-md py-3 px-4 cursor-pointer transition-colors duration-300 hover:bg-[#ffd100] font-semibold hover:text-[#2f1107]">
+              {groupSuccess ? "Creating..." : "Create Group"}
+            </button>
+          )}
         </div>
       </div>
 
-      {groupError && (
-        <p data-slot="form-message" className="text-red-500 mt-2.5 font-semibold text-sm">{(error as Error).message}</p>
-      )}
-      {groupSuccess && groupData?.message && (
-        <p data-slot="form-message" className="text-green-500 mt-2.5 font-semibold text-sm">{groupData.message}</p>
-      )}
+      {
+        groupError && (
+          <p data-slot="form-message" className="text-red-500 mt-2.5 font-semibold text-sm">{(error as Error).message}</p>
+        )
+      }
+      {
+        groupSuccess && groupData?.message && (
+          <p data-slot="form-message" className="text-green-500 mt-2.5 font-semibold text-sm">{groupData.message}</p>
+        )
+      }
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-5">
         {existingGroups && existingGroups.length > 0 ? (
@@ -304,30 +315,34 @@ const AdminEventCard = ({ event }: any) => {
         )}
       </div>
 
-      {existingGroups && existingGroups.length > 0 && (
-        event?.status !== "Matched" ? (
-          <button
-            onClick={handleSendConfirmation}
-            disabled={loading}
-            type="button"
-            className="bg-[#2f1107] text-[#ffd100] mt-4 rounded-md p-3 cursor-pointer transition-colors duration-300 hover:bg-[#ffd100] font-semibold hover:text-[#2f1107]"
-          >
-            {loading ? "Sending..." : "Send Confirmation"}
-          </button>
-        ) : (
-          <button
-            type="button"
-            disabled
-            className="bg-neutral-300 text-neutral-600 mt-4 rounded-md p-3 cursor-not-allowed font-semibold"
-          >
-            Confirmed
-          </button>
+      {
+        existingGroups && existingGroups.length > 0 && (
+          event?.status !== "Matched" ? (
+            <button
+              onClick={handleSendConfirmation}
+              disabled={loading}
+              type="button"
+              className="bg-[#2f1107] text-[#ffd100] mt-4 rounded-md p-3 cursor-pointer transition-colors duration-300 hover:bg-[#ffd100] font-semibold hover:text-[#2f1107]"
+            >
+              {loading ? "Sending..." : "Send Confirmation"}
+            </button>
+          ) : (
+            <button
+              type="button"
+              disabled
+              className="bg-neutral-300 text-neutral-600 mt-4 rounded-md p-3 cursor-not-allowed font-semibold"
+            >
+              Confirmed
+            </button>
+          )
         )
-      )}
+      }
 
-      {message && (
-        <p className="text-neutral-700 font-semibold mt-2.5 text-base">{message}</p>
-      )}
+      {
+        message && (
+          <p className="text-neutral-700 font-semibold mt-2.5 text-base">{message}</p>
+        )
+      }
 
       {/* <button
         onClick={() => mutate(event.id)}
@@ -350,7 +365,7 @@ const AdminEventCard = ({ event }: any) => {
         </p>
       )}
       {isError && <p className="text-red-500 font-semibold mt-2">Matching Already Done.</p>} */}
-    </div>
+    </div >
   );
 };
 

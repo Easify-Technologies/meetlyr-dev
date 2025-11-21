@@ -1,6 +1,5 @@
-// app/api/send-meetup-email/route.ts
 import { NextResponse } from "next/server";
-import { sendMeetupEmail } from "@/lib/mailer"; // <- adjust path if needed
+import { sendMeetupEmail } from "@/lib/mailer";
 import { prisma } from "@/lib/prisma";
 
 export async function POST(req: Request) {

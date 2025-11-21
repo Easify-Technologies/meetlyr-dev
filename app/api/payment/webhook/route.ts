@@ -93,7 +93,7 @@ export async function POST(req: Request) {
               Welcome to the Meetlyr Premium experience! Your subscription has been successfully activated.
             </p>
             <ul style="color: #555; font-size: 14px; line-height: 1.6;">
-              <li>✅ 4 monthly event credits added</li>
+              <li>✅ 4 Monthly free meetups</li>
               <li>🎟️ Early access to exclusive meetups</li>
               <li>💬 Connect with top community members</li>
             </ul>

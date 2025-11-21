@@ -20,9 +20,10 @@ export async function GET(req: Request) {
       return NextResponse.json({ groups: [] });
     }
 
-    // Fetch full user details for the member IDs
+    const memberIds = match.members.map(id => id.toString());
+    
     const members = await prisma.user.findMany({
-      where: { id: { in: match.members } },
+      where: { id: { in: memberIds } },
       select: {
         id: true,
         name: true,
@@ -44,7 +45,7 @@ export async function GET(req: Request) {
       ],
     });
   } catch (err: any) {
-    console.error("GET match-group error:", err);
+    console.error("Match Group error:", err);
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }

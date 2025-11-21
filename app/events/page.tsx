@@ -11,7 +11,7 @@ import { parseISO, format } from "date-fns";
 import Navbar from "@/components/ui/Navbar";
 import Loader from "@/components/ui/loader";
 import { toast } from "sonner";
-import { BellIcon, UtensilsCrossed } from "lucide-react";
+import { UtensilsCrossed } from "lucide-react";
 import { TbUsersGroup, TbCancel } from "react-icons/tb";
 import { GrGroup } from "react-icons/gr";
 import { MdOutlineArrowOutward, MdOutlineLocationOn, MdEventNote } from "react-icons/md";
@@ -86,7 +86,7 @@ const Page = () => {
                 const cafe = item?.event?.cafe;
 
                 return (
-                  <div key={item.id} className="space-y-5"> {/* spacing between the two boxes */}
+                  <div key={item.id} className="space-y-5">
                     {/* 🥘 CARD 1 - Dinner Event */}
                     <div className="bg-white border border-gray-100 shadow-sm rounded-3xl p-5 sm:p-6 flex flex-col justify-between hover:scale-105 transition-transform cursor-pointer duration-500">
                       <div>
@@ -96,6 +96,7 @@ const Page = () => {
                           </span>
                           <h2 className="text-xl font-bold">Meetup</h2>
                         </div>
+                        <h4 className="mb-4 text-lg font-semibold text-[#2f1107]">Available 48 hours before the event</h4>
                         <div className="flex items-center gap-2">
                           <LuCalendarClock className="text-[#2f1107] md:mt-0 -mt-[22px]" />
                           <span className="text-gray-700 font-semibold text-base">
@@ -147,6 +148,7 @@ const Page = () => {
                               </span>
                               <h2 className="text-xl font-bold">Café</h2>
                             </div>
+                            <h4 className="mb-3 text-lg font-semibold text-[#2f1107]">Available 48 hours before the event</h4>
                             <div className="flex items-center">
                               <h3 className="text-gray-900 text-2xl font-semibold">{cafe.name}</h3>
                             </div>
