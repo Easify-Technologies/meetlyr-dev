@@ -1,11 +1,13 @@
 "use client"
 
-import { usePathname } from "next/navigation"
-import Link from "next/link"
-import Image from "next/image"
-import { useRouter } from "next/navigation"
-import { MdMenu } from "react-icons/md"
-import { IoHomeOutline } from "react-icons/io5"
+import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { MdMenu } from "react-icons/md";
+import Loader from "@/components/ui/loader";
+import { IoHomeOutline } from "react-icons/io5";
 import { LuCircleUserRound } from "react-icons/lu";
 import { FaMapLocationDot } from "react-icons/fa6";
 import { MdEvent, MdCoffee } from "react-icons/md";
@@ -21,16 +23,13 @@ import {
   SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuItem,
-  SidebarMenuButton,
-} from "@/components/ui/sidebar"
+  SidebarMenuButton
+} from "@/components/ui/sidebar";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
+  const [isAuthChecked, setIsAuthChecked] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
-
-  if (pathname === "/admin/login") {
-    return <>{children}</>
-  }
 
   const items = [
     { icon: IoHomeOutline, label: "Dashboard", path: "/admin/dashboard" },
@@ -38,9 +37,25 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     { icon: FaMapLocationDot, label: "Locations", path: "/admin/locations" },
     { icon: MdEvent, label: "Events", path: "/admin/events" },
     { icon: MdCoffee, label: "Cafes", path: "/admin/cafe" },
-    { icon: GiForkKnifeSpoon, label: "Manual Matching", path: "/admin/match-event"},
+    { icon: GiForkKnifeSpoon, label: "Manual Matching", path: "/admin/match-event" },
     { icon: IoIosLogOut, label: "Logout", path: "/admin/login" },
   ]
+
+  useEffect(() => {
+    const token = localStorage.getItem("admin_token");
+
+    if (!token) {
+      router.replace("/admin/login");
+    }
+
+    setIsAuthChecked(true);
+  }, [router]);
+
+  if (pathname === "/admin/login") {
+    return <>{children}</>
+  }
+
+  if(!isAuthChecked) return <Loader />
 
   return (
     <SidebarProvider className="max-w-full">
@@ -62,11 +77,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                               router.push("/admin/login");
                             }, 1000);
                           }}
-                          className={`px-3 py-5 rounded-md flex items-center gap-3 ${
-                            pathname === item.path
+                          className={`px-3 py-5 rounded-md flex items-center gap-3 ${pathname === item.path
                               ? "bg-[#2f1107] text-white"
                               : "hover:bg-[#2f1107]/90 hover:text-white"
-                          } transition-all duration-300 cursor-pointer`}
+                            } transition-all duration-300 cursor-pointer`}
                         >
                           <item.icon className="shrink-0" />
                           <span className="font-medium text-base">{item.label}</span>
@@ -74,11 +88,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                       ) : (
                         <SidebarMenuButton
                           asChild
-                          className={`px-3 py-5 rounded-md ${
-                            pathname === item.path
+                          className={`px-3 py-5 rounded-md ${pathname === item.path
                               ? "bg-[#2f1107] text-white"
                               : "hover:bg-[#2f1107]/90 hover:text-white"
-                          } transition-all duration-300 cursor-pointer`}
+                            } transition-all duration-300 cursor-pointer`}
                         >
                           <Link href={item.path} className="flex items-center gap-3">
                             <item.icon className="shrink-0" />

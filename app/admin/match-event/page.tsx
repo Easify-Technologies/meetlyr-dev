@@ -8,6 +8,7 @@ import { useFetchManualGroups } from "@/app/queries/admin/manual-group";
 import Loader from "@/components/ui/loader";
 import Image from "next/image";
 import { IoIosClose } from "react-icons/io";
+import { FaUserEdit } from "react-icons/fa";
 
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -270,8 +271,11 @@ const AdminEventCard = ({ event }: any) => {
                 .filter(Boolean);
 
               return (
-                <div key={group.id} className="p-4 rounded-xl mb-4">
+                <div key={group.id} className="p-4 relative rounded-xl mb-4">
                   <h4 className="text-xl font-semibold text-[#2f1107] mb-2">{group.groupName}</h4>
+                  <button type="button" className="absolute top-2 right-1 rounded-md p-2 flex items-center justify-center cursor-pointer hover:bg-[#ffd100] hover:text-[#2f1107] transition-colors duration-300">
+                    <FaUserEdit size={20} />
+                  </button>
                   <p className="text-base font-semibold text-neutral-600 mb-1">
                     Cafe Name: {group.cafe.name}
                   </p>
