@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/command";
 import { ChevronDown } from "lucide-react";
 import axios from "axios";
+import toast from "react-hot-toast";
 
 const AdminEventCard = ({ event }: any) => {
   const id = useId();
@@ -123,8 +124,11 @@ const AdminEventCard = ({ event }: any) => {
           date,
         });
 
-        if(res.data.message === "Emails sent successfully!") {
+        if (res.data.message === "Emails sent successfully!") {
           setMessage(res.data.message);
+          if (isGroupEdited) {
+            toast.success("Confirmation Email Sent Successfully");
+          }
         }
         else {
           setMessage(res.data.error);
@@ -142,17 +146,20 @@ const AdminEventCard = ({ event }: any) => {
     }
   };
 
-  const handleSaveGroup = async() => {
+  const handleSaveGroup = async () => {
+    if (selectedMembers.length < 2) {
+      toast.error("A group must have at least 2 members.");
+      return;
+    }
+
     try {
-      const res = await axios.post("/api/admin/edit-group", { 
+      const res = await axios.post("/api/admin/edit-group", {
         groupId: editGroup.id,
         members: selectedMembers
       });
-      if(res.data.message === "Group Updated Successfully") {
+      if (res.data.message === "Group Updated Successfully") {
         SetIsGroupEdited(true);
-        setTimeout(() => {
-          window.location.reload();
-        }, 1000);
+        toast.success("Group Members Updated");
       }
       return res.data;
     } catch (error) {
@@ -360,10 +367,11 @@ const AdminEventCard = ({ event }: any) => {
                         })}
                       </div>
                       <button
-                        onClick={handleSaveGroup}
+                        onClick={isGroupEdited ? handleSendConfirmation : handleSaveGroup}
+                        disabled={loading}
                         className="mt-4 bg-[#2f1107] py-2 cursor-pointer rounded-md transition-colors duration-300 text-[#ffd100] text-sm font-semibold hover:bg-[#ffd100] hover:text-[#2f1107]"
                       >
-                        Save Changes
+                        {isGroupEdited ? "Send Confirmation" : "Save Changes"}
                       </button>
                     </DialogContent>
                   </Dialog>
