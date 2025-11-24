@@ -9,7 +9,14 @@ import Loader from "@/components/ui/loader";
 import Image from "next/image";
 import { IoIosClose } from "react-icons/io";
 import { FaUserEdit } from "react-icons/fa";
-
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -38,6 +45,8 @@ const AdminEventCard = ({ event }: any) => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [cafes, setCafes] = useState([]);
+  const [editGroup, setEditGroup] = useState<any>(null);
+  const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     groupName: "",
     cafes: ""
@@ -52,6 +61,14 @@ const AdminEventCard = ({ event }: any) => {
     setSelectedParticipants(prev =>
       prev.includes(id)
         ? prev.filter(x => x !== id)
+        : [...prev, id]
+    );
+  };
+
+  const toggleMember = (id: string) => {
+    setSelectedMembers(prev =>
+      prev.includes(id)
+        ? prev.filter(m => m !== id)
         : [...prev, id]
     );
   };
@@ -127,6 +144,18 @@ const AdminEventCard = ({ event }: any) => {
       setLoading(false);
     }
   };
+
+  const handleSaveGroup = async() => {
+    try {
+      const res = await axios.post("/api/admin/edit-group", { 
+        groupId: editGroup.id,
+        members: selectedMembers
+      });
+      return res.data;
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   useEffect(() => {
     if (!event?.locationId) return;
@@ -273,9 +302,68 @@ const AdminEventCard = ({ event }: any) => {
               return (
                 <div key={group.id} className="p-4 relative rounded-xl mb-4">
                   <h4 className="text-xl font-semibold text-[#2f1107] mb-2">{group.groupName}</h4>
-                  <button type="button" className="absolute top-2 right-1 rounded-md p-2 flex items-center justify-center cursor-pointer hover:bg-[#ffd100] hover:text-[#2f1107] transition-colors duration-300">
-                    <FaUserEdit size={20} />
-                  </button>
+                  <Dialog>
+                    <DialogTrigger
+                      onClick={() => {
+                        setEditGroup(group);
+                        setSelectedMembers(group.members);
+                      }}
+                      className="absolute top-2 right-1 rounded-md p-2 flex items-center justify-center cursor-pointer hover:bg-[#ffd100] hover:text-[#2f1107] transition-colors duration-300"
+                    >
+                      <FaUserEdit size={20} />
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Edit Group Members</DialogTitle>
+                        <DialogDescription>
+                          Add or remove members from <strong>{editGroup?.groupName}</strong>
+                        </DialogDescription>
+                      </DialogHeader>
+
+                      <div className="max-h-[300px] overflow-y-auto space-y-3 mt-4">
+                        {event.participants.map((participant: any) => {
+                          const checked = selectedMembers.includes(participant.id);
+
+                          return (
+                            <div
+                              key={participant.id}
+                              className="flex items-center gap-3 cursor-pointer"
+                              onClick={() => toggleMember(participant.id)}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={checked}
+                                onChange={() => toggleMember(participant.id)}
+                              />
+
+                              <Image
+                                src={participant.user?.avatar || "/diversity.png"}
+                                width={40}
+                                height={40}
+                                className="w-10 h-10 object-cover rounded-full"
+                                alt={participant.user?.name}
+                              />
+
+                              <div>
+                                <p className="font-medium">
+                                  {participant.user?.name || "Anonymous User"}
+                                </p>
+                                <p className="text-xs text-neutral-500">
+                                  {participant.user?.oneLiner || ""}
+                                </p>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                      <button
+                        onClick={handleSaveGroup}
+                        className="mt-4 bg-[#2f1107] py-2 cursor-pointer rounded-md transition-colors duration-300 text-[#ffd100] text-sm font-semibold hover:bg-[#ffd100] hover:text-[#2f1107]"
+                      >
+                        Save Changes
+                      </button>
+                    </DialogContent>
+                  </Dialog>
                   <p className="text-base font-semibold text-neutral-600 mb-1">
                     Cafe Name: {group.cafe.name}
                   </p>
