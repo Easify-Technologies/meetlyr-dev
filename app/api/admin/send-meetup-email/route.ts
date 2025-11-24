@@ -10,7 +10,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing fields" }, { status: 400 });
     }
 
-    // Fetch match group
     const group = await prisma.matchGroup.findFirst({
       where: { eventId },
     });
@@ -22,24 +21,23 @@ export async function POST(req: Request) {
     // Convert eventParticipant IDs → user details
     const participants = await prisma.eventParticipant.findMany({
       where: { id: { in: group.members } },
-      include: { user: true }, // user = { name, email }
+      include: { user: true }
     });
 
     // Send individual emails (skip participants without a linked user)
     for (const p of participants) {
       if (!p.user || !p.user.email) {
-        console.warn("Skipping participant without user or email:", p.id);
+        console.log("Skipping participant without user or email:", p.id);
         continue;
       }
       await sendMeetupEmail({
         to: p.user.email,
-        groupNames: p.user.name ?? "", // PERSONALIZED
+        groupNames: p.user.name ?? "",
         cafe,
         date,
       });
     }
 
-    // Update event status
     await prisma.event.update({
       where: { id: eventId },
       data: { isClosed: true, status: "Matched" },

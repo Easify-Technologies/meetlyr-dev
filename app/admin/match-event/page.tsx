@@ -46,6 +46,7 @@ const AdminEventCard = ({ event }: any) => {
   const [message, setMessage] = useState("");
   const [cafes, setCafes] = useState([]);
   const [editGroup, setEditGroup] = useState<any>(null);
+  const [isGroupEdited, SetIsGroupEdited] = useState(false);
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     groupName: "",
@@ -114,25 +115,21 @@ const AdminEventCard = ({ event }: any) => {
 
         const date = event?.date || new Date().toISOString();
 
-        const response = await fetch("/api/admin/send-meetup-email", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            eventId: event.id,
-            to,
-            groupNames,
-            cafe: group.cafe,
-            date,
-          }),
+        const res = await axios.post("/api/admin/send-meetup-email", {
+          eventId: event.id,
+          to,
+          groupNames,
+          cafe: group.cafe,
+          date,
         });
 
-        const data = await response.json();
-        if (response.ok || response.status === 200) {
-          setMessage(data.message);
+        if(res.data.message === "Emails sent successfully!") {
+          setMessage(res.data.message);
         }
         else {
-          setMessage(data.error);
+          setMessage(res.data.error);
         }
+        return res.data;
       }
 
       alert("Confirmation emails sent!");
@@ -151,6 +148,12 @@ const AdminEventCard = ({ event }: any) => {
         groupId: editGroup.id,
         members: selectedMembers
       });
+      if(res.data.message === "Group Updated Successfully") {
+        SetIsGroupEdited(true);
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+      }
       return res.data;
     } catch (error) {
       console.log(error);
