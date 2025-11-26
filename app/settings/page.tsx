@@ -74,11 +74,11 @@ const Page = () => {
     const router = useRouter();
     const email = session?.user?.email ?? "";
     const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
-    
+
     const { data: profile, isLoading } = useProfileDetails(email);
     const { data: locations = [] } = useFetchAllLocations();
     const { mutate, isPending } = useUpdateUserLocation(profile?.id);
-    const { mutate: deleteMutation } = useDeleteUser();
+    const { mutateAsync } = useDeleteUser();
 
     const [open, setOpen] = useState(false);
     const [formData, setFormData] = useState({
@@ -119,12 +119,16 @@ const Page = () => {
         profile?.kindOfPeople?.includes(item.value)
     );
 
-    const handleDeleteUser = async() => {
-        deleteMutation({ userId: profile?.id });
-        await signOut();
-        setTimeout(() => {
-            router.push("/");
-        }, 1000);
+    const handleDeleteUser = async () => {
+        try {
+            await mutateAsync({ userId: profile?.id });
+            await signOut();
+            setTimeout(() => {
+                router.push("/");
+            }, 1000);
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     const handleLogout = async () => {

@@ -6,23 +6,6 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const userId = body.userId;
 
-    const groups = await prisma.matchGroup.findMany({
-      where: {
-        members: { has: userId }
-      }
-    });
-
-    for (const group of groups) {
-      await prisma.matchGroup.update({
-        where: { id: group.id },
-        data: {
-          members: {
-            set: group.members.filter(m => m !== userId)
-          }
-        }
-      });
-    }
-
     await prisma.eventParticipant.deleteMany({
       where: { userId }
     });
