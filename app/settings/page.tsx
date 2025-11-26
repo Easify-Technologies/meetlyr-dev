@@ -14,8 +14,10 @@ import { FaLocationArrow } from "react-icons/fa";
 import { CheckCircle } from "lucide-react";
 import { useFetchAllLocations } from "../queries/fetch-locations";
 import { useUpdateUserLocation } from '../queries/update-location';
+import { useDeleteUser } from '../queries/delete-user';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import { useRouter } from 'next/navigation';
 import {
     Dialog,
     DialogContent,
@@ -69,12 +71,14 @@ interface Locations {
 
 const Page = () => {
     const { data: session } = useSession();
-    const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
+    const router = useRouter();
     const email = session?.user?.email ?? "";
-
+    const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
+    
     const { data: profile, isLoading } = useProfileDetails(email);
     const { data: locations = [] } = useFetchAllLocations();
     const { mutate, isPending } = useUpdateUserLocation(profile?.id);
+    const { mutate: deleteMutation } = useDeleteUser();
 
     const [open, setOpen] = useState(false);
     const [formData, setFormData] = useState({
@@ -114,6 +118,14 @@ const Page = () => {
     const meetingPeople = kindOfPeople.filter((item) =>
         profile?.kindOfPeople?.includes(item.value)
     );
+
+    const handleDeleteUser = async() => {
+        deleteMutation({ userId: profile?.id });
+        await signOut();
+        setTimeout(() => {
+            router.push("/");
+        }, 1000);
+    }
 
     const handleLogout = async () => {
         try {
@@ -561,7 +573,7 @@ const Page = () => {
                                                                     </div>
                                                                 </Link>
                                                             </div>
-                                                            <button onClick={handleLogout} data-slot="button" className="inline-flex md:mb-0 mb-20 cursor-pointer items-center justify-center whitespace-nowrap text-sm md:text-base font-medium transition-all select-none disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg:not([class*='size-'])]:size-4 shrink-0 [&amp;_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive border border-secondary bg-background text-foreground hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 h-12 px-4 py-2 rounded-full w-full gap-2">
+                                                            <button onClick={handleLogout} data-slot="button" className="inline-flex cursor-pointer items-center justify-center whitespace-nowrap text-sm md:text-base font-medium transition-all select-none disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg:not([class*='size-'])]:size-4 shrink-0 [&amp;_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive border border-secondary bg-background text-foreground hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 h-12 px-4 py-2 rounded-full w-full gap-2">
                                                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-log-out h-4 w-4" aria-hidden="true">
                                                                     <path d="m16 17 5-5-5-5"></path>
                                                                     <path d="M21 12H9"></path>
@@ -569,8 +581,8 @@ const Page = () => {
                                                                 </svg>
                                                                 Logout
                                                             </button>
-                                                            {/* <div className='pb-16 md:pb-0'>
-                                                                <button data-slot="dialog-trigger" className="inline-flex cursor-pointer items-center justify-center gap-2 whitespace-nowrap text-sm md:text-base font-medium transition-all select-none disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg:not([class*='size-'])]:size-4 shrink-0 [&amp;_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:hover:bg-accent/50 h-12 px-4 py-2 rounded-full w-full text-destructive hover:text-destructive hover:bg-destructive/10" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="radix-«rbh»" data-state="closed">
+                                                            <div className='pb-16 md:pb-0'>
+                                                                <button onClick={handleDeleteUser} data-slot="dialog-trigger" className="inline-flex cursor-pointer items-center justify-center gap-2 whitespace-nowrap text-sm md:text-base font-medium transition-all select-none disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg:not([class*='size-'])]:size-4 shrink-0 [&amp;_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:hover:bg-accent/50 h-12 px-4 py-2 rounded-full w-full text-destructive hover:text-destructive hover:bg-destructive/10" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="radix-«rbh»" data-state="closed">
                                                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-trash2 lucide-trash-2 h-4 w-4 mr-2" aria-hidden="true">
                                                                         <path d="M3 6h18"></path>
                                                                         <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
@@ -580,7 +592,7 @@ const Page = () => {
                                                                     </svg>
                                                                     Delete Account
                                                                 </button>
-                                                            </div> */}
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
