@@ -3,6 +3,10 @@ import nodemailer from "nodemailer";
 import Stripe from "stripe";
 import { prisma } from "@/lib/prisma";
 
+export const runtime = "nodejs";
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+
 export const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
   port: Number(process.env.SMTP_PORT) || 465,
@@ -12,8 +16,6 @@ export const transporter = nodemailer.createTransport({
     pass: process.env.SMTP_PASS,
   },
 });
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 export async function POST(req: Request) {
   const sig = req.headers.get("stripe-signature");
