@@ -94,7 +94,7 @@ const Page = () => {
                     <Image
                       alt=""
                       className="absolute inset-0 w-full h-full object-cover opacity-90"
-                      src="/photo-1629914707102-d04d7262ef96.jpeg"
+                      src="/meetlyr-bookings.png"
                       width={100}
                       height={100}
                       quality={100}
@@ -270,7 +270,7 @@ const Page = () => {
         <div className="hidden lg:flex lg:w-1/2 relative items-center justify-center overflow-hidden bg-muted" >
           <Image
             alt="bookings"
-            src="/photo-1629914707102-d04d7262ef96.jpeg"
+            src="/meetlyr-bookings.png"
             fill
             quality={100}
             priority
