@@ -91,12 +91,14 @@ const Page = () => {
         locations.forEach((loc: Locations) => {
             if (!unique.has(loc.country)) unique.set(loc.country, loc.imageUrl);
         });
+        
         return Array.from(unique, ([country, imageUrl]) => ({ country, imageUrl }));
     }, [locations]);
 
     const filteredCities = useMemo(() => {
         if (!selectedCountry) return [];
-        return locations.filter((loc) => loc.country === selectedCountry);
+
+        return locations.filter((loc: { country: string; }) => loc.country === selectedCountry);
     }, [locations, selectedCountry]);
 
     const formattedDate = profile?.dateOfBirth
@@ -140,7 +142,7 @@ const Page = () => {
         } catch (error) {
             console.error(error);
         }
-    };
+    }
 
     if (isLoading) return <Loader />
 
@@ -279,7 +281,7 @@ const Page = () => {
                                                                                     }}
                                                                                     className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3"
                                                                                 >
-                                                                                    {filteredCities.map((city) => (
+                                                                                    {filteredCities.map((city: { id: string; city: string; imageUrl: string; }) => (
                                                                                         <Label
                                                                                             key={city.id}
                                                                                             htmlFor={city.city}
