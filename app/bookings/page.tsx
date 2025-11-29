@@ -65,12 +65,12 @@ const Page = () => {
         token: session.user.accessToken,
       },
       {
-        onSuccess: (data) => {
-          toast.success(data?.message || "Successfully joined the event!");
+        onSuccess: () => {
+          toast.success("Successfully joined the event!");
           router.push("/events");
         },
-        onError: (error: any) => {
-          toast.error(error?.message || "Failed to join event");
+        onError: () => {
+          toast.error("Failed to join event");
         },
       }
     );

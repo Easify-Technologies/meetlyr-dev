@@ -1,18 +1,17 @@
-import { verifyAuthToken } from "@/lib/auth";
+// import { verifyAuthToken } from "@/lib/auth";
 import { sendMeetupEmail } from "@/lib/mailer";
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   try {
-    const authUser = verifyAuthToken(request);
-    if (!authUser) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
+    // const authUser = verifyAuthToken(request);
+    // if (!authUser) {
+    //   return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    // }
 
     const { userId, eventId } = await request.json();
 
-    // Validate event
     const event = await prisma.event.findUnique({
       where: { id: eventId },
       include: { cafe: true }

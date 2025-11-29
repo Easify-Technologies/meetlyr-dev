@@ -115,14 +115,6 @@ const Page = () => {
                           <LuBookOpenText className="text-[#2f1107]" />
                           <span className="text-gray-700 font-semibold text-base">In English</span>
                         </div>
-                        {eventStatus === "Matched" && (
-                          <div className="flex items-center gap-2 mt-1.5">
-                            <GrGroup className="text-[#2f1107]" />
-                            <span className="text-gray-700 font-semibold text-base">
-                              Members: {item?.event?.matchGroups?.[0]?.members?.length ?? 0} participant(s)
-                            </span>
-                          </div>
-                        )}
                         {item?.user?.payment[0]?.mode === "subscription" && (
                           <button onClick={() =>
                             mutate({
