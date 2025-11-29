@@ -1,5 +1,4 @@
 import axios, { AxiosError } from "axios";
-import { signIn } from "next-auth/react";
 
 export async function addUser(data: any) {
   try {
@@ -36,15 +35,10 @@ export async function addUser(data: any) {
     });
 
     if (response.status === 201) {
-      const login = await signIn("credentials", {
-        redirect: false,
-        email: data.email,
-        password: data.password,
-      });
+      sessionStorage.setItem("email", data.email);
+      sessionStorage.setItem("password", data.password);
 
-      if (!login?.error) {
-        window.location.href = "/verify-otp";
-      }
+      window.location.href = "/verify-otp";
     }
 
     return response.data;

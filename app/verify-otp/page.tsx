@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -13,10 +13,20 @@ import {
 } from "@/components/ui/input-otp";
 
 const Page = () => {
+    const [email, setEmail] = useState<string | null>(null);
+    const [password, setPassword] = useState<string | null>(null);
     const [otp, setOtp] = useState("");
 
     const { mutate, isPending, isSuccess, isError, data, error } = useVerifyOTP();
     const { mutate: sendOtp, isPending: resendPending, isSuccess: resendSuccess } = useSendOTP();
+
+    useEffect(() => {
+        const storedEmail = sessionStorage.getItem("email");
+        const storedPassword = sessionStorage.getItem("password");
+
+        setEmail(storedEmail);
+        setPassword(storedPassword);
+    }, []);
 
     return (
         <>
@@ -80,7 +90,10 @@ const Page = () => {
                             )}
                         </div>
                         <div className="flex-1 flex flex-col gap-4 justify-center items-center">
-                            <button onClick={() => mutate({ otp })} className="inline-flex items-center justify-center gap-2 whitespace-nowrap cursor-pointer text-sm md:text-base font-medium transition-all bg-[#FFD100] text-[#2f1107] hover:bg-[#FFD100]/90 h-12 px-4 py-2 rounded-full w-full" type="button" disabled={isPending}>
+                            <button onClick={() => {
+                                if (!email || !password) return;
+                                mutate({ otp, email, password });
+                            }} className="inline-flex items-center justify-center gap-2 whitespace-nowrap cursor-pointer text-sm md:text-base font-medium transition-all bg-[#FFD100] text-[#2f1107] hover:bg-[#FFD100]/90 h-12 px-4 py-2 rounded-full w-full" type="button" disabled={isPending || !email || !password}>
                                 {isPending ? "Verifying..." : "Verify"}
                             </button>
                         </div>

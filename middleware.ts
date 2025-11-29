@@ -17,7 +17,7 @@ const GUEST_ROUTES = [
   "/get-started",
   "/email-verification",
   "/forgot-password",
-  "/verify-otp", // special handling below
+  "/verify-otp",
   "/reset-password",
 ];
 
@@ -48,12 +48,7 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(redirectUrl);
   }
 
-  // 2. Allow /verify-otp always (whether logged in or not)
-  if (pathname.startsWith("/verify-otp")) {
-    return NextResponse.next();
-  }
-
-  // 3. Logged-in user cannot access guest pages
+  // 2. Logged-in user cannot access guest pages
   if (isGuestRoute(pathname) && token) {
     return NextResponse.redirect(new URL("/bookings", req.url));
   }
