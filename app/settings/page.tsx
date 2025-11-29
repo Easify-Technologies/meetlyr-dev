@@ -411,7 +411,7 @@ const Page = () => {
                                                             </div>
                                                             <div className="flex flex-col gap-4 bg-card rounded-lg p-4 border">
                                                                 <div className="flex items-center justify-between">
-                                                                    <h3 className="text-base md:text-lg text-muted-foreground">Survey Questions</h3>
+                                                                    <h3 className="text-base md:text-lg text-muted-foreground">About Me</h3>
                                                                 </div>
                                                                 <div className="flex flex-col gap-3">
                                                                     <div className="flex items-center gap-3">

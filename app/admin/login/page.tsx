@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 import { Eye, EyeOff } from "lucide-react";
 import { useAdminLogin } from '@/app/queries/admin/login';
@@ -13,11 +14,19 @@ interface LoginProps {
 }
 
 const Page = () => {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState<LoginProps>({
     email: "",
     password: ""
   });
+
+  useEffect(() => {
+    const token = localStorage.getItem("admin_token");
+    if (token) {
+      router.replace("/admin/dashboard");
+    }
+  }, [router]);
 
   const { email, password } = formData;
 

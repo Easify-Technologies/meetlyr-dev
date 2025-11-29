@@ -26,7 +26,12 @@ export default function OneLinerDropdown({ setFormData }: { setFormData: any }) 
   const id = useId();
   const [selected, setSelected] = useState<Option[]>([]);
 
+  const MAX_SELECTION = 3;
+  const disabledOptions = selected.length >= MAX_SELECTION;
+
   const handleSelectionChange = (values: Option[]) => {
+    if (values.length > 3) return;
+
     setSelected(values);
     const valueString = values.map((v) => v.value).join(", ");
     setFormData((prev: any) => ({ ...prev, oneLiner: valueString }));
@@ -46,7 +51,10 @@ export default function OneLinerDropdown({ setFormData }: { setFormData: any }) 
         }}
         value={selected}
         onChange={handleSelectionChange}
-        defaultOptions={one_liner}
+        defaultOptions={one_liner.map(opt => ({
+          ...opt,
+          disabled: disabledOptions && !selected.some(s => s.value === opt.value),
+        }))}
         placeholder="Describe Yourself"
         className="mt-4 rounded-full px-5 py-3 text-base"
         hideClearAllButton

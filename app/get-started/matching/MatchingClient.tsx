@@ -110,7 +110,7 @@ const MatchingClient = () => {
                       </h1>
                     ) : (
                       <>
-                        <h1 className="text-2xl md:text-3xl lg:text-4xl text-[#2F1107] font-semibold">
+                        <h1 className="text-2xl md:text-3xl lg:text-4xl text-white font-semibold">
                           One moment, we’re setting up your profile…
                         </h1>
                         <Progress value={progress} className="w-full" />
