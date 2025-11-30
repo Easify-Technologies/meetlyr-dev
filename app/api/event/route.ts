@@ -142,6 +142,7 @@ export async function GET(request: NextRequest) {
           select: {
             userId: true,
             eventId: true,
+            status: true
           },
         },
         payment: {

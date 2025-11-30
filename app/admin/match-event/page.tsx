@@ -45,6 +45,7 @@ const AdminEventCard = ({ event }: any) => {
   const [showGroupInput, setShowGroupInput] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [selectedCafe, setSelectedCafe] = useState("");
   const [cafes, setCafes] = useState([]);
   const [editGroup, setEditGroup] = useState<any>(null);
   const [isGroupEdited, SetIsGroupEdited] = useState(false);
@@ -155,7 +156,9 @@ const AdminEventCard = ({ event }: any) => {
     try {
       const res = await axios.post("/api/admin/edit-group", {
         groupId: editGroup.id,
-        members: selectedMembers
+        members: selectedMembers,
+        cafe: selectedCafe,
+        eventId: event?.id
       });
       if (res.data.message === "Group Updated Successfully") {
         SetIsGroupEdited(true);
@@ -317,6 +320,7 @@ const AdminEventCard = ({ event }: any) => {
                       onClick={() => {
                         setEditGroup(group);
                         setSelectedMembers(group.members);
+                        setSelectedCafe(group.cafeId);
                       }}
                       className="absolute top-2 right-1 rounded-md p-2 flex items-center justify-center cursor-pointer hover:bg-[#ffd100] hover:text-[#2f1107] transition-colors duration-300"
                     >
@@ -329,6 +333,18 @@ const AdminEventCard = ({ event }: any) => {
                           Add or remove members from <strong>{editGroup?.groupName}</strong>
                         </DialogDescription>
                       </DialogHeader>
+
+                      <select 
+                        name="selectedCafe"
+                        value={selectedCafe}
+                        onChange={(e) => setSelectedCafe(e.target.value)} 
+                        className="w-full bg-muted px-2 border border-input py-2 rounded-md text-sm font-semibold outline-input"
+                      >
+                        <option value="">Select Cafe</option>
+                        {cafes.map((ca: any) => (
+                          <option key={ca.id} value={ca.id}>{ca.name}</option>
+                        ))}
+                      </select>
 
                       <div className="max-h-[300px] overflow-y-auto space-y-3 mt-4">
                         {event.participants.map((participant: any) => {

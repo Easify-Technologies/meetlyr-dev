@@ -13,9 +13,8 @@ import Loader from "@/components/ui/loader";
 import { toast } from "sonner";
 import { UtensilsCrossed } from "lucide-react";
 import { TbUsersGroup, TbCancel } from "react-icons/tb";
-import { GrGroup } from "react-icons/gr";
 import { MdOutlineArrowOutward, MdOutlineLocationOn, MdEventNote } from "react-icons/md";
-import { LuCalendarClock, LuBookOpenText } from "react-icons/lu";
+import { LuCalendarClock } from "react-icons/lu";
 import { BsFillEmojiTearFill } from "react-icons/bs";
 import { FaRegCopy } from "react-icons/fa";
 import { SiCoffeescript } from "react-icons/si";
@@ -96,7 +95,6 @@ const Page = () => {
                           </span>
                           <h2 className="text-xl font-bold">Meetup</h2>
                         </div>
-                        <h4 className="mb-4 text-lg font-semibold text-[#2f1107]">Available 48 hours before the event</h4>
                         <div className="flex items-center gap-2">
                           <LuCalendarClock className="text-[#2f1107] md:mt-0 -mt-[22px]" />
                           <span className="text-gray-700 font-semibold text-base">
@@ -106,14 +104,6 @@ const Page = () => {
                         <div className="flex items-center gap-2 mt-1.5">
                           <MdEventNote className="text-[#2f1107] md:mt-0 -mt-[22px]" />
                           <span className="text-gray-700 font-semibold text-base">Event scheduled for {formattedEventDate}</span>
-                        </div>
-                        <div className="flex items-center gap-2 mt-1.5">
-                          <MdOutlineLocationOn className="text-[#2f1107]" />
-                          <span className="text-gray-700 font-semibold text-base">{item?.event?.city}, {item?.event?.country}</span>
-                        </div>
-                        <div className="flex items-center gap-2 mt-1.5">
-                          <LuBookOpenText className="text-[#2f1107]" />
-                          <span className="text-gray-700 font-semibold text-base">In English</span>
                         </div>
                         {item?.user?.payment[0]?.mode === "subscription" && (
                           <button onClick={() =>
@@ -130,7 +120,7 @@ const Page = () => {
                       </div>
                     </div>
                     {/* ☕ CARD 2 - Café Info */}
-                    {cafe && (
+                    {(cafe && eventStatus === "Matched") && (
                       <div className="bg-white border border-gray-100 shadow-sm rounded-3xl p-5 sm:p-6 hover:scale-[1.02] transition-transform cursor-pointer duration-500">
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
                           <div className="flex-1">
@@ -140,7 +130,6 @@ const Page = () => {
                               </span>
                               <h2 className="text-xl font-bold">Café</h2>
                             </div>
-                            <h4 className="mb-3 text-lg font-semibold text-[#2f1107]">Available 48 hours before the event</h4>
                             <div className="flex items-center">
                               <h3 className="text-gray-900 text-2xl font-semibold">{cafe.name}</h3>
                             </div>

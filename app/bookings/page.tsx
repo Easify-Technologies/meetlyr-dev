@@ -148,92 +148,128 @@ const Page = () => {
                                   onValueChange={(value) => setBooking(value)}
                                   value={booking}
                                 >
-                                  {events.map((event) => {
-                                    const isoEventDate = event?.date;
-                                    const formattedEventDate = format(
-                                      parseISO(isoEventDate),
-                                      "EEEE, MMM do h:mm a"
+                                  {(() => {
+                                    // ⭐ STEP 1 — Find the currently active subscription event
+                                    const activeSubscribedEvent = events.find((event) =>
+                                      // User must be an active participant
+                                      event.participants.some(
+                                        (p) => p.userId === profile?.id && p.status === "Active"
+                                      ) &&
+                                      // And must have a paid subscription payment
+                                      event.payment.some(
+                                        (pay) =>
+                                          pay.userId === profile?.id &&
+                                          pay.mode === "subscription" &&
+                                          pay.status === "paid"
+                                      )
                                     );
 
-                                    const isParticipant =
-                                      Array.isArray(event?.participants) &&
-                                      event.participants.some(
-                                        (p) => p.userId === profile?.id && p.eventId === event?.id
+                                    return events.map((event) => {
+                                      const isoEventDate = event?.date;
+                                      const formattedEventDate = format(
+                                        parseISO(isoEventDate),
+                                        "EEEE, MMM do h:mm a"
                                       );
-                                    const hasBlockingPayment =
-                                      Array.isArray(event?.payment) &&
-                                      event.payment.some((pay) => {
-                                        const status = pay.status;
-                                        const mode = pay.mode;
-                                        const payUserId = pay.userId;
 
-                                        const isPaid = status === "paid";
-                                        const isSubscription = typeof mode === "string" && mode.toLowerCase() === "subscription";
+                                      // ⭐ STEP 2 — Check if THIS event is the active subscription
+                                      const isActiveSubscriptionEvent =
+                                        event.participants.some(
+                                          (p) => p.userId === profile?.id && p.status === "Active"
+                                        ) &&
+                                        event.payment.some(
+                                          (pay) =>
+                                            pay.userId === profile?.id &&
+                                            pay.mode === "subscription" &&
+                                            pay.status === "paid"
+                                        );
 
-                                        const belongsToUser = payUserId ? payUserId === profile?.id : true;
+                                      // ⭐ STEP 3 — Block all events except the subscribed one
+                                      const isBlocked =
+                                        activeSubscribedEvent &&
+                                        activeSubscribedEvent.id !== event.id;
 
-                                        return belongsToUser && (isPaid || isSubscription);
-                                      });
+                                      // Old logic still works for marking event as booked
+                                      const isParticipant =
+                                        event.participants.some((p) => p.userId === profile?.id);
 
-                                    const isEventBooked = isParticipant && hasBlockingPayment;
+                                      const hasBlockingPayment =
+                                        event.payment.some(
+                                          (pay) =>
+                                            pay.userId === profile?.id &&
+                                            (pay.status === "paid" ||
+                                              pay.mode === "subscription")
+                                        );
 
-                                    return (
-                                      <div
-                                        key={event?.id}
-                                        onClick={isEventBooked ? () => router.push("/events") : undefined}
-                                        className={`relative flex w-full items-center gap-2 border border-input ${isEventBooked ? "bg-muted" : "bg-inherit"
-                                          } p-4 rounded-full shadow-xs outline-none has-[data-state=checked]:border-[#2F1107]/50 hover:bg-[#2F1107]/10`}
-                                      >
-                                        <>
-                                          <RadioGroupItem
-                                            value={event?.id}
-                                            id={event?.id}
-                                            className="order-1 after:absolute after:inset-0 cursor-pointer border-[#2F1107] text-[#2F1107] data-[state=checked]:bg-[#2F1107] data-[state=checked]:border-[#2F1107] data-[state=checked]:text-[#2F1107]"
-                                          />
+                                      const isEventBooked = isParticipant && hasBlockingPayment;
 
-                                          {isEventBooked ? (
-                                            <div className="w-full flex md:flex-row flex-col md:items-center items-start md:gap-2.5 gap-2">
-                                              <span className="md:text-base text-sm text-[#2f1107] font-semibold">Event Already Booked!</span>
-                                              <div className="bg-[#2F1107] rounded-full px-3 py-2">
-                                                <span className="md:text-lg text-sm font-medium text-white leading-none">
-                                                  {formattedEventDate.split(" ")[0] +
-                                                    " " +
-                                                    formattedEventDate.split(" ")[1] +
-                                                    " " +
-                                                    formattedEventDate.split(" ")[2] +
-                                                    " " +
-                                                    formattedEventDate.split(" ")[3] +
-                                                    " " + 
-                                                    formattedEventDate.split(" ")[4]
-                                                    }
+                                      return (
+                                        <div
+                                          key={event?.id}
+                                          onClick={
+                                            isBlocked
+                                              ? undefined
+                                              : isEventBooked
+                                                ? () => router.push("/events")
+                                                : undefined
+                                          }
+                                          className={`relative flex w-full items-center gap-2 border border-input 
+            ${isEventBooked ? "bg-muted" : "bg-inherit"} 
+            ${isBlocked ? "opacity-50 cursor-not-allowed" : ""}
+            p-4 rounded-full shadow-xs outline-none hover:bg-[#2F1107]/10`}
+                                        >
+                                          <>
+                                            <RadioGroupItem
+                                              value={event?.id}
+                                              id={event?.id}
+                                              disabled={isBlocked}
+                                              className="order-1 after:absolute after:inset-0 cursor-pointer border-[#2F1107] text-[#2F1107] data-[state=checked]:bg-[#2F1107] data-[state=checked]:border-[#2F1107] data-[state=checked]:text-[#2F1107]"
+                                            />
+
+                                            {isEventBooked ? (
+                                              <div className="w-full flex md:flex-row flex-col md:items-center items-start md:gap-2.5 gap-2">
+                                                <span className="md:text-base text-sm text-[#2f1107] font-semibold">
+                                                  Event Already Booked!
                                                 </span>
-                                              </div>
-                                            </div>
-                                          ) : (
-                                            <div className="grid grow gap-2">
-                                              <Label htmlFor={event?.id} className="flex items-center gap-2">
-                                                <h4 className="font-semibold md:text-xl text-lg text-[#2F1107]">
-                                                  {formattedEventDate.split(" ")[0] +
-                                                    " " +
-                                                    formattedEventDate.split(" ")[1] +
-                                                    " " +
-                                                    formattedEventDate.split(" ")[2]}
-                                                </h4>
-                                                <div className="flex items-start text-center justify-center bg-[#2F1107] rounded-full px-3 py-2">
-                                                  <span className="text-lg font-medium text-white leading-none">
-                                                    {formattedEventDate.split(" ")[3]}
-                                                  </span>
-                                                  <span className="text-[10px] text-white ml-1 leading-none translate-y--1">
-                                                    {formattedEventDate.split(" ")[4]}
+                                                <div className="bg-[#2F1107] rounded-full px-3 py-2">
+                                                  <span className="md:text-lg text-sm font-medium text-white leading-none">
+                                                    {formattedEventDate.split(" ")[0] +
+                                                      " " +
+                                                      formattedEventDate.split(" ")[1] +
+                                                      " " +
+                                                      formattedEventDate.split(" ")[2] +
+                                                      " " +
+                                                      formattedEventDate.split(" ")[3] +
+                                                      " " +
+                                                      formattedEventDate.split(" ")[4]}
                                                   </span>
                                                 </div>
-                                              </Label>
-                                            </div>
-                                          )}
-                                        </>
-                                      </div>
-                                    );
-                                  })}
+                                              </div>
+                                            ) : (
+                                              <div className="grid grow gap-2">
+                                                <Label htmlFor={event?.id} className="flex items-center gap-2">
+                                                  <h4 className="font-semibold md:text-xl text-lg text-[#2F1107]">
+                                                    {formattedEventDate.split(" ")[0] +
+                                                      " " +
+                                                      formattedEventDate.split(" ")[1] +
+                                                      " " +
+                                                      formattedEventDate.split(" ")[2]}
+                                                  </h4>
+                                                  <div className="flex items-start text-center justify-center bg-[#2F1107] rounded-full px-3 py-2">
+                                                    <span className="text-lg font-medium text-white leading-none">
+                                                      {formattedEventDate.split(" ")[3]}
+                                                    </span>
+                                                    <span className="text-[10px] text-white ml-1 leading-none translate-y--1">
+                                                      {formattedEventDate.split(" ")[4]}
+                                                    </span>
+                                                  </div>
+                                                </Label>
+                                              </div>
+                                            )}
+                                          </>
+                                        </div>
+                                      );
+                                    });
+                                  })()}
                                 </RadioGroup>
                               </div>
 
