@@ -22,6 +22,18 @@ import Link from "next/link";
 import Image from "next/image";
 
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
+import {
   Drawer,
   DrawerClose,
   DrawerContent,
@@ -84,6 +96,8 @@ const Page = () => {
 
                 const cafe = item?.event?.cafe;
 
+                const cancellationDeadline = new Date(new Date().getTime() + 24 * 60 * 60 * 1000);
+
                 return (
                   <div key={item.id} className="space-y-5">
                     {/* 🥘 CARD 1 - Dinner Event */}
@@ -105,17 +119,49 @@ const Page = () => {
                           <MdEventNote className="text-[#2f1107] md:mt-0 -mt-[22px]" />
                           <span className="text-gray-700 font-semibold text-base">Event scheduled for {formattedEventDate}</span>
                         </div>
+                        {eventStatus !== "Matched" && (
+                          <h4 className="text-[#2f1107] font-semibold md:text-xl text-base mt-3">Further Details will be available 48 hours before the event</h4>
+                        )}
                         {item?.user?.payment[0]?.mode === "subscription" && (
-                          <button onClick={() =>
-                            mutate({
-                              userId: item?.userId,
-                              eventId: item?.event?.id,
-                              mode: item?.user?.payment[0]?.mode,
-                            })
-                          } disabled={cancelEventPending} type="button" className="flex items-center gap-1 mt-3 bg-red-100 text-red-500 px-4 py-2 rounded-md font-semibold hover:bg-red-500 hover:text-white transition-colors duration-300 cursor-pointer">
-                            <TbCancel />
-                            <span>{cancelEventPending ? "Cancelling..." : "Cancel my event"}</span>
-                          </button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <button
+                                type="button"
+                                className="flex items-center gap-1 mt-3 bg-red-100 text-red-500 px-4 py-2 rounded-md font-semibold hover:bg-red-500 hover:text-white transition-colors duration-300 cursor-pointer"
+                              >
+                                <TbCancel />
+                                <span>Cancel my event</span>
+                              </button>
+                            </AlertDialogTrigger>
+
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle className="text-[#2f1107] text-2xl font-bold">
+                                  Event Cancellation Notice
+                                </AlertDialogTitle>
+
+                                <AlertDialogDescription className="text-[#2f1107] font-medium">
+                                  You cannot cancel an event within <strong>24 hours</strong> of the
+                                  start time.
+                                  <br />
+                                  Please contact our team if you are facing an extraordinary situation.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Close</AlertDialogCancel>
+                                {cancellationDeadline < eventDate && (
+                                  <AlertDialogAction disabled={cancelEventPending} onClick={() => {
+                                    mutate({
+                                      userId: item?.userId,
+                                      eventId: item?.event?.id,
+                                      mode: item?.user?.payment[0]?.mode,
+                                    });
+                                  }}>{cancelEventPending ? "Cancelling..." : "Cancel"}</AlertDialogAction>
+                                )}
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                         )}
                       </div>
                     </div>
