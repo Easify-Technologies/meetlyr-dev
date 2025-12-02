@@ -51,6 +51,7 @@ export default function OneLinerDropdown({ setFormData }: { setFormData: any }) 
         }}
         value={selected}
         onChange={handleSelectionChange}
+        maxSelected={3}
         defaultOptions={one_liner.map(opt => ({
           ...opt,
           disabled: disabledOptions && !selected.some(s => s.value === opt.value),

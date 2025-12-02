@@ -18,7 +18,6 @@ import Link from "next/link";
 
 const AboutClient = () => {
     const router = useRouter();
-    const params = new URLSearchParams(window.location.search);
 
     const [avatarFile, setAvatarFile] = useState<File | null>(null);
     const [open, setOpen] = useState(false);
