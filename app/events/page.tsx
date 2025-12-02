@@ -149,9 +149,9 @@ const Page = () => {
                               </AlertDialogHeader>
 
                               <AlertDialogFooter>
-                                <AlertDialogCancel>Close</AlertDialogCancel>
+                                <AlertDialogCancel className='cursor-pointer'>Close</AlertDialogCancel>
                                 {cancellationDeadline < eventDate && (
-                                  <AlertDialogAction disabled={cancelEventPending} onClick={() => {
+                                  <AlertDialogAction className='cursor-pointer' disabled={cancelEventPending} onClick={() => {
                                     mutate({
                                       userId: item?.userId,
                                       eventId: item?.event?.id,

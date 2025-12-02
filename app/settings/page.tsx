@@ -25,6 +25,17 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const connectionStyles = [
     { label: "I ask questions", value: "ask_questions" },
@@ -91,7 +102,7 @@ const Page = () => {
         locations.forEach((loc: Locations) => {
             if (!unique.has(loc.country)) unique.set(loc.country, loc.imageUrl);
         });
-        
+
         return Array.from(unique, ([country, imageUrl]) => ({ country, imageUrl }));
     }, [locations]);
 
@@ -588,16 +599,33 @@ const Page = () => {
                                                                 Logout
                                                             </button>
                                                             <div className='pb-16 md:pb-0'>
-                                                                <button onClick={handleDeleteUser} data-slot="dialog-trigger" className="inline-flex cursor-pointer items-center justify-center gap-2 whitespace-nowrap text-sm md:text-base font-medium transition-all select-none disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg:not([class*='size-'])]:size-4 shrink-0 [&amp;_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:hover:bg-accent/50 h-12 px-4 py-2 rounded-full w-full text-destructive hover:text-destructive hover:bg-destructive/10" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="radix-«rbh»" data-state="closed">
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-trash2 lucide-trash-2 h-4 w-4 mr-2" aria-hidden="true">
-                                                                        <path d="M3 6h18"></path>
-                                                                        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
-                                                                        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
-                                                                        <line x1="10" x2="10" y1="11" y2="17"></line>
-                                                                        <line x1="14" x2="14" y1="11" y2="17"></line>
-                                                                    </svg>
-                                                                    Delete Account
-                                                                </button>
+                                                                <AlertDialog>
+                                                                    <AlertDialogTrigger asChild>
+                                                                        <button data-slot="dialog-trigger" className="inline-flex cursor-pointer items-center justify-center gap-2 whitespace-nowrap text-sm md:text-base font-medium transition-all select-none disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg:not([class*='size-'])]:size-4 shrink-0 [&amp;_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:hover:bg-accent/50 h-12 px-4 py-2 rounded-full w-full text-destructive hover:text-destructive hover:bg-destructive/10" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="radix-«rbh»" data-state="closed">
+                                                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-trash2 lucide-trash-2 h-4 w-4 mr-2" aria-hidden="true">
+                                                                                <path d="M3 6h18"></path>
+                                                                                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                                                                                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                                                                                <line x1="10" x2="10" y1="11" y2="17"></line>
+                                                                                <line x1="14" x2="14" y1="11" y2="17"></line>
+                                                                            </svg>
+                                                                            Delete Account
+                                                                        </button>
+                                                                    </AlertDialogTrigger>
+                                                                    <AlertDialogContent>
+                                                                        <AlertDialogHeader>
+                                                                            <AlertDialogTitle className='text-[#2f1107] text-xl'>Are you absolutely sure you want to delete this account?</AlertDialogTitle>
+                                                                            <AlertDialogDescription className='text-[#2f1107]'>
+                                                                                We’re sad to see you go, but we truly appreciate the time you spent with us.
+                                                                                If you ever decide to return, we’ll welcome you back with open arms. ❤️
+                                                                            </AlertDialogDescription>
+                                                                        </AlertDialogHeader>
+                                                                        <AlertDialogFooter>
+                                                                            <AlertDialogCancel className='cursor-pointer'>Cancel</AlertDialogCancel>
+                                                                            <AlertDialogAction className='cursor-pointer' onClick={handleDeleteUser}>Delete</AlertDialogAction>
+                                                                        </AlertDialogFooter>
+                                                                    </AlertDialogContent>
+                                                                </AlertDialog>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -623,7 +651,7 @@ const Page = () => {
                         />
                     </div>
                 </div>
-            </div>
+            </div >
         </>
     )
 }
