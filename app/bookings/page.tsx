@@ -152,11 +152,11 @@ const Page = () => {
                                     // ⭐ STEP 1 — Find the currently active subscription event
                                     const activeSubscribedEvent = events.find((event) =>
                                       // User must be an active participant
-                                      event.participants.some(
+                                      Array.isArray(event?.participants) && event?.participants.some(
                                         (p) => p.userId === profile?.id && p.status === "Active"
                                       ) &&
                                       // And must have a paid subscription payment
-                                      event.payment.some(
+                                      Array.isArray(event?.payment) && event?.payment.some(
                                         (pay) =>
                                           pay.userId === profile?.id &&
                                           pay.mode === "subscription" &&
@@ -173,10 +173,10 @@ const Page = () => {
 
                                       // ⭐ STEP 2 — Check if THIS event is the active subscription
                                       const isActiveSubscriptionEvent =
-                                        event.participants.some(
+                                        Array.isArray(event?.participants) && event?.participants.some(
                                           (p) => p.userId === profile?.id && p.status === "Active"
                                         ) &&
-                                        event.payment.some(
+                                        Array.isArray(event?.payment) && event?.payment.some(
                                           (pay) =>
                                             pay.userId === profile?.id &&
                                             pay.mode === "subscription" &&
@@ -190,14 +190,14 @@ const Page = () => {
 
                                       // Old logic still works for marking event as booked
                                       const isParticipant =
-                                        event.participants.some((p) => p.userId === profile?.id);
+                                      Array.isArray(event?.participants) && event?.participants.some((p) => p.userId === profile?.id);
 
                                       const hasBlockingPayment =
-                                        event.payment.some(
+                                      Array.isArray(event?.payment) && event?.payment.some(
                                           (pay) =>
                                             pay.userId === profile?.id &&
                                             (pay.status === "paid" ||
-                                              pay.mode === "subscription")
+                                            pay.mode === "subscription")
                                         );
 
                                       const isEventBooked = isParticipant && hasBlockingPayment;
@@ -213,9 +213,9 @@ const Page = () => {
                                                 : undefined
                                           }
                                           className={`relative flex w-full items-center gap-2 border border-input 
-            ${isEventBooked ? "bg-muted" : "bg-inherit"} 
-            ${isBlocked ? "opacity-50 cursor-not-allowed" : ""}
-            p-4 rounded-full shadow-xs outline-none hover:bg-[#2F1107]/10`}
+                                          ${isEventBooked ? "bg-muted" : "bg-inherit"} 
+                                          ${isBlocked ? "opacity-50 cursor-not-allowed" : ""}
+                                          p-4 rounded-full shadow-xs outline-none hover:bg-[#2F1107]/10`}
                                         >
                                           <>
                                             <RadioGroupItem
