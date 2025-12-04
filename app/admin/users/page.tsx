@@ -31,6 +31,10 @@ interface UserProps {
     spirituality: string;
     politicalNews: string;
     incorrectHumor: string;
+    payment: [{
+        mode: string;
+        status: string;
+    }];
     kindOfPeople: string[];
 }
 
@@ -90,6 +94,8 @@ const Page = () => {
                                             "Health & Fitness",
                                             "Politics",
                                             "Kind of People",
+                                            "Payment Mode",
+                                            "Payment Status"
                                         ].map((heading, i) => (
                                             <TableHead key={i} className="text-[#2f1107] whitespace-nowrap">
                                                 {heading}
@@ -107,7 +113,7 @@ const Page = () => {
                                             <TableCell>{user?.name}</TableCell>
                                             <TableCell>{user?.email}</TableCell>
                                             <TableCell>{user?.phoneNumber}</TableCell>
-                                            <TableCell>{user?.gender}</TableCell>
+                                            <TableCell className='capitalize'>{user?.gender}</TableCell>
                                             <TableCell>{user?.dateOfBirth}</TableCell>
                                             <TableCell>{user?.city}</TableCell>
                                             <TableCell>{user?.country}</TableCell>
@@ -120,6 +126,8 @@ const Page = () => {
                                             <TableCell className="whitespace-nowrap">
                                                 {user?.kindOfPeople?.join(", ")}
                                             </TableCell>
+                                            <TableCell className='capitalize'>{user?.payment?.[0]?.mode ?? "unpaid"}</TableCell>
+                                            <TableCell className='capitalize'>{user?.payment?.[0]?.status ?? "unpaid"}</TableCell>
                                         </TableRow>
                                     ))}
                                 </TableBody>
