@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import Loader from '@/components/ui/loader';
 import { useFetchAllUsers } from '@/app/queries/admin/fetch-users';
+import { useFetchAllLocations } from '@/app/queries/fetch-locations';
 
 import {
     Table,
@@ -38,8 +39,15 @@ interface UserProps {
     kindOfPeople: string[];
 }
 
+interface LocationProps {
+    id: string;
+    city: string;
+    country: string;
+}
+
 const Page = () => {
     const { data: users, isPending } = useFetchAllUsers();
+    const { data: locations } = useFetchAllLocations();
 
     if (isPending) return <Loader />
 
@@ -48,28 +56,45 @@ const Page = () => {
             <section className="w-full min-h-screen bg-[#FFFFF5] relative">
                 <div className="w-full mx-auto py-8 px-4 md:px-8">
                     {/* Header */}
-                    <div className="flex flex-row gap-2 items-center flex-nowrap">
-                        <Link
-                            href="/admin/dashboard"
-                            className="rounded-full hover:bg-[#2f1107] hover:text-white flex items-center justify-center p-2 transition-colors duration-300"
-                        >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="24"
-                                height="24"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                className="lucide lucide-arrow-left"
+                    <div className="flex md:flex-row flex-col md:items-center items-start md:justify-between justify-start md:gap-0 gap-3.5">
+                        <div className='flex items-center gap-1'>
+                            <Link
+                                href="/admin/dashboard"
+                                className="rounded-full hover:bg-[#2f1107] hover:text-white flex items-center justify-center p-2 transition-colors duration-300"
                             >
-                                <path d="m12 19-7-7 7-7" />
-                                <path d="M19 12H5" />
-                            </svg>
-                        </Link>
-                        <h3 className="text-2xl md:text-3xl font-bold">All Users</h3>
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="24"
+                                    height="24"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    className="lucide lucide-arrow-left"
+                                >
+                                    <path d="m12 19-7-7 7-7" />
+                                    <path d="M19 12H5" />
+                                </svg>
+                            </Link>
+                            <h3 className="text-2xl md:text-3xl font-bold">All Users</h3>
+                        </div>
+                        <div className='flex items-center gap-2'>
+                            <input className='file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground border-input flex h-12 min-w-0 rounded-full border bg-muted px-4 py-2 text-base transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium md:text-sm' type="text" name='name' placeholder='Seacrh by name' />
+                            <select className='file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground border-input flex h-12 min-w-0 rounded-full border bg-muted px-4 py-2 text-base transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium md:text-sm' name="country">
+                                <option value="">Select Country</option>
+                                {locations.map((loc: LocationProps) => (
+                                    <option key={loc.id} value={loc.country}>{loc.country}</option>
+                                ))}
+                            </select>
+                            <select className='file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground border-input flex h-12 min-w-0 rounded-full border bg-muted px-4 py-2 text-base transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium md:text-sm' name="gender">
+                                <option value="">Select Gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Others">Others</option>
+                            </select>
+                        </div>
                     </div>
 
                     {/* Table (desktop) */}
@@ -126,7 +151,7 @@ const Page = () => {
                                             <TableCell className="whitespace-nowrap">
                                                 {user?.kindOfPeople?.join(", ")}
                                             </TableCell>
-                                            <TableCell className='capitalize'>{user?.payment?.[0]?.mode ?? "unpaid"}</TableCell>
+                                            <TableCell className='capitalize'>{user?.payment?.[0]?.mode ?? "---"}</TableCell>
                                             <TableCell className='capitalize'>{user?.payment?.[0]?.status ?? "unpaid"}</TableCell>
                                         </TableRow>
                                     ))}
@@ -149,7 +174,7 @@ const Page = () => {
                                 <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm text-gray-700">
                                     <p><span className="font-semibold">Email:</span> {user?.email}</p>
                                     <p><span className="font-semibold">Phone:</span> {user?.phoneNumber}</p>
-                                    <p><span className="font-semibold">Gender:</span> {user?.gender}</p>
+                                    <p className='capitalize'><span className="font-semibold">Gender:</span> {user?.gender}</p>
                                     <p><span className="font-semibold">DOB:</span> {user?.dateOfBirth}</p>
                                     <p><span className="font-semibold">City:</span> {user?.city}</p>
                                     <p><span className="font-semibold">Country:</span> {user?.country}</p>
@@ -160,9 +185,11 @@ const Page = () => {
                                     <p><span className="font-semibold">Health & Fitness:</span> {user?.healthAndFitness}</p>
                                     <p><span className="font-semibold">Politics:</span> {user?.politicalNews}</p>
                                     <p className="col-span-2">
-                                        <span className="font-semibold">Kind of People:</span>{" "}
+                                        <span className="font-semibold">Kind of People: </span>
                                         {user?.kindOfPeople?.join(", ")}
                                     </p>
+                                    <p className='capitalize'><span className="font-semibold">Payment Mode:</span> {user?.payment?.[0]?.mode ?? "---"}</p>
+                                    <p className='capitalize'><span className="font-semibold">Payment Status:</span> {user?.payment?.[0]?.mode ?? "unpaid"}</p>
                                 </div>
                             </div>
                         ))}
