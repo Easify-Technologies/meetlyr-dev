@@ -44,9 +44,11 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
+import { useRouter } from "next/navigation";
 
 const Page = () => {
   const { data: session } = useSession();
+  const router = useRouter();
   const userEmail = session?.user?.email ?? "";
 
   const { data: profile, isLoading } = useProfileDetails(userEmail);
@@ -55,8 +57,16 @@ const Page = () => {
 
   const eventStatus = participant?.[0]?.event?.status;
   const eventId = participant?.[0]?.eventId;
+  const cafeId = participant?.[0]?.event?.cafeId;
 
   const { data: matches, isPending: matchesPending } = useMatchedGroupUsers(eventId);
+
+  const toFeedback = () => {
+    router.push("/feedback");
+
+    localStorage.setItem("eventId", eventId);
+    localStorage.setItem("cafeId", cafeId);
+  }
 
   if (isLoading || isPending) return <Loader />;
 
@@ -326,7 +336,7 @@ const Page = () => {
                   <h2 className="text-xl font-bold">Feedback</h2>
                 </div>
                 <p className="text-neutral-700 md:text-base text-sm font-semibold">Share your thoughts about your event, match with each other and improve your next experience.</p>
-                <button type="button" className="flex bg-[#ffd100] text-[#2f1107] shadow-md w-full text-center justify-center text-base font-semibold mt-3 items-center gap-2.5 px-2.5 py-3 mb-2 cursor-pointer rounded-xl hover:bg-[#2f1107] hover:text-[#ffd100] duration-500 transition-colors">
+                <button onClick={toFeedback} type="button" className="flex bg-[#ffd100] text-[#2f1107] shadow-md w-full text-center justify-center text-base font-semibold mt-3 items-center gap-2.5 px-2.5 py-3 mb-2 cursor-pointer rounded-xl hover:bg-[#2f1107] hover:text-[#ffd100] duration-500 transition-colors">
                   Send a Feedback
                 </button>
               </div>
