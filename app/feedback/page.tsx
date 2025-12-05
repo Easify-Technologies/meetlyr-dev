@@ -1,12 +1,21 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Navbar from '@/components/ui/Navbar';
 import StarRatingComponent from '@/components/comp-171';
 
 const Page = () => {
-  const eventId = localStorage.getItem("eventId") ?? "";
-  const cafeId = localStorage.getItem("cafeId") ?? "";
+  const [eventId, setEventId] = useState("");
+  const [cafeId, setCafeId] = useState("");
+
+  useEffect(() => {
+    // Runs ONLY on client
+    const storedEventId = localStorage.getItem("eventId") ?? "";
+    const storedCafeId = localStorage.getItem("cafeId") ?? "";
+
+    setEventId(storedEventId);
+    setCafeId(storedCafeId);
+  }, []);
 
   return (
     <>
