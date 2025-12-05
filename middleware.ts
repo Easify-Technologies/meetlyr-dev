@@ -8,6 +8,7 @@ const PROTECTED_ROUTES = [
   "/payment",
   "/connect",
   "/events",
+  "/feedback",
   "/personal-information",
 ];
 
@@ -64,6 +65,7 @@ export const config = {
     "/settings/:path*",
     "/payment/:path*",
     "/events/:path*",
+    "/feedback/:path*",
     "/personal-information/:path*",
     "/login",
     "/get-started/:path*",

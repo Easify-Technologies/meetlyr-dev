@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
     });
 
     if(existingFeedback) {
-        return NextResponse.json({ error: "Feedback already submitted for this event" });
+        return NextResponse.json({ error: "Feedback already submitted for this event" }, { status: 400 });
     }
 
     const feedback = await prisma.feedback.create({
@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
     console.error(error);
     return NextResponse.json(
       { error: "Something went wrong" },
-      { status: 500 }
+      { status: 400 }
     );
   }
 }
