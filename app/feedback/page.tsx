@@ -2,14 +2,39 @@
 
 import React, { useEffect, useState } from 'react';
 import Navbar from '@/components/ui/Navbar';
+import { useSession } from 'next-auth/react';
 import StarRatingComponent from '@/components/comp-171';
 
+import { useSendFeedback } from '../queries/feedback';
+
 const Page = () => {
+  const { data: session } = useSession();
+  const userId = session?.user?.id ?? "";
+
   const [eventId, setEventId] = useState("");
   const [cafeId, setCafeId] = useState("");
+  const [rating, setRating] = useState({
+    cafeRating: "",
+    participantRating: "",
+    atmosphereRating: ""
+  });
+
+  const { cafeRating, participantRating, atmosphereRating } = rating;
+
+  const { mutate, isPending, isSuccess, data, error, isError } = useSendFeedback();
+
+  const handleSendFeedback = () => {
+    mutate({
+      eventId,
+      cafeId,
+      userId,
+      cafeRating: Number(cafeRating), 
+      participantRating: Number(participantRating),
+      atmosphereRating: Number(atmosphereRating)
+    });
+  }
 
   useEffect(() => {
-    // Runs ONLY on client
     const storedEventId = localStorage.getItem("eventId") ?? "";
     const storedCafeId = localStorage.getItem("cafeId") ?? "";
 
@@ -35,25 +60,34 @@ const Page = () => {
           <div className='flex flex-col gap-2 mb-4'>
             <h4 className='font-semibold text-lg'>What do you think of the cafe?</h4>
             <div className='flex items-center justify-center gap-1'>
-              <StarRatingComponent />
+              <StarRatingComponent
+                value={cafeRating}
+                onChange={(val) => setRating(prev => ({ ...prev, cafeRating: val }))}
+              />
             </div>
           </div>
           <div className='flex flex-col gap-2 mb-4'>
             <h4 className='font-semibold text-lg'>What do you think of your participant?</h4>
             <div className='flex items-center justify-center gap-1'>
-              <StarRatingComponent />
+              <StarRatingComponent
+                value={participantRating}
+                onChange={(val) => setRating(prev => ({ ...prev, participantRating: val }))}
+              />
             </div>
           </div>
           <div className='flex flex-col gap-2'>
             <h4 className='font-semibold text-lg text-center'>How did you find the atmosphere and service?</h4>
             <div className='flex items-center justify-center gap-1'>
-              <StarRatingComponent />
+              <StarRatingComponent
+                value={atmosphereRating}
+                onChange={(val) => setRating(prev => ({ ...prev, atmosphereRating: val }))}
+              />
             </div>
           </div>
         </div>
 
-        <button type="button" className='bg-[#ffd100] text-[#2f1107] shadow-md md:w-60 w-full text-center justify-center text-base font-semibold mt-5 items-center gap-2.5 px-2.5 py-3 cursor-pointer rounded-full hover:bg-[#2f1107] hover:text-[#ffd100] duration-500 transition-colors'>
-          Submit
+        <button disabled={isPending} onClick={handleSendFeedback} type="button" className='bg-[#ffd100] text-[#2f1107] shadow-md md:w-64 w-full text-center justify-center text-base font-semibold mt-5 items-center gap-2.5 px-2.5 py-3 cursor-pointer rounded-full hover:bg-[#2f1107] hover:text-[#ffd100] duration-500 transition-colors'>
+          {isPending ? "Submitting..." : "Submit"}
         </button>
       </section>
     </>

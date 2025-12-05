@@ -43,9 +43,10 @@ model User {
   interests String?
   payment   Payment[]
 
-  subscriptionActive  Boolean   @default(false)
+  subscriptionActive  Boolean    @default(false)
   subscriptionEndsAt  DateTime?
-  subscriptionCredits Int       @default(0)
+  subscriptionCredits Int        @default(0)
+  feedbacks           Feedback[]
 }
 
 model Location {
@@ -79,6 +80,7 @@ model Cafe {
   contact  String?
 
   matchGroups MatchGroup[]
+  feedbacks   Feedback[]
 }
 
 model Event {
@@ -100,15 +102,16 @@ model Event {
   payment     Payment[]
 
   // Additional event properties from spec
-  locationId   String?   @db.ObjectId
-  location     Location? @relation(fields: [locationId], references: [id])
+  locationId   String?    @db.ObjectId
+  location     Location?  @relation(fields: [locationId], references: [id])
   bookingOpen  DateTime? // opens before event
   bookingClose DateTime? // closes before event
   status       String? // 'Open', 'Closed', 'Completed'
+  feedbacks    Feedback[]
 }
 
 model EventParticipant {
-  id       String   @id @default(auto()) @map("_id") @db.ObjectId
+  id String @id @default(auto()) @map("_id") @db.ObjectId
 
   userId   String?  @db.ObjectId
   eventId  String   @db.ObjectId
@@ -116,8 +119,8 @@ model EventParticipant {
 
   status String?
 
-  user  User?  @relation(fields: [userId], references: [id], onDelete: SetNull)
-  event Event  @relation(fields: [eventId], references: [id])
+  user  User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+  event Event @relation(fields: [eventId], references: [id])
 }
 
 model MatchGroup {
@@ -145,7 +148,7 @@ model Admin {
 }
 
 model Payment {
-  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  id String @id @default(auto()) @map("_id") @db.ObjectId
 
   userId          String?  @db.ObjectId
   eventId         String   @db.ObjectId
@@ -154,6 +157,20 @@ model Payment {
   status          String
   createdAt       DateTime @default(now())
 
-  user  User?  @relation(fields: [userId], references: [id], onDelete: SetNull)
-  event Event  @relation(fields: [eventId], references: [id])
+  user  User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+  event Event @relation(fields: [eventId], references: [id])
+}
+
+model Feedback {
+  id                String @id @default(auto()) @map("_id") @db.ObjectId
+  userId            String @db.ObjectId
+  eventId           String @db.ObjectId
+  cafeId            String @db.ObjectId
+  cafeRating        Int
+  participantRating Int
+  atmosphereRating  Int
+
+  user  User  @relation(fields: [userId], references: [id])
+  event Event @relation(fields: [eventId], references: [id])
+  cafe  Cafe  @relation(fields: [cafeId], references: [id])
 }

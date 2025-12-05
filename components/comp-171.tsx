@@ -2,43 +2,35 @@
 
 import { RiStarFill } from "@remixicon/react";
 import { useId, useState } from "react";
-
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
-export default function StarRatingComponent() {
+export default function StarRatingComponent({ value, onChange }) {
   const id = useId();
   const [hoverRating, setHoverRating] = useState("");
-  const [currentRating, setCurrentRating] = useState("");
+
+  const displayRating = hoverRating || value;
 
   return (
     <fieldset className="space-y-4">
       <RadioGroup
         className="inline-flex gap-0"
-        onValueChange={setCurrentRating}
+        value={value}
+        onValueChange={onChange}
       >
-        {["1", "2", "3", "4", "5"].map((value) => (
+        {["1", "2", "3", "4", "5"].map((v) => (
           <label
-            className="group relative cursor-pointer rounded p-0.5 outline-none has-focus-visible:border-ring has-focus-visible:ring-[3px] has-focus-visible:ring-ring/50"
-            key={value}
-            onMouseEnter={() => setHoverRating(value)}
+            key={v}
+            className="group relative cursor-pointer rounded p-0.5"
+            onMouseEnter={() => setHoverRating(v)}
             onMouseLeave={() => setHoverRating("")}
           >
-            <RadioGroupItem
-              className="sr-only"
-              id={`${id}-${value}`}
-              value={value}
-            />
+            <RadioGroupItem className="sr-only" id={`${id}-${v}`} value={v} />
+
             <RiStarFill
-              className={`transition-all w-8 h-8 ${
-                (hoverRating || currentRating) >= value
-                  ? "text-amber-500"
-                  : "text-neutral-500"
+              className={`transition-all w-9 h-9 ${
+                displayRating >= v ? "text-amber-500" : "text-neutral-400"
               } group-hover:scale-110`}
-              size={24}
             />
-            <span className="sr-only">
-              {value} star{value === "1" ? "" : "s"}
-            </span>
           </label>
         ))}
       </RadioGroup>
