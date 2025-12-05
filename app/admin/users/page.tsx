@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useDeferredValue, useMemo, useState } from 'react';
 import Link from 'next/link';
 import Loader from '@/components/ui/loader';
 import { useFetchAllUsers } from '@/app/queries/admin/fetch-users';
@@ -49,6 +49,33 @@ const Page = () => {
     const { data: users, isPending } = useFetchAllUsers();
     const { data: locations } = useFetchAllLocations();
 
+    const [searchTerm, setSearchTerm] = useState({
+        name: "",
+        country: "",
+        gender: ""
+    });
+
+    const { name, country, gender } = searchTerm;
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        const { name, value } = e.target;
+        setSearchTerm({ ...searchTerm, [name]: value });
+    }
+
+    const deferredName = useDeferredValue(name);
+    const deferredCountry = useDeferredValue(country);
+    const deferredGender = useDeferredValue(gender);
+
+    const filteredUsers = useMemo(() => {
+        return users?.filter((item: { name: string; country: string; gender: string; }) => {
+            return (
+                (deferredName === "" || item.name.toLowerCase().includes(deferredName.toLowerCase())) &&
+                (deferredCountry === "" || item.country.toLowerCase().includes(deferredCountry.toLowerCase())) &&
+                (deferredGender === "" || item.gender.toLowerCase().includes(deferredGender.toLowerCase()))
+            );
+        });
+    }, [users, deferredName, deferredCountry, deferredGender]);
+
     if (isPending) return <Loader />
 
     return (
@@ -80,15 +107,15 @@ const Page = () => {
                             </Link>
                             <h3 className="text-2xl md:text-3xl font-bold">All Users</h3>
                         </div>
-                        <div className='flex items-center gap-2'>
-                            <input className='file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground border-input flex h-12 min-w-0 rounded-full border bg-muted px-4 py-2 text-base transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium md:text-sm' type="text" name='name' placeholder='Seacrh by name' />
-                            <select className='file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground border-input flex h-12 min-w-0 rounded-full border bg-muted px-4 py-2 text-base transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium md:text-sm' name="country">
+                        <div className='flex items-center gap-2.5'>
+                            <input className='file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground border-input flex h-12 min-w-0 rounded-full border bg-muted px-4 py-2 text-base transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium md:text-sm' type="text" name='name' value={name} onChange={handleInputChange} placeholder='Seacrh by name' />
+                            <select className='file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground border-input flex h-12 min-w-0 rounded-full border bg-muted px-4 py-2 text-base transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium md:text-sm' name="country" value={country} onChange={handleInputChange}>
                                 <option value="">Select Country</option>
                                 {locations.map((loc: LocationProps) => (
                                     <option key={loc.id} value={loc.country}>{loc.country}</option>
                                 ))}
                             </select>
-                            <select className='file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground border-input flex h-12 min-w-0 rounded-full border bg-muted px-4 py-2 text-base transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium md:text-sm' name="gender">
+                            <select className='file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground border-input flex h-12 min-w-0 rounded-full border bg-muted px-4 py-2 text-base transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium md:text-sm' name="gender" value={gender} onChange={handleInputChange}>
                                 <option value="">Select Gender</option>
                                 <option value="Male">Male</option>
                                 <option value="Female">Female</option>
@@ -129,7 +156,7 @@ const Page = () => {
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {users?.map((user: UserProps, idx: number) => (
+                                    {filteredUsers?.map((user: UserProps, idx: number) => (
                                         <TableRow
                                             key={user.id}
                                             className="even:bg-[#2f1107] hover:bg-[#2f1107]/30 border-none even:text-white"
@@ -162,7 +189,7 @@ const Page = () => {
 
                     {/* Card layout (mobile) */}
                     <div className="md:hidden mt-8 space-y-4">
-                        {users?.map((user: UserProps, idx: number) => (
+                        {filteredUsers?.map((user: UserProps, idx: number) => (
                             <div
                                 key={user.id}
                                 className="bg-white border border-gray-200 rounded-xl shadow-sm p-4 flex flex-col gap-2"
