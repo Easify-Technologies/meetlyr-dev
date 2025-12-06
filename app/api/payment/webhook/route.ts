@@ -47,6 +47,7 @@ export async function POST(req: Request) {
       const session = event.data.object as Stripe.Checkout.Session;
       const userId = session.metadata?.userId;
       const eventId = session.metadata?.eventId;
+      const plan = session.metadata?.plan;
       const mode = session.mode;
 
       if (!userId) {
@@ -78,6 +79,11 @@ export async function POST(req: Request) {
 
       // If it's a subscription
       if (mode === "subscription") {
+        let credits = 4;
+
+        if(plan === "3months") credits = 12;
+        if(plan === "6months") credits = 24;
+
         await prisma.user.update({
           where: { id: userId },
           data: {

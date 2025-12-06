@@ -1,11 +1,12 @@
 import Stripe from "stripe";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 export async function POST(req: NextRequest) {
   try {
-    const { mode, userId, eventId } = await req.json();
+    const { mode, plan, userId, eventId } = await req.json();
 
     if (!userId || !eventId) {
       return NextResponse.json(
@@ -14,7 +15,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Check existing subscription (prevent duplicate)
+    // Check existing subscription
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: { subscriptionActive: true },
@@ -27,7 +28,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 🛑 Check existing one-time purchase for this event
+    // Check existing one-time purchase
     const existingPayment = await prisma.payment.findFirst({
       where: { userId, eventId, mode: "payment", status: "paid" },
     });
@@ -39,25 +40,44 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const lineItems =
-      mode === "payment"
-        ? [
-            {
-              price_data: {
-                currency: "usd",
-                product_data: { name: "Single Event Ticket" },
-                unit_amount: 2000, // $20
-              },
-              quantity: 1,
-            },
-          ]
-        : [
-            {
-              price: "price_1SOaac36VJPIw1TcE0EJzxv9", // subscription price ID
-              quantity: 1,
-            },
-          ];
+    const subscriptionPrices: Record<string, string> = {
+      "monthly": "price_1Sb3hIQsNj6wfpgAekW8zIyP",
+      "3months": "price_1Sb3i4QsNj6wfpgAC0TNaOPb",
+      "6months": "price_1Sb3j2QsNj6wfpgAyYqbOmbD",
+    };
 
+    let lineItems;
+
+    if (mode === "payment") {
+      // One-time ticket €20
+      lineItems = [
+        {
+          price_data: {
+            currency: "eur",
+            product_data: { name: "Single Event Ticket" },
+            unit_amount: 2000,
+          },
+          quantity: 1,
+        },
+      ];
+    } else {
+      // Subscription mode
+      if (!plan || !subscriptionPrices[plan]) {
+        return NextResponse.json(
+          { error: "Invalid subscription plan" },
+          { status: 400 }
+        );
+      }
+
+      lineItems = [
+        {
+          price: subscriptionPrices[plan],
+          quantity: 1,
+        },
+      ];
+    }
+
+    // Create Checkout session
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       mode,
@@ -68,10 +88,11 @@ export async function POST(req: NextRequest) {
         userId,
         eventId,
         mode,
+        plan: plan || "",
       },
     });
 
-    // 🧠 Save pending payment record
+    // Save pending payment
     await prisma.payment.create({
       data: {
         userId,
