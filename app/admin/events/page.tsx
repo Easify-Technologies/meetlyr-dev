@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useFetchEvents } from '@/app/queries/get-events';
 import { parseISO, format } from "date-fns";
 import { FaPlus } from "react-icons/fa";
-
+import { FaTrashCan } from "react-icons/fa6";
 import {
   Table,
   TableBody,
@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/table";
 import Loader from '@/components/ui/loader';
 import { useFetchAllLocations } from '@/app/queries/fetch-locations';
+import { useRemoveEvent } from '@/app/queries/admin/remove-event';
 
 interface EventProps {
   id: string;
@@ -41,6 +42,7 @@ interface LocationProps {
 const Page = () => {
   const { data: events, isPending } = useFetchEvents();
   const { data: locations } = useFetchAllLocations();
+  const { mutate } = useRemoveEvent();
 
   const [searchTerm, setSearchTerm] = useState({
     country: "",
@@ -145,6 +147,7 @@ const Page = () => {
                     <TableHead className='text-[#2f1107]'>Created At</TableHead>
                     <TableHead className='text-[#2f1107]'>Status</TableHead>
                     <TableHead className='text-[#2f1107]'>Created By</TableHead>
+                    <TableHead className='text-[#2f1107]'>Action</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -164,6 +167,13 @@ const Page = () => {
                         <TableCell>{formattedCreatedDate}</TableCell>
                         <TableCell>{event?.isClosed ? "True" : "False"}</TableCell>
                         <TableCell>{event?.admin?.email}</TableCell>
+                        <TableCell>
+                          <button onClick={() => {
+                            mutate({ eventId: event?.id })
+                          }} type="button" className='bg-red-500 rounded-md p-2 transition-colors duration-300 cursor-pointer text-white hover:bg-red-600'>
+                            <FaTrashCan size={16} />
+                          </button>
+                        </TableCell>
                       </TableRow>
                     )
                   })}
