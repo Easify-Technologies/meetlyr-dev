@@ -41,6 +41,7 @@ export async function GET(req: NextRequest) {
           id: true,
           city: true,
           country: true,
+          gender: true,
           oneLiner: true,
         },
       });

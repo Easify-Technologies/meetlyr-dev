@@ -171,10 +171,10 @@ const Page = () => {
                                             <TableCell>{user?.country}</TableCell>
                                             <TableCell>{user?.connectionStyles}</TableCell>
                                             <TableCell>{user?.communicationStyles}</TableCell>
-                                            <TableCell>{user?.family}</TableCell>
-                                            <TableCell>{user?.incorrectHumor}</TableCell>
+                                            <TableCell>{user?.family} / 10</TableCell>
+                                            <TableCell>{user?.incorrectHumor} / 10</TableCell>
                                             <TableCell>{user?.healthAndFitness}</TableCell>
-                                            <TableCell>{user?.politicalNews}</TableCell>
+                                            <TableCell>{user?.politicalNews} / 10</TableCell>
                                             <TableCell className="whitespace-nowrap">
                                                 {user?.kindOfPeople?.join(", ")}
                                             </TableCell>
@@ -207,16 +207,16 @@ const Page = () => {
                                     <p><span className="font-semibold">Country:</span> {user?.country}</p>
                                     <p><span className="font-semibold">Connection:</span> {user?.connectionStyles}</p>
                                     <p><span className="font-semibold">Communication:</span> {user?.communicationStyles}</p>
-                                    <p><span className="font-semibold">Family:</span> {user?.family}</p>
-                                    <p><span className="font-semibold">Humor:</span> {user?.incorrectHumor}</p>
+                                    <p><span className="font-semibold">Family:</span> {user?.family} / 10</p>
+                                    <p><span className="font-semibold">Humor:</span> {user?.incorrectHumor} / 10</p>
                                     <p><span className="font-semibold">Health & Fitness:</span> {user?.healthAndFitness}</p>
-                                    <p><span className="font-semibold">Politics:</span> {user?.politicalNews}</p>
+                                    <p><span className="font-semibold">Politics:</span> {user?.politicalNews} / 10</p>
                                     <p className="col-span-2">
                                         <span className="font-semibold">Kind of People: </span>
                                         {user?.kindOfPeople?.join(", ")}
                                     </p>
                                     <p className='capitalize'><span className="font-semibold">Payment Mode:</span> {user?.payment?.[0]?.mode ?? "---"}</p>
-                                    <p className='capitalize'><span className="font-semibold">Payment Status:</span> {user?.payment?.[0]?.mode ?? "unpaid"}</p>
+                                    <p className='capitalize'><span className="font-semibold">Payment Status:</span> {user?.payment?.[0]?.status ?? "unpaid"}</p>
                                 </div>
                             </div>
                         ))}

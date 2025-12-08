@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { useSession } from "next-auth/react";
 import { useProfileDetails } from "../queries/profile";
 import { useEventParticipant } from "../queries/participants";
@@ -16,6 +15,8 @@ import { TbUsersGroup, TbCancel } from "react-icons/tb";
 import { MdOutlineArrowOutward, MdOutlineLocationOn, MdEventNote } from "react-icons/md";
 import { LuCalendarClock } from "react-icons/lu";
 import { VscFeedback } from "react-icons/vsc";
+import { FaMale, FaFemale } from "react-icons/fa";
+import { BiMaleFemale } from "react-icons/bi";
 import { BsFillEmojiTearFill } from "react-icons/bs";
 import { FaRegCopy } from "react-icons/fa";
 import { SiCoffeescript } from "react-icons/si";
@@ -313,6 +314,33 @@ const Page = () => {
                                     .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
                                     .join(", ")}
                                 </p>
+
+                                {member.gender === "male" && (
+                                  <div className="flex items-center gap-2 my-1">
+                                    <button type="button" className="bg-blue-600 text-white rounded-full p-1.5">
+                                      <FaMale size={18} />
+                                    </button>
+                                    <span className="capitalize text-sm font-semibold text-[#2f1107]">{member.gender}</span>
+                                  </div>
+                                )}
+
+                                {member.gender === "female" && (
+                                  <div className="flex items-center gap-1">
+                                    <button type="button" className="bg-pink-600 text-white rounded-full p-1.5">
+                                      <FaFemale />
+                                    </button>
+                                    <span className="capitalize text-sm font-semibold text-[#2f1107]">{member.gender}</span>
+                                  </div>
+                                )}
+
+                                {member.gender === "other" && (
+                                  <div className="flex items-center gap-1">
+                                    <button type="button" className="bg-yellow-600 text-white rounded-full p-1.5">
+                                      <BiMaleFemale />
+                                    </button>
+                                    <span className="capitalize text-sm font-semibold text-[#2f1107]">{member.gender}</span>
+                                  </div>
+                                )}
 
                                 <span className="text-xs text-orange-600 font-semibold mt-1">
                                   {member.city}, {member.country}

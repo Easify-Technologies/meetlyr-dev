@@ -10,8 +10,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { parseISO, format } from "date-fns";
+import { useGetFeedbacks } from '@/app/queries/admin/get-feedbacks';
+import Loader from '@/components/ui/loader';
 
 const Page = () => {
+  const { data: feedbacks, isPending } = useGetFeedbacks();
+
+  if(isPending) return <Loader />;
+
   return (
     <>
       <section className='w-screen min-h-screen bg-[#FFFFF5] relative'>
@@ -56,6 +63,24 @@ const Page = () => {
                     <TableHead className='text-[#2f1107]'>Atmosphere Rating</TableHead>
                   </TableRow>
                 </TableHeader>
+                <TableBody>
+                  {feedbacks && feedbacks.map((feedback, index: number) => {
+                    const isoEventDate = feedback?.event?.date;
+                    const formattedEventDate = format(parseISO(isoEventDate), "EEEE, MMM do h:mm a");
+
+                    return(
+                      <TableRow className="even:bg-[#2f1107] hover:bg-[#2f1107]/30 border-none even:text-white" key={feedback.id}>
+                        <TableCell>{index + 1}</TableCell>
+                        <TableCell>{feedback?.user?.name}</TableCell>
+                        <TableCell>{formattedEventDate}</TableCell>
+                        <TableCell>{feedback?.cafe?.name}</TableCell>
+                        <TableCell>{feedback?.cafeRating} / 10</TableCell>
+                        <TableCell>{feedback?.participantRating} / 10</TableCell>
+                        <TableCell>{feedback?.atmosphereRating} / 10</TableCell>
+                      </TableRow>
+                    )
+                  })}
+                </TableBody>
               </Table>
             </div>
           </div>
