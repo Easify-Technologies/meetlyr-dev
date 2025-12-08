@@ -77,8 +77,8 @@ export async function POST(request: NextRequest) {
         groupNames: participant.user.name,
         date: event.date.toISOString(),
         cafe: {
-          name: event.cafe?.name || "Cafe",
-          address: event.cafe?.address || "Address not available"
+          name: event?.cafe?.name ?? "",
+          address: event?.cafe?.address ?? ""
         }
       });
     }

@@ -88,7 +88,7 @@ export async function POST(req: Request) {
           where: { id: userId },
           data: {
             subscriptionActive: true,
-            subscriptionCredits: 4,
+            subscriptionCredits: credits,
           },
         });
 
@@ -101,7 +101,7 @@ export async function POST(req: Request) {
               Welcome to the Meetlyr Premium experience! Your subscription has been successfully activated.
             </p>
             <ul style="color: #555; font-size: 14px; line-height: 1.6;">
-              <li>✅ 4 Monthly free meetups</li>
+              <li>✅ ${credits} Monthly free meetups</li>
               <li>🎟️ Early access to exclusive meetups</li>
               <li>💬 Connect with top community members</li>
             </ul>
@@ -181,4 +181,4 @@ export const config = {
   api: {
     bodyParser: false,
   },
-};
+}

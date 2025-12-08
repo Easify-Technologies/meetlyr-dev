@@ -34,7 +34,7 @@ export async function sendMeetupEmail({
     <p>Hello ${groupNames} 👋</p>
 
     <p>
-      Your place is reserved for the dinner on <strong>${formattedDate}</strong> at
+      Your place is reserved for the meetup on <strong>${formattedDate}</strong> at
       <strong>${cafe.name}</strong>, ${cafe.address}.
     </p>
 
