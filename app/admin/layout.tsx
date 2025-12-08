@@ -10,7 +10,7 @@ import Loader from "@/components/ui/loader";
 import { IoHomeOutline } from "react-icons/io5";
 import { LuCircleUserRound } from "react-icons/lu";
 import { FaMapLocationDot } from "react-icons/fa6";
-import { MdEvent, MdCoffee } from "react-icons/md";
+import { MdEvent, MdCoffee, MdFeedback } from "react-icons/md";
 import { IoIosLogOut } from "react-icons/io";
 import { GiForkKnifeSpoon } from "react-icons/gi";
 import {
@@ -38,6 +38,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     { icon: MdEvent, label: "Events", path: "/admin/events" },
     { icon: MdCoffee, label: "Cafes", path: "/admin/cafe" },
     { icon: GiForkKnifeSpoon, label: "Manual Matching", path: "/admin/match-event" },
+    { icon: MdFeedback, label: "Feedback", path: "/admin/feedback" },
     { icon: IoIosLogOut, label: "Logout", path: "/admin/login" },
   ]
 

@@ -18,6 +18,7 @@ import Loader from '@/components/ui/loader';
 interface EventsProps {
     date: string;
     country: string;
+    time: string;
     city: string;
     locationId: string;
 }
@@ -28,6 +29,7 @@ const Page = () => {
     const [formData, setFormData] = useState<EventsProps>({
         date: "",
         city: "",
+        time: "",
         country: "",
         locationId: ""
     });
@@ -57,9 +59,22 @@ const Page = () => {
         }));
     };
 
+    const timeSlots = Array.from({ length: 4 }, (_, i) => {
+        const hour = 10 + i;
+        const dateObj = new Date();
+        dateObj.setHours(hour, 0, 0, 0);
+
+        return {
+            value: `${hour.toString().padStart(2, "0")}:00`,
+            label: dateObj.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }),
+        };
+    });
+
     const handleSaveEvent = () => {
+        const fullDateTime = new Date(`${formData.date}T${formData.time}:00`);
+
         mutate({
-            date: formData.date,
+            date: fullDateTime.toISOString(),
             country: formData.country,
             city: formData.city,
             locationId: formData.locationId,
@@ -102,7 +117,7 @@ const Page = () => {
                                             id="date"
                                             className="file:text-foreground mb-5 placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground border-input flex h-16 w-full min-w-0 rounded-full border bg-muted px-5 py-2 text-base transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium md:text-sm justify-between"
                                         >
-                                            {date ? date.toLocaleDateString() : "Select date"}
+                                            {date ? date.toLocaleDateString() : "Select Date"}
                                             <ChevronDownIcon />
                                         </Button>
                                     </PopoverTrigger>
@@ -122,6 +137,22 @@ const Page = () => {
                                         />
                                     </PopoverContent>
                                 </Popover>
+                                <select
+                                    name="time"
+                                    id="time"
+                                    onChange={handleInputChange}
+                                    value={formData.time}
+                                    disabled={!date}
+                                    className="file:text-foreground mb-5 placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground border-input flex h-16 w-full min-w-0 rounded-full border bg-muted px-5 py-2 text-base transition-[color,box-shadow] outline-none"
+                                >
+                                    <option value="">Select Time</option>
+
+                                    {timeSlots.map((slot, idx) => (
+                                        <option key={idx} value={slot.value}>
+                                            {slot.label}
+                                        </option>
+                                    ))}
+                                </select>
                                 <select
                                     name="locationId"
                                     id="cafe"
