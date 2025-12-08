@@ -12,7 +12,7 @@ import Loader from "@/components/ui/loader";
 import { toast } from "sonner";
 import { UtensilsCrossed } from "lucide-react";
 import { TbUsersGroup, TbCancel } from "react-icons/tb";
-import { MdOutlineArrowOutward, MdOutlineLocationOn, MdEventNote } from "react-icons/md";
+import { MdOutlineArrowOutward, MdOutlineLocationOn, MdEventNote, MdEmojiEvents } from "react-icons/md";
 import { LuCalendarClock } from "react-icons/lu";
 import { VscFeedback } from "react-icons/vsc";
 import { FaMale, FaFemale } from "react-icons/fa";
@@ -373,6 +373,15 @@ const Page = () => {
                   </button>
                 </div>
               )}
+              <div className="bg-white border border-gray-100 mt-5 shadow-sm rounded-3xl p-5 sm:p-6 hover:scale-[1.02] transition-transform cursor-pointer duration-500">
+                <div className="flex items-center gap-3 mb-3">
+                  <span className="bg-orange-100 text-orange-600 p-2.5 rounded-full text-xl">
+                    <MdEmojiEvents />
+                  </span>
+                  <h2 className="text-xl font-bold">Past Events</h2>
+                </div>
+                
+              </div>
             </div>
           </div>
         ) : (
