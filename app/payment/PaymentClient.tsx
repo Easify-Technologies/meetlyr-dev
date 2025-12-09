@@ -82,7 +82,7 @@ const PaymentClient = () => {
     <>
       <Navbar />
 
-      <section className="overflow-y-auto flex flex-col flex-1 pt-10 md:px-0 px-4 w-full h-full md:flex-initial bg-[#FFFFF5]">
+      <section className="overflow-y-auto flex flex-col flex-1 pt-10 md:px-0 px-4 pb-24 w-full h-full md:flex-initial bg-[#FFFFF5]">
         <div className="max-w-xl mx-auto w-full flex flex-col flex-1">
           <div className="flex flex-col w-full gap-4 md:gap-6 items-stretch justify-start flex-nowrap flex-1 min-h-0">
             <div className="flex flex-row gap-3 items-center justify-between flex-nowrap">
@@ -273,27 +273,29 @@ const PaymentClient = () => {
               </div>
 
             </RadioGroup>
-            {hasPaid ? (
-              <button
-                type="button"
-                disabled
-                className="rounded-full w-full py-3 text-base bg-muted-foreground text-muted cursor-not-allowed"
-              >
-                Paid
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={handleCheckOut}
-                disabled={loading}
-                className={`rounded-full cursor-pointer w-full py-3 text-base font-semibold transition-colors duration-500 ${loading
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-[#2f1107] text-white hover:bg-[#ffd100] hover:text-[#2f1107]"
-                  }`}
-              >
-                {loading ? "Redirecting..." : "Proceed to Checkout"}
-              </button>
-            )}
+            <div className="sticky bottom-0 bg-[#FFFFF5] py-4">
+              {hasPaid ? (
+                <button
+                  type="button"
+                  disabled
+                  className="rounded-full w-full py-3 text-base bg-muted-foreground text-muted cursor-not-allowed"
+                >
+                  Paid
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleCheckOut}
+                  disabled={loading}
+                  className={`rounded-full cursor-pointer w-full py-3 text-base font-semibold transition-colors duration-500 ${loading
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-[#2f1107] text-white hover:bg-[#ffd100] hover:text-[#2f1107]"
+                    }`}
+                >
+                  {loading ? "Redirecting..." : "Proceed to Checkout"}
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </section>
