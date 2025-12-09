@@ -5,6 +5,7 @@ import { useProfileDetails } from "../queries/profile";
 import { useEventParticipant } from "../queries/participants";
 import { useMatchedGroupUsers } from "../queries/groups";
 import { useCancelMyEvent } from "../queries/cancel-event";
+import { useGetPastEvents } from "../queries/past-events";
 import { parseISO, format } from "date-fns";
 
 import Navbar from "@/components/ui/Navbar";
@@ -45,6 +46,12 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { useRouter } from "next/navigation";
 
 const Page = () => {
@@ -55,6 +62,7 @@ const Page = () => {
   const { data: profile, isLoading } = useProfileDetails(userEmail);
   const { data: participant, isPending } = useEventParticipant(profile?.id);
   const { mutate, isPending: cancelEventPending } = useCancelMyEvent();
+  const { data: pastEvents } = useGetPastEvents(profile?.id);
 
   const eventStatus = participant?.[0]?.event?.status;
   const eventId = participant?.[0]?.eventId;
@@ -358,7 +366,19 @@ const Page = () => {
                   )}
                 </>
               )}
-              {/* CARD 4 - Feedback */}
+              {/* CARD 4 - Past Events */}
+              {pastEvents.length > 0 && (
+                <div className="bg-white border border-gray-100 mt-5 shadow-sm rounded-3xl p-5 sm:p-6 hover:scale-[1.02] transition-transform cursor-pointer duration-500">
+                  <div className="flex items-center gap-3 mb-3">
+                    <span className="bg-orange-100 text-orange-600 p-2.5 rounded-full text-xl">
+                      <MdEmojiEvents />
+                    </span>
+                    <h2 className="text-xl font-bold">Past Events</h2>
+                  </div>
+                  
+                </div>
+              )}
+              {/* CARD 5 - Feedback */}
               {eventScheduledDate < eventEnded && (
                 <div className="bg-white border border-gray-100 mt-5 shadow-sm rounded-3xl p-5 sm:p-6 hover:scale-[1.02] transition-transform cursor-pointer duration-500">
                   <div className="flex items-center gap-3 mb-3">
@@ -373,15 +393,6 @@ const Page = () => {
                   </button>
                 </div>
               )}
-              <div className="bg-white border border-gray-100 mt-5 shadow-sm rounded-3xl p-5 sm:p-6 hover:scale-[1.02] transition-transform cursor-pointer duration-500">
-                <div className="flex items-center gap-3 mb-3">
-                  <span className="bg-orange-100 text-orange-600 p-2.5 rounded-full text-xl">
-                    <MdEmojiEvents />
-                  </span>
-                  <h2 className="text-xl font-bold">Past Events</h2>
-                </div>
-                
-              </div>
             </div>
           </div>
         ) : (
