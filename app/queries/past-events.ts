@@ -6,7 +6,7 @@ import axios from "axios";
 const getPastEvents = async (data: { userId: string }) => {
   try {
     const res = await axios.post("/api/past-events", data);
-    return res.data;
+    return res.data.pastEvents;
   } catch (error) {
     console.error(error);
   }

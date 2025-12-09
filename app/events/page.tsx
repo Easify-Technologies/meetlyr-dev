@@ -47,11 +47,13 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { useRouter } from "next/navigation";
 
 const Page = () => {
@@ -367,7 +369,7 @@ const Page = () => {
                 </>
               )}
               {/* CARD 4 - Past Events */}
-              {pastEvents.length > 0 && (
+              {pastEvents && (
                 <div className="bg-white border border-gray-100 mt-5 shadow-sm rounded-3xl p-5 sm:p-6 hover:scale-[1.02] transition-transform cursor-pointer duration-500">
                   <div className="flex items-center gap-3 mb-3">
                     <span className="bg-orange-100 text-orange-600 p-2.5 rounded-full text-xl">
@@ -375,7 +377,31 @@ const Page = () => {
                     </span>
                     <h2 className="text-xl font-bold">Past Events</h2>
                   </div>
-                  
+
+                  <DropdownMenu>
+                    <DropdownMenuTrigger className="flex bg-[#ffd100] text-[#2f1107] shadow-md w-full text-center justify-center text-base font-semibold mt-3 items-center gap-2.5 px-2.5 py-3 mb-2 cursor-pointer rounded-xl hover:bg-[#2f1107] hover:text-[#ffd100] duration-500 transition-colors">
+                      My Events
+                    </DropdownMenuTrigger>
+
+                    <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)]" align="start">
+                      <DropdownMenuLabel>Past Events</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+
+                      {pastEvents.map((item) => (
+                        <DropdownMenuItem key={item.id} className="flex flex-col items-start py-3">
+                          <p className="font-semibold">{item.event.cafe.name}</p>
+                          <p className="text-sm text-gray-500">{item.event.cafe.address}</p>
+                          <p className="text-xs text-gray-400 mt-1">
+                            {new Date(item.event.date).toLocaleDateString("en-IN", {
+                              day: "2-digit",
+                              month: "short",
+                              year: "numeric",
+                            })}
+                          </p>
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               )}
               {/* CARD 5 - Feedback */}
