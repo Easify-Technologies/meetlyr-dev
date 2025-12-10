@@ -40,8 +40,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const price = await stripe.prices.retrieve(
+      "price_1Sb3hIQsNj6wfpgAekW8zIyP"
+    );
+    console.log("Retrieved price:", price);
+
     const subscriptionPrices: Record<string, string> = {
-      "monthly": "price_1Sb3hIQsNj6wfpgAekW8zIyP",
+      monthly: "price_1Sb3hIQsNj6wfpgAekW8zIyP",
       "3months": "price_1Sb3i4QsNj6wfpgAC0TNaOPb",
       "6months": "price_1Sb3j2QsNj6wfpgAyYqbOmbD",
     };
@@ -78,7 +83,9 @@ export async function POST(req: NextRequest) {
       payment_method_types: ["card"],
       mode,
       line_items: lineItems,
-      success_url: `${req.headers.get("origin")}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${req.headers.get(
+        "origin"
+      )}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${req.headers.get("origin")}/payment/failure`,
       metadata: {
         userId,
