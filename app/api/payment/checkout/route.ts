@@ -1,6 +1,6 @@
-import Stripe from "stripe";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
@@ -49,14 +49,10 @@ export async function POST(req: NextRequest) {
     let lineItems;
 
     if (mode === "payment") {
-      // One-time ticket €20
+      // One-time ticket €10
       lineItems = [
         {
-          price_data: {
-            currency: "eur",
-            product_data: { name: "Single Event Ticket" },
-            unit_amount: 2000,
-          },
+          price: "price_1SZzxgQsNj6wfpgAt47z7jY0",
           quantity: 1,
         },
       ];
