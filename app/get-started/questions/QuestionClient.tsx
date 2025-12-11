@@ -15,7 +15,7 @@ const QuestionClient = () => {
   const [step, setStep] = useState<number>(1);
   const [selectedStyle, setSelectedStyle] = useState<string>("");
   const [selectedMulti, setSelectedMulti] = useState<string[]>([]);
-  const [sliderValue, setSliderValue] = useState<number[]>([10]);
+  const [sliderValue, setSliderValue] = useState<number[]>([0]);
   const [formData, setFormData] = useState({
     connectionStyle: "",
     communicationStyle: "",
@@ -106,7 +106,7 @@ const QuestionClient = () => {
       // Clear UI selections for previous step
       setSelectedStyle("");
       setSelectedMulti([]);
-      setSliderValue([10]);
+      setSliderValue([0]);
     } else {
       // If at step 1 → go back to user-details page
       router.push(`/get-started/user-details?city_id=${searchParams.get("city_id") ?? ""}`);
@@ -115,7 +115,7 @@ const QuestionClient = () => {
 
   const isDisabled = (() => {
     if (currentConfig.type === "radio") return !selectedStyle;
-    if (currentConfig.type === "slider") return !(sliderValue && sliderValue.length > 0);
+    if (currentConfig.type === "slider") return sliderValue[0] === 0;
     if (currentConfig.type === "multi") return !(selectedMulti && selectedMulti.length > 0);
     return true;
   })();
@@ -147,7 +147,7 @@ const QuestionClient = () => {
       setStep((s) => s + 1);
       setSelectedStyle("");
       setSelectedMulti([]);
-      setSliderValue([10]);
+      setSliderValue([0]);
     } else {
       console.log("✅ Final Form Data:", updatedForm);
 
@@ -265,21 +265,21 @@ const QuestionClient = () => {
                           <Slider
                             value={sliderValue}
                             onValueChange={setSliderValue}
-                            min={1}
+                            min={0}
                             max={10}
                             step={1}
                             className="w-full max-w-md"
                           />
                           <div className="flex justify-between text-center text-muted-foreground text-sm w-full max-w-md">
-                            {Array.from({ length: 10 }).map((_, i) => (
+                            {Array.from({ length: 11 }).map((_, i) => (
                               <span
                                 key={i}
-                                className={`w-0 flex justify-center ${sliderValue[0] === i + 1
+                                className={`w-0 flex justify-center ${sliderValue[0] === i
                                   ? "font-bold text-foreground"
                                   : "text-muted-foreground"
                                   }`}
                               >
-                                {i + 1}
+                                {i}
                               </span>
                             ))}
                           </div>

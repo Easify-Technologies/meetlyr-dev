@@ -15,6 +15,7 @@ import { CheckCircle } from "lucide-react";
 import { useFetchAllLocations } from "../queries/fetch-locations";
 import { useUpdateUserLocation } from '../queries/update-location';
 import { useDeleteUser } from '../queries/delete-user';
+import { useOpenCustomerPortal } from '../queries/stripe-customer-portal';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { useRouter } from 'next/navigation';
@@ -90,6 +91,7 @@ const Page = () => {
     const { data: locations = [] } = useFetchAllLocations();
     const { mutate, isPending } = useUpdateUserLocation(profile?.id);
     const { mutateAsync } = useDeleteUser();
+    const { mutate: mutatePortal, isPending: pendingPortal } = useOpenCustomerPortal();
 
     const [open, setOpen] = useState(false);
     const [formData, setFormData] = useState({
@@ -553,6 +555,19 @@ const Page = () => {
                                                                 </div>
                                                             </div>
                                                             <div className="flex flex-col w-full gap-2">
+                                                                <button onClick={() => {
+                                                                    mutatePortal({ customerId: profile?.id });
+                                                                }} type='submit' className='cursor-pointer'>
+                                                                    <div className="flex flex-row justify-between px-4 py-1 items-center hover:bg-muted/50 transition-colors">
+                                                                        <div className="flex flex-col gap-1">
+                                                                            <p className="text-base md:text-lg">Manage Payments</p>
+                                                                        </div>
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-arrow-right w-4 h-4 min-w-4 text-muted-foreground" aria-hidden="true">
+                                                                            <path d="M5 12h14"></path>
+                                                                            <path d="m12 5 7 7-7 7"></path>
+                                                                        </svg>
+                                                                    </div>
+                                                                </button>
                                                                 <div data-orientation="horizontal" role="none" data-slot="separator" className="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px"></div>
                                                                 <Link href="https://meetlyr.com/terms-and-conditions/" target="_blank" rel="noopener noreferrer">
                                                                     <div className="flex flex-row justify-between px-4 py-1 items-center hover:bg-muted/50 transition-colors">
