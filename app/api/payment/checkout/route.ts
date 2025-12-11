@@ -40,11 +40,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const price = await stripe.prices.retrieve(
-      "price_1Sb3hIQsNj6wfpgAekW8zIyP"
-    );
-    console.log("Retrieved price:", price);
-
     const subscriptionPrices: Record<string, string> = {
       monthly: "price_1Sb3hIQsNj6wfpgAekW8zIyP",
       "3months": "price_1Sb3i4QsNj6wfpgAC0TNaOPb",
@@ -63,7 +58,7 @@ export async function POST(req: NextRequest) {
       ];
     } else {
       // Subscription mode
-      if (!plan || !subscriptionPrices[plan]) {
+      if (mode === "subscription" && (!plan || !subscriptionPrices[plan])) {
         return NextResponse.json(
           { error: "Invalid subscription plan" },
           { status: 400 }

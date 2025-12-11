@@ -17,7 +17,6 @@ const PaymentClient = () => {
 
   const [payment, setPayment] = useState("");
   const [loading, setLoading] = useState(false);
-  const [subscriptionPlan, setSubscriptionPlan] = useState("");
 
   const userId = params.get("userId");
   const eventId = params.get("eventId");
@@ -40,12 +39,6 @@ const PaymentClient = () => {
       return;
     }
 
-    // Subscription must have a plan selected
-    if (payment === "subscription" && !subscriptionPlan) {
-      alert("Please select a subscription plan");
-      return;
-    }
-
     setLoading(true);
 
     try {
@@ -54,7 +47,7 @@ const PaymentClient = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           mode: payment === "oneTime" ? "payment" : "subscription",
-          plan: subscriptionPlan || null,
+          plan: payment === "oneTime" ? null : payment,
           userId,
           eventId,
         }),
@@ -154,7 +147,6 @@ const PaymentClient = () => {
                   }`}
                 onClick={() => {
                   setPayment("monthly");
-                  setSubscriptionPlan("monthly");
                 }}
               >
                 {/* Discount Badge */}
@@ -196,7 +188,6 @@ const PaymentClient = () => {
                   }`}
                 onClick={() => {
                   setPayment("3months");
-                  setSubscriptionPlan("3months");
                 }}
               >
                 {/* Discount Badge */}
@@ -238,7 +229,6 @@ const PaymentClient = () => {
                   }`}
                 onClick={() => {
                   setPayment("6months");
-                  setSubscriptionPlan("6months");
                 }}
               >
                 {/* Discount Badge */}
@@ -288,8 +278,8 @@ const PaymentClient = () => {
                   onClick={handleCheckOut}
                   disabled={loading}
                   className={`rounded-full cursor-pointer w-full py-3 text-base font-semibold transition-colors duration-500 ${loading
-                      ? "bg-gray-400 cursor-not-allowed"
-                      : "bg-[#2f1107] text-white hover:bg-[#ffd100] hover:text-[#2f1107]"
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-[#2f1107] text-white hover:bg-[#ffd100] hover:text-[#2f1107]"
                     }`}
                 >
                   {loading ? "Redirecting..." : "Proceed to Checkout"}
