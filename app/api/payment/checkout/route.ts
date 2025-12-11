@@ -73,14 +73,32 @@ export async function POST(req: NextRequest) {
       ];
     }
 
-    // Create Checkout session
+    const userRecord = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { stripeCustomerId: true },
+    });
+
+    let stripeCustomerId = userRecord?.stripeCustomerId;
+
+    if (!stripeCustomerId) {
+      const customer = await stripe.customers.create({
+        metadata: { userId },
+      });
+
+      stripeCustomerId = customer.id;
+
+      await prisma.user.update({
+        where: { id: userId },
+        data: { stripeCustomerId },
+      });
+    }
+
     const session = await stripe.checkout.sessions.create({
+      customer: stripeCustomerId,
       payment_method_types: ["card"],
       mode,
       line_items: lineItems,
-      success_url: `${req.headers.get(
-        "origin"
-      )}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${req.headers.get("origin")}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${req.headers.get("origin")}/payment/failure`,
       metadata: {
         userId,
