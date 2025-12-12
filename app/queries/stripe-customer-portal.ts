@@ -21,7 +21,7 @@ export function useOpenCustomerPortal() {
         mutationFn: openCustomerPortal,
         onSuccess: (data) => {
             if(data.success) {
-                router.push(data.url);
+                router.replace(data.url);
             }
             else {
                 alert("Unable to open customer portal");

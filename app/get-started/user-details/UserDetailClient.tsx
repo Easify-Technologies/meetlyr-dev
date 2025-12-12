@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -39,12 +39,24 @@ const UserDetailClient = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-  // ✅ Disable "Next" if form incomplete
   const isFormComplete =
     name?.trim() !== "" &&
     email?.trim() !== "" &&
     phoneNumber?.trim() !== "" &&
     password?.trim() !== "";
+
+  useEffect(() => {
+    sessionStorage.setItem("name", name);
+    sessionStorage.setItem("email", email);
+    sessionStorage.setItem("phoneNumber", phoneNumber);
+    sessionStorage.setItem("password", password);
+  }, [name, email, phoneNumber, password]);
+
+  const redirectToQuestions = () => {
+    if (!isFormComplete) return;
+
+    router.push(`/get-started/questions?city_id=${city_id}`);
+  };
 
   return (
     <div className="flex flex-col h-full">
@@ -145,25 +157,16 @@ const UserDetailClient = () => {
                   <button className="bg-[#ffd100] cursor-pointer h-12 px-4 py-2 rounded-full w-full text-sm md:text-base font-medium transition-all duration-500 hover:bg-[#2f1107] hover:text-white" onClick={() => router.back()} type="button">
                     Back
                   </button>
-                  <Link
-                    href={
-                      isFormComplete
-                        ? `/get-started/questions?city_id=${city_id}&name=${encodeURIComponent(
-                          name
-                        )}&email=${encodeURIComponent(
-                          email
-                        )}&phoneNumber=${encodeURIComponent(
-                          phoneNumber
-                        )}&password=${encodeURIComponent(password)}`
-                        : "#"
-                    }
-                    className={`inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm md:text-base font-medium transition-all select-none h-12 px-4 py-2 rounded-full w-full duration-500 ${isFormComplete
+                  <button
+                    onClick={redirectToQuestions}
+                    type="button"
+                    className={`inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm md:text-base font-medium transition-all select-none cursor-pointer h-12 px-4 py-2 rounded-full w-full duration-500 ${isFormComplete
                       ? "bg-[#FFD100] text-[#2F1107] hover:bg-[#2F1107] hover:text-[#FFD100]"
                       : "bg-gray-300 text-gray-600 cursor-not-allowed"
                       }`}
                   >
                     Next
-                  </Link>
+                  </button>
                 </div>
               </div>
             </div>

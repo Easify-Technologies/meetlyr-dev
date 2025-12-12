@@ -413,10 +413,8 @@ const Page = () => {
                                                                         </div>
                                                                         <div className="flex-1 min-w-0">
                                                                             <p className="text-xs text-muted-foreground">Gender</p>
-                                                                            <p className="text-base md:text-lg break-words">
-                                                                                {profile?.gender
-                                                                                    ? profile.gender.charAt(0).toUpperCase() + profile.gender.slice(1).toLowerCase()
-                                                                                    : ""}
+                                                                            <p className="text-base md:text-lg break-words capitalize">
+                                                                                {profile?.gender}
                                                                             </p>
                                                                         </div>
                                                                     </div>

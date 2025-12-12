@@ -23,6 +23,11 @@ const MatchingClient = () => {
   useEffect(() => {
     const progressTimer = setTimeout(() => setProgress(66), 500);
 
+    const name = sessionStorage.getItem("name");
+    const email = sessionStorage.getItem("email");
+    const phoneNumber = sessionStorage.getItem("phoneNumber");
+    const password = sessionStorage.getItem("password");
+
     const redirectTimer = setTimeout(async () => {
       setShowMatchedSection(true);
 
@@ -32,9 +37,9 @@ const MatchingClient = () => {
         : [];
 
       const userData = {
-        name: params.name || "",
-        email: params.email || "",
-        phoneNumber: params.phoneNumber || "",
+        name: name || "",
+        email: email || "",
+        phoneNumber: phoneNumber || "",
         gender: params.gender || "",
         avatar: params.avatar || "",
         dateOfBirth: params.dateOfBirth || "",
@@ -49,7 +54,7 @@ const MatchingClient = () => {
         politicsNews: params.politicsNews || "",
         humor: params.humor || "",
         peopleType: peopleTypeArray,
-        password: params.password || "",
+        password: password || "",
       };
 
       try {

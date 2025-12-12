@@ -31,6 +31,11 @@ export function useVerifyOTP() {
 
           sessionStorage.removeItem("email");
           sessionStorage.removeItem("password");
+
+          sessionStorage.removeItem("name");
+          sessionStorage.removeItem("email");
+          sessionStorage.removeItem("phoneNumber");
+          sessionStorage.removeItem("password");
         }
       }
     },
