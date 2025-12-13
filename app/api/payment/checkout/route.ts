@@ -75,17 +75,14 @@ export async function POST(req: NextRequest) {
 
     const userRecord = await prisma.user.findUnique({
       where: { id: userId },
-      select: { stripeCustomerId: true, name: true, email: true },
+      select: { stripeCustomerId: true },
     });
 
     let stripeCustomerId = userRecord?.stripeCustomerId;
-    let customerName = userRecord?.name;
-    let customerEmail = userRecord?.email;
 
     if (!stripeCustomerId) {
       const customer = await stripe.customers.create({
-        name: customerName,
-        email: customerEmail
+        metadata: { userId },
       });
 
       stripeCustomerId = customer.id;
@@ -97,7 +94,6 @@ export async function POST(req: NextRequest) {
     }
 
     const session = await stripe.checkout.sessions.create({
-      customer: customerName,
       payment_method_types: ["card"],
       mode,
       line_items: lineItems,
