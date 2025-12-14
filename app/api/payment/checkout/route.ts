@@ -97,6 +97,7 @@ export async function POST(req: NextRequest) {
       payment_method_types: ["card"],
       mode,
       line_items: lineItems,
+      allow_promotion_codes: true,
       success_url: `${req.headers.get("origin")}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${req.headers.get("origin")}/payment/failure`,
       metadata: {
