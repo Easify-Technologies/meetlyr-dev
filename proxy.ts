@@ -33,7 +33,7 @@ function isProtectedRoute(pathname: string) {
   return PROTECTED_ROUTES.some((route) => pathname.startsWith(route));
 }
 
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const response = NextResponse.next();
   const { pathname } = req.nextUrl;
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });

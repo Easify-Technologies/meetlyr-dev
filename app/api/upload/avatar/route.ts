@@ -2,13 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { v2 as cloudinary } from "cloudinary";
 import streamifier from "streamifier";
 
-export const config = {
-  api: {
-    bodyParser: false,
-    sizeLimit: "10mb",
-  },
-};
-
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
   api_key: process.env.CLOUDINARY_API_KEY!,
