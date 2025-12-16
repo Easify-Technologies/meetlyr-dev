@@ -1,6 +1,7 @@
 "use client";
 
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { useProfileDetails } from "../queries/profile";
 import { useEventParticipant } from "../queries/participants";
 import { useMatchedGroupUsers } from "../queries/groups";
@@ -11,10 +12,10 @@ import { parseISO, format } from "date-fns";
 import Navbar from "@/components/ui/Navbar";
 import Loader from "@/components/ui/loader";
 import { toast } from "sonner";
-import { UtensilsCrossed } from "lucide-react";
 import { TbUsersGroup, TbCancel } from "react-icons/tb";
 import { MdOutlineArrowOutward, MdOutlineLocationOn, MdEventNote, MdEmojiEvents } from "react-icons/md";
 import { LuCalendarClock } from "react-icons/lu";
+import { GiCoffeeCup } from "react-icons/gi";
 import { VscFeedback } from "react-icons/vsc";
 import { FaMale, FaFemale } from "react-icons/fa";
 import { BiMaleFemale } from "react-icons/bi";
@@ -53,8 +54,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { useRouter } from "next/navigation";
+} from "@/components/ui/dropdown-menu";
 
 const Page = () => {
   const { data: session } = useSession();
@@ -130,7 +130,7 @@ const Page = () => {
                       <div>
                         <div className="flex items-center gap-3 mb-4">
                           <span className="bg-orange-100 text-orange-600 p-2.5 rounded-full text-xl">
-                            <UtensilsCrossed />
+                            <GiCoffeeCup />
                           </span>
                           <h2 className="text-xl font-bold">Meetup</h2>
                         </div>
