@@ -553,19 +553,34 @@ const Page = () => {
                                                                 </div>
                                                             </div>
                                                             <div className="flex flex-col w-full gap-2">
-                                                                <button onClick={() => {
-                                                                    mutatePortal({ customerId: profile?.id });
-                                                                }} type='submit' className='cursor-pointer'>
-                                                                    <div className="flex flex-row justify-between px-4 py-1 items-center hover:bg-muted/50 transition-colors">
-                                                                        <div className="flex flex-col gap-1">
-                                                                            <p className="text-base md:text-lg">Manage Payments</p>
+                                                                <AlertDialog>
+                                                                    <AlertDialogTrigger asChild>
+                                                                        <div className="flex flex-row justify-between cursor-pointer px-4 py-1 items-center hover:bg-muted/50 transition-colors">
+                                                                            <div className="flex flex-col gap-1">
+                                                                                <p className="text-base md:text-lg">Manage Your Account</p>
+                                                                            </div>
+                                                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-arrow-right w-4 h-4 min-w-4 text-muted-foreground" aria-hidden="true">
+                                                                                <path d="M5 12h14"></path>
+                                                                                <path d="m12 5 7 7-7 7"></path>
+                                                                            </svg>
                                                                         </div>
-                                                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-arrow-right w-4 h-4 min-w-4 text-muted-foreground" aria-hidden="true">
-                                                                            <path d="M5 12h14"></path>
-                                                                            <path d="m12 5 7 7-7 7"></path>
-                                                                        </svg>
-                                                                    </div>
-                                                                </button>
+                                                                    </AlertDialogTrigger>
+                                                                    <AlertDialogContent>
+                                                                        <AlertDialogHeader>
+                                                                            <AlertDialogTitle className='text-[#2f1107] text-xl'>Manage Payments and Subscriptions</AlertDialogTitle>
+                                                                            <AlertDialogDescription className='text-[#2f1107'>
+                                                                                To manage your payments and subscriptions, please visit our secure Stripe portal.
+                                                                                There, you can update your payment methods, view billing history, and make changes to your subscription plan.
+                                                                                <br /><br />
+                                                                                Click the button below to access the Stripe portal.
+                                                                            </AlertDialogDescription>
+                                                                        </AlertDialogHeader>
+                                                                        <AlertDialogFooter>
+                                                                            <AlertDialogCancel className='cursor-pointer'>Cancel</AlertDialogCancel>
+                                                                            <AlertDialogAction className='cursor-pointer' onClick={() => mutatePortal({ customerId: profile?.id })}>View</AlertDialogAction>
+                                                                        </AlertDialogFooter>
+                                                                    </AlertDialogContent>
+                                                                </AlertDialog>
                                                                 <div data-orientation="horizontal" role="none" data-slot="separator" className="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px"></div>
                                                                 <Link href="https://meetlyr.com/terms-and-conditions/" target="_blank" rel="noopener noreferrer">
                                                                     <div className="flex flex-row justify-between px-4 py-1 items-center hover:bg-muted/50 transition-colors">

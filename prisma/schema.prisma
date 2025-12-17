@@ -8,32 +8,33 @@ datasource db {
 }
 
 model User {
-  id                  String   @id @default(auto()) @map("_id") @db.ObjectId
-  name                String
-  email               String   @unique
-  phoneNumber         String
-  gender              String
-  dateOfBirth         String
-  country             String
-  city                String
-  connectionStyles    String
-  communicationStyles String
-  socialStyles        String
-  healthAndFitness    String
-  family              String
-  avatar              String?
-  spirituality        String
-  politicalNews       String
-  incorrectHumor      String
-  kindOfPeople        String[]
-  password            String
-  oneLiner            String?
-  stripeCustomerId    String?
-  isLoggedIn          Boolean  @default(false)
-  isVerified          Boolean  @default(false)
-  createdAt           DateTime @default(now())
-  cafeId              String?  @db.ObjectId
-  locationId          String?  @db.ObjectId
+  id                   String   @id @default(auto()) @map("_id") @db.ObjectId
+  name                 String
+  email                String   @unique
+  phoneNumber          String
+  gender               String
+  dateOfBirth          String
+  country              String
+  city                 String
+  connectionStyles     String
+  communicationStyles  String
+  socialStyles         String
+  healthAndFitness     String
+  family               String
+  avatar               String?
+  spirituality         String
+  politicalNews        String
+  incorrectHumor       String
+  kindOfPeople         String[]
+  password             String
+  oneLiner             String?
+  stripeCustomerId     String?
+  stripeSubscriptionId String?
+  isLoggedIn           Boolean  @default(false)
+  isVerified           Boolean  @default(false)
+  createdAt            DateTime @default(now())
+  cafeId               String?  @db.ObjectId
+  locationId           String?  @db.ObjectId
 
   cafe     Cafe?     @relation(fields: [cafeId], references: [id])
   location Location? @relation(fields: [locationId], references: [id])
