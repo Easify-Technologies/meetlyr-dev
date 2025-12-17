@@ -16,6 +16,7 @@ import { useFetchAllLocations } from "../queries/fetch-locations";
 import { useUpdateUserLocation } from '../queries/update-location';
 import { useDeleteUser } from '../queries/delete-user';
 import { useOpenCustomerPortal } from '../queries/stripe-customer-portal';
+import { useManageSubscription } from '../queries/manage-subscription';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { useRouter } from 'next/navigation';
@@ -92,6 +93,7 @@ const Page = () => {
     const { mutate, isPending } = useUpdateUserLocation(profile?.id);
     const { mutateAsync } = useDeleteUser();
     const { mutate: mutatePortal, isPending: pendingPortal } = useOpenCustomerPortal();
+    const { mutate: mutateSubscription, isPending: pendingSubscription } = useManageSubscription();
 
     const [open, setOpen] = useState(false);
     const [formData, setFormData] = useState({
@@ -567,17 +569,36 @@ const Page = () => {
                                                                     </AlertDialogTrigger>
                                                                     <AlertDialogContent>
                                                                         <AlertDialogHeader>
-                                                                            <AlertDialogTitle className='text-[#2f1107] text-xl'>Manage Payments and Subscriptions</AlertDialogTitle>
-                                                                            <AlertDialogDescription className='text-[#2f1107'>
-                                                                                To manage your payments and subscriptions, please visit our secure Stripe portal.
+                                                                            <AlertDialogTitle className="text-[#2f1107] text-xl">
+                                                                                Manage Payments and Subscriptions
+                                                                            </AlertDialogTitle>
+
+                                                                            <AlertDialogDescription className="text-[#2f1107]">
+                                                                                Manage your billing details, payment methods, and subscriptions securely via Stripe.
                                                                                 There, you can update your payment methods, view billing history, and make changes to your subscription plan.
-                                                                                <br /><br />
-                                                                                Click the button below to access the Stripe portal.
                                                                             </AlertDialogDescription>
                                                                         </AlertDialogHeader>
-                                                                        <AlertDialogFooter>
-                                                                            <AlertDialogCancel className='cursor-pointer'>Cancel</AlertDialogCancel>
-                                                                            <AlertDialogAction className='cursor-pointer' onClick={() => mutatePortal({ customerId: profile?.id })}>View</AlertDialogAction>
+
+                                                                        <AlertDialogFooter className="flex flex-col md:flex-row">
+                                                                            <AlertDialogCancel className="cursor-pointer text-sm p-4 h-10">
+                                                                                Close
+                                                                            </AlertDialogCancel>
+
+                                                                            <Link
+                                                                                href="https://billing.stripe.com/p/login/cNi5kFbbV8eO5Yp5sF7ss00"
+                                                                                target='_blank'
+                                                                                className="bg-[#FFD100] text-[#2f1107] px-4 py-2 text-center rounded-md font-medium hover:bg-[#2f1107] hover:text-[#FFD100] transition cursor-pointer"
+                                                                            >
+                                                                                Open Stripe Portal
+                                                                            </Link>
+
+                                                                            <button
+                                                                                type='button'
+                                                                                onClick={() => mutateSubscription({ subscriptionId: profile?.stripeSubscriptionId ?? "", userId: profile?.id })}
+                                                                                className="bg-red-600 text-white px-4 py-2 rounded-md font-medium hover:bg-red-700 transition cursor-pointer"
+                                                                            >
+                                                                                {pendingSubscription ? "Processing..." : "Cancel Subscription"}
+                                                                            </button>
                                                                         </AlertDialogFooter>
                                                                     </AlertDialogContent>
                                                                 </AlertDialog>
