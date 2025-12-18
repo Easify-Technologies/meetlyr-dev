@@ -87,6 +87,7 @@ const Page = () => {
     const router = useRouter();
     const email = session?.user?.email ?? "";
     const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
+    const [subscriptionStatus, setSubscriptionStatus] = useState<boolean>(false);
 
     const { data: profile, isLoading } = useProfileDetails(email);
     const { data: locations = [] } = useFetchAllLocations();
@@ -135,6 +136,11 @@ const Page = () => {
     const meetingPeople = kindOfPeople.filter((item) =>
         profile?.kindOfPeople?.includes(item.value)
     );
+
+    const handleSubscriptionStatus = () => {
+        mutateSubscription({ subscriptionId: profile?.stripeSubscriptionId ?? "", userId: profile?.id });
+        setSubscriptionStatus(true);
+    }
 
     const handleDeleteUser = async () => {
         try {
@@ -594,8 +600,9 @@ const Page = () => {
 
                                                                             <button
                                                                                 type='button'
-                                                                                onClick={() => mutateSubscription({ subscriptionId: profile?.stripeSubscriptionId ?? "", userId: profile?.id })}
-                                                                                className="bg-red-600 text-white px-4 py-2 rounded-md font-medium hover:bg-red-700 transition cursor-pointer"
+                                                                                disabled={subscriptionStatus}
+                                                                                onClick={handleSubscriptionStatus}
+                                                                                className={`${subscriptionStatus ? "bg-muted-foreground cursor-not-allowed text-gray-800" : "bg-red-500 hover:bg-red-700 text-white cursor-pointer"} px-4 py-2 rounded-md font-medium transition-colors`}
                                                                             >
                                                                                 {pendingSubscription ? "Processing..." : "Cancel Subscription"}
                                                                             </button>

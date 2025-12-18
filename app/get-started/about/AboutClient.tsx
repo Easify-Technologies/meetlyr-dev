@@ -15,6 +15,7 @@ import { ChevronDownIcon } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import OneLinerDropdown from "@/components/comp-234";
 import Link from "next/link";
+import toast from "react-hot-toast";
 
 const AboutClient = () => {
     const router = useRouter();
@@ -45,9 +46,17 @@ const AboutClient = () => {
 
         return ageDiff > 18 || (ageDiff === 18 && hasHadBirthdayThisYear);
     };
-    
+
     const handleNext = async () => {
-        if (!formData.gender || !date || !formData.oneLiner || !is18OrOlder(date) || !avatarFile) return;
+        if (
+            !formData.gender ||
+            !date ||
+            !formData.oneLiner ||
+            !is18OrOlder(date) ||
+            !avatarFile
+        ) {
+            return;
+        }
 
         const params = new URLSearchParams(window.location.search);
 
@@ -55,34 +64,34 @@ const AboutClient = () => {
         params.set("dateOfBirth", date.toISOString().split("T")[0]);
         params.set("oneLiner", formData.oneLiner);
 
-        // 1️⃣ Upload the avatar file (if selected)
         let avatarPath = "";
-        if (avatarFile) {
-            const formDataFile = new FormData();
-            formDataFile.append("avatar", avatarFile);
 
-            try {
-                const res = await fetch("/api/upload/avatar", {
-                    method: "POST",
-                    body: formDataFile,
-                });
+        const formDataFile = new FormData();
+        formDataFile.append("avatar", avatarFile);
 
-                const data = await res.json();
-                if (res.ok) {
-                    avatarPath = data.url;
-                } else {
-                    console.error("Upload failed:", data.error);
-                }
-            } catch (err) {
-                console.error("Error uploading avatar:", err);
+        try {
+            const res = await fetch("/api/upload/avatar", {
+                method: "POST",
+                body: formDataFile,
+            });
+
+            const data = await res.json();
+
+            if (!res.ok || !data?.url) {
+                console.error("Avatar upload failed:", data?.error);
+                toast.error("Failed to upload avatar. Please try again.");
+                return; // ❌ STOP navigation
             }
+
+            avatarPath = data.url;
+        } catch (err) {
+            console.error("Error uploading avatar:", err);
+            toast.error("Failed to upload avatar. Please try again.");
+            return; // ❌ STOP navigation
         }
 
-        // 2️⃣ Add the avatar path (not the file) to the query
-        if (avatarPath) params.set("avatar", avatarPath);
+        params.set("avatar", avatarPath);
 
-        // 3️⃣ Navigate to matching page
-        router.replace(`?${params.toString()}`, { scroll: false });
         router.push(`/get-started/matching?${params.toString()}`);
     };
 
@@ -211,6 +220,8 @@ const AboutClient = () => {
                                                         mode="single"
                                                         selected={date}
                                                         captionLayout="dropdown"
+                                                        fromYear={1925}
+                                                        toYear={2030}
                                                         onSelect={(selectedDate) => {
                                                             if (selectedDate) {
                                                                 // Always display the date
