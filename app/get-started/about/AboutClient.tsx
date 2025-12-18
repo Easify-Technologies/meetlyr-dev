@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from "react";
+import imageCompression from "browser-image-compression";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -32,9 +33,16 @@ const AboutClient = () => {
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        if (file) {
-            setAvatarFile(file);
+        if (!file) return;
+
+        // ✅ Validate file size (5MB limit)
+        const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+        if (file.size > maxSize) {
+            toast.error("Image must be smaller than 5MB");
+            return;
         }
+
+        setAvatarFile(file);
     };
 
     const is18OrOlder = (dob: Date) => {
@@ -59,17 +67,24 @@ const AboutClient = () => {
         }
 
         const params = new URLSearchParams(window.location.search);
-
         params.set("gender", formData.gender);
         params.set("dateOfBirth", date.toISOString().split("T")[0]);
         params.set("oneLiner", formData.oneLiner);
 
         let avatarPath = "";
-
         const formDataFile = new FormData();
-        formDataFile.append("avatar", avatarFile);
 
         try {
+            // ✅ Compress image before upload
+            const options = {
+                maxSizeMB: 1, // Max file size in MB
+                maxWidthOrHeight: 1024, // Max dimension
+                useWebWorker: true
+            };
+
+            const compressedFile = await imageCompression(avatarFile, options);
+            formDataFile.append("avatar", compressedFile);
+
             const res = await fetch("/api/upload/avatar", {
                 method: "POST",
                 body: formDataFile,
@@ -80,18 +95,17 @@ const AboutClient = () => {
             if (!res.ok || !data?.url) {
                 console.error("Avatar upload failed:", data?.error);
                 toast.error("Failed to upload avatar. Please try again.");
-                return; // ❌ STOP navigation
+                return;
             }
 
             avatarPath = data.url;
         } catch (err) {
             console.error("Error uploading avatar:", err);
             toast.error("Failed to upload avatar. Please try again.");
-            return; // ❌ STOP navigation
+            return;
         }
 
         params.set("avatar", avatarPath);
-
         router.push(`/get-started/matching?${params.toString()}`);
     };
 
