@@ -4,6 +4,8 @@ import Providers from "./providers";
 import Script from "next/script";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
+import ClientErrorRecovery from "@/components/clientErrorRecovery";
+
 
 const dmSans = DM_Sans({
   variable: "--font-sans",
@@ -32,6 +34,7 @@ export default function RootLayout({
       </head>
       <body className={`${dmSans.variable} antialiased`}>
         {/* Microsoft Clarity - moved to top for better tracking */}
+        <ClientErrorRecovery />
         <Script
           id="microsoft-clarity"
           strategy="afterInteractive"
