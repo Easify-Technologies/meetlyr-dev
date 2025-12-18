@@ -25,9 +25,16 @@ jobs:
             git fetch origin
             git reset --hard origin/main
 
-            rm -rf .next
+            # Remove old build and dependencies
+            rm -rf .next node_modules package-lock.json
+
+            # Install fresh dependencies
             npm ci
+
+            # Build cleanly
             npm run build
 
-            pm2 reload ecosystem.prod.cjs --update-env || pm2 start ecosystem.prod.cjs
+            # Restart PM2
+            pm2 stop ecosystem.prod.cjs || true
+            pm2 start ecosystem.prod.cjs
             pm2 save
