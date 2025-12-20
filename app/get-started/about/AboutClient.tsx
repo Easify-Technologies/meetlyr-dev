@@ -25,6 +25,7 @@ const AboutClient = () => {
     const [open, setOpen] = useState(false);
     const [date, setDate] = useState<Date | undefined>(undefined);
     const [error, setError] = useState<string>("");
+    const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
         gender: "",
         dateOfBirth: "",
@@ -66,6 +67,8 @@ const AboutClient = () => {
             return;
         }
 
+        setLoading(true);
+
         const params = new URLSearchParams(window.location.search);
         params.set("gender", formData.gender);
         params.set("dateOfBirth", date.toISOString().split("T")[0]);
@@ -103,6 +106,9 @@ const AboutClient = () => {
             console.error("Error uploading avatar:", err);
             toast.error("File too large. Maximum size is 5MB");
             return;
+        }
+        finally {
+            setLoading(false);
         }
 
         params.set("avatar", avatarPath);
@@ -287,10 +293,10 @@ const AboutClient = () => {
                                         <button
                                             type="button"
                                             onClick={handleNext}
-                                            disabled={!formData.gender || !date}
+                                            disabled={!formData.gender || !date || loading}
                                             className="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm md:text-base font-medium transition-all select-none bg-[#FFD100] text-[#2F1107] hover:bg-[#2F1107] hover:text-[#ffd100] h-12 px-4 py-2 rounded-full w-full duration-500 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
                                         >
-                                            Next
+                                            {loading ? "Processing..." : "Next"}
                                         </button>
                                     </div>
                                 </div>

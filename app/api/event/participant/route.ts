@@ -37,6 +37,7 @@ export async function POST(req: NextRequest) {
           select: {
             payment: {
               select: { mode: true, status: true, stripeSessionId: true },
+              orderBy: { createdAt: "desc" },
             },
           },
         },
