@@ -101,7 +101,7 @@ const AboutClient = () => {
             avatarPath = data.url;
         } catch (err) {
             console.error("Error uploading avatar:", err);
-            toast.error("Failed to upload avatar. Please try again.");
+            toast.error("File too large. Maximum size is 5MB");
             return;
         }
 

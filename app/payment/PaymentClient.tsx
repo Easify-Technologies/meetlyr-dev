@@ -134,7 +134,7 @@ const PaymentClient = () => {
                       : "text-[#2F1107]/70"
                       }`}
                   >
-                    Pay once and enjoy lifetime access without renewal.
+                    Single ticket for casual one-offs and see who you'll click with!
                   </span>
                 </Label>
               </div>

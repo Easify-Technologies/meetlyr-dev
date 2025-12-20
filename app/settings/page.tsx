@@ -595,7 +595,7 @@ const Page = () => {
                                                                                 target='_blank'
                                                                                 className="bg-[#FFD100] text-[#2f1107] px-4 py-2 text-center rounded-md font-medium hover:bg-[#2f1107] hover:text-[#FFD100] transition cursor-pointer"
                                                                             >
-                                                                                Open Stripe Portal
+                                                                                Manage Billing
                                                                             </Link>
 
                                                                             <button

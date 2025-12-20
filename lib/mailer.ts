@@ -27,6 +27,7 @@ export async function sendMeetupEmail({
     minute: "2-digit",
     month: "short",
     day: "numeric",
+    timeZone: "Europe/Paris",
   });
 
   const html = `
@@ -34,8 +35,7 @@ export async function sendMeetupEmail({
     <p>Hello ${groupNames} 👋</p>
 
     <p>
-      Your place is reserved for the meetup on <strong>${formattedDate}</strong> at
-      <strong>${cafe.name}</strong>, ${cafe.address}.
+      Your place is reserved for the meetup on <strong>${formattedDate}</strong>.
     </p>
 
     <p>Is this your first time?</p>
@@ -46,7 +46,7 @@ export async function sendMeetupEmail({
 
     <p>
       <strong>But where is the Meetup?</strong>
-      You'll find out in the app on the morning of the event.
+      You'll find out in the app 48 hours before the event.
       All information will always be here:
       <a href="https://app.meetlyr.com/" target="_blank" rel="noopener noreferrer">
         https://app.meetlyr.com/
@@ -55,13 +55,13 @@ export async function sendMeetupEmail({
 
     <p>
       <strong>What if I freak out before?</strong>
-      Don't worry, everyone's a little stressed their first time!
+      Don't worry, everyone's a little stressed their first time! We make sure to match your with the right people so you feel comfortable and the conversation flows naturally.
     </p>
 
     <p>
       <strong>How do I cancel?</strong>
-      If you cancel before midnight on Wednesday, we'll have time to find someone
-      to replace you, and that's pretty cool for the rest of the group.<br />
+      If you cancel before 48 hours, we'll have time to find someone
+      to replace you, and that's pretty cool for the rest of the group. After that, your reservation will be confirmed and cannot be modified. In case of an extraordinary event, please contact the Meetlyr team.<br />
       <strong>IMPORTANT:</strong> cancellations can only be made in the app
       (not by email or WhatsApp).
     </p>
