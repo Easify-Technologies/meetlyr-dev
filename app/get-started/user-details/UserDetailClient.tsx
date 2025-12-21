@@ -8,6 +8,7 @@ import { usePersistentForm } from "@/hooks/usePersistantForm";
 import PhoneNumberInput from "@/components/comp-46";
 import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
+import axios from "axios";
 
 interface UserDetailsProps {
   name: string;
@@ -34,9 +35,33 @@ const UserDetailClient = () => {
 
   const { name, email, phoneNumber, password } = formData;
 
+  const saveLeadDraft = async (data: { name?: string; email?: string }) => {
+    if (!data.name && !data.email) return;
+
+    try {
+      const res = await axios.post("/api/user/lead", {
+        ...data,
+        status: "draft"
+      });
+
+      return res.data;
+    } catch (err) {
+      console.error("Failed to save lead draft", err);
+    }
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+
+    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    // ✅ Capture ONLY name & email
+    if (name === "name" && formData.email?.includes("@")) {
+      saveLeadDraft({
+        name: value,
+        email: formData.email,
+      });
+    }
   };
 
   const isFormComplete =
@@ -109,6 +134,7 @@ const UserDetailClient = () => {
                       id="email"
                       name="email"
                       onChange={handleChange}
+                      onBlur={() => saveLeadDraft({ name, email })}
                       placeholder="you@example.com"
                       className="bg-muted px-5 py-2 outline-none border-0 rounded-full w-full h-12 text-[#2F1107] font-medium text-base mt-6"
                     />

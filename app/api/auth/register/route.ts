@@ -185,6 +185,11 @@ export async function POST(request: NextRequest) {
       html,
     });
 
+    await prisma.lead.update({
+      where: { email },
+      data: { status: "completed" },
+    });
+
     if (verification) {
       return NextResponse.json(
         {
