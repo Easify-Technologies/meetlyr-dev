@@ -116,12 +116,17 @@ const Page = () => {
                 const joinedAt = parseISO(item.joinedAt);
                 const formattedDate = format(joinedAt, "EEEE, MMMM d 'at' h:mm a");
 
+                const currentDate = new Date();
                 const eventDate = parseISO(item.event.date);
                 const formattedEventDate = format(eventDate, "EEEE, MMMM d, yyyy 'at' h:mm a");
 
                 const cafe = item?.event?.cafe;
 
                 const cancellationDeadline = new Date(new Date().getTime() + 24 * 60 * 60 * 1000);
+
+                if (eventDate < currentDate) {
+                  return null;
+                }
 
                 return (
                   <div key={item.id} className="space-y-5">
