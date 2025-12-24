@@ -30,11 +30,15 @@ model User {
   oneLiner             String?
   stripeCustomerId     String?
   stripeSubscriptionId String?
-  isLoggedIn           Boolean  @default(false)
-  isVerified           Boolean  @default(false)
-  createdAt            DateTime @default(now())
-  cafeId               String?  @db.ObjectId
-  locationId           String?  @db.ObjectId
+
+  freePass       Boolean   @default(true)
+  freePassUsedAt DateTime?
+
+  isLoggedIn Boolean  @default(false)
+  isVerified Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  cafeId     String?  @db.ObjectId
+  locationId String?  @db.ObjectId
 
   cafe     Cafe?     @relation(fields: [cafeId], references: [id])
   location Location? @relation(fields: [locationId], references: [id])

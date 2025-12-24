@@ -9,6 +9,7 @@ import { useProfileDetails } from "../queries/profile";
 
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import Loader from "@/components/ui/loader";
+import axios from "axios";
 
 const PaymentClient = () => {
   const params = useSearchParams();
@@ -37,6 +38,24 @@ const PaymentClient = () => {
     if (!payment) {
       alert("Please select a payment option");
       return;
+    }
+
+    if(payment === "free") {
+      try {
+        const res = await axios.post("/api/event/free-pass", {
+          userId,
+          eventId
+        });
+
+        if(res.data.message === "Free pass applied successfully") {
+          setTimeout(() => {
+            router.push("/events");
+          }, 1500);
+        }
+        return res.data;
+      } catch (error) {
+        console.error("Error processing free pass:", error);
+      }
     }
 
     setLoading(true);
@@ -95,7 +114,43 @@ const PaymentClient = () => {
               value={payment}
               onValueChange={(value) => setPayment(value)}
             >
-              {/* One-Time Payment Option */}
+              {/* Free Pass Option */}
+              {profile?.freePass && (
+                <div
+                  className={`relative flex w-full items-start gap-3 border p-4 rounded-lg shadow-sm transition-all duration-300 cursor-pointer ${payment === "free"
+                      ? "bg-green-700 border-green-700 text-white scale-[1.02]"
+                      : "bg-white border-green-600 hover:bg-green-50 text-green-700"
+                    }`}
+                  onClick={() => setPayment("free")}
+                >
+                  <span className="absolute -top-3 right-3 bg-green-600 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-sm">
+                    FREE · First Event
+                  </span>
+
+                  <RadioGroupItem
+                    value="free"
+                    id="free"
+                    className="mt-1 data-[state=checked]:bg-white data-[state=checked]:border-white"
+                  />
+
+                  <Label htmlFor="free" className="flex flex-col gap-1 cursor-pointer w-full">
+                    <div className="flex justify-between items-center">
+                      <span className="text-lg md:text-xl font-semibold">
+                        Free Pass
+                      </span>
+                      <span className="text-base md:text-lg font-bold">
+                        €0.00
+                      </span>
+                    </div>
+
+                    <span className="text-sm opacity-90">
+                      Your first event is on us. One-time only.
+                    </span>
+                  </Label>
+                </div>
+              )}
+
+              {/* One-time Payment Option */}
               <div
                 className={`relative flex w-full items-start gap-3 border p-4 rounded-lg shadow-sm transition-all duration-300 cursor-pointer ${payment === "oneTime"
                   ? "bg-[#2F1107] border-[#2F1107] text-white scale-[1.02]"

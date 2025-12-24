@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useDeferredValue, useMemo, useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import Loader from '@/components/ui/loader';
 import { useFetchAllUsers } from '@/app/queries/admin/fetch-users';
@@ -27,6 +28,7 @@ interface UserProps {
     connectionStyles: string;
     communicationStyles: string;
     socialStyles: string;
+    avatar: string;
     healthAndFitness: string;
     family: string;
     spirituality: string;
@@ -111,7 +113,7 @@ const Page = () => {
                             <input className='file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground border-input flex h-12 min-w-0 rounded-full border bg-muted px-4 py-2 text-base transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium md:text-sm' type="text" name='name' value={name} onChange={handleInputChange} placeholder='Seacrh by name' />
                             <select className='file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground border-input flex h-12 min-w-0 rounded-full border bg-muted px-4 py-2 text-base transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium md:text-sm' name="country" value={country} onChange={handleInputChange}>
                                 <option value="">Select Country</option>
-                                {locations.map((loc: LocationProps) => (
+                                {locations?.map((loc: LocationProps) => (
                                     <option key={loc.id} value={loc.country}>{loc.country}</option>
                                 ))}
                             </select>
@@ -147,7 +149,8 @@ const Page = () => {
                                             "Politics",
                                             "Kind of People",
                                             "Payment Mode",
-                                            "Payment Status"
+                                            "Payment Status",
+                                            "Image"
                                         ].map((heading, i) => (
                                             <TableHead key={i} className="text-[#2f1107] whitespace-nowrap">
                                                 {heading}
@@ -180,6 +183,17 @@ const Page = () => {
                                             </TableCell>
                                             <TableCell className='capitalize'>{user?.payment?.[0]?.mode ?? "---"}</TableCell>
                                             <TableCell className='capitalize'>{user?.payment?.[0]?.status ?? "unpaid"}</TableCell>
+                                            <TableCell>
+                                                <Image
+                                                    className='w-[50px] h-[50px] object-cover'
+                                                    src={user?.avatar}
+                                                    alt={user?.name}
+                                                    width={50}
+                                                    height={50}
+                                                    quality={100}
+                                                    priority
+                                                />
+                                            </TableCell>
                                         </TableRow>
                                     ))}
                                 </TableBody>
@@ -198,6 +212,15 @@ const Page = () => {
                                     <h4 className="font-bold text-lg text-[#2f1107]">{user?.name}</h4>
                                     <span className="text-sm text-gray-500">#{idx + 1}</span>
                                 </div>
+                                <Image
+                                    className='w-[60px] h-[60px] object-cover'
+                                    src={user?.avatar}
+                                    alt={user?.name}
+                                    width={60}
+                                    height={60}
+                                    quality={100}
+                                    priority
+                                />
                                 <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm text-gray-700">
                                     <p><span className="font-semibold">Email:</span> {user?.email}</p>
                                     <p><span className="font-semibold">Phone:</span> {user?.phoneNumber}</p>
@@ -217,6 +240,7 @@ const Page = () => {
                                     </p>
                                     <p className='capitalize'><span className="font-semibold">Payment Mode:</span> {user?.payment?.[0]?.mode ?? "---"}</p>
                                     <p className='capitalize'><span className="font-semibold">Payment Status:</span> {user?.payment?.[0]?.status ?? "unpaid"}</p>
+                                    <p></p>
                                 </div>
                             </div>
                         ))}
