@@ -18,6 +18,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch"
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Popover,
@@ -495,7 +496,7 @@ export default function MatchEventPage() {
 
   const [searchTerm, setSearchTerm] = useState({
     city: "",
-    pastEvents: ""
+    pastEvents: false
   });
 
   const { city, pastEvents } = searchTerm;
@@ -505,42 +506,32 @@ export default function MatchEventPage() {
     setSearchTerm({ ...searchTerm, [name]: value });
   }
 
+  const handlePastEventToggle = (checked: boolean) => {
+    setSearchTerm((prev) => ({
+      ...prev,
+      pastEvents: checked
+    }));
+  };
+
   const events = Array.isArray(data) ? data : data?.events || [];
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-
-  const pastEventsList = events.filter((event: any) => {
-    const eventDate = new Date(event.date);
-    eventDate.setHours(0, 0, 0, 0);
-    return eventDate < today;
-  });
-
-  const uniquePastEventsByCity = Array.from(
-    new Map(
-      pastEventsList.map((event: any) => [event.city, event])
-    ).values()
-  );
 
   const filteredEvents = events.filter((event: any) => {
     const eventDate = new Date(event.date);
     eventDate.setHours(0, 0, 0, 0);
 
     const isPastEvent = eventDate < today;
+    const isFutureEvent = eventDate >= today;
 
     const isCityMatch = city
       ? event.city?.toLowerCase().includes(city.toLowerCase())
       : true;
 
-    const isPastEventSelected = pastEvents
-      ? event.id === pastEvents
-      : true;
+    const isDateMatch = pastEvents ? isPastEvent : isFutureEvent;
 
-    if (pastEvents) {
-      return isPastEvent && isCityMatch && isPastEventSelected;
-    }
-
-    return isCityMatch;
+    return isCityMatch && isDateMatch;
   });
 
   if (isLoading) return <Loader />
@@ -558,21 +549,14 @@ export default function MatchEventPage() {
               <option key={loc.id} value={loc.city}>{loc.city}</option>
             ))}
           </select>
-          <select
-            onChange={handleInputChange}
-            value={pastEvents}
-            name="pastEvents"
-            id="pastEvents"
-            className="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground border-input flex h-12 w-52 min-w-0 rounded-full border bg-muted px-5 py-2 text-base transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium md:text-sm"
-          >
-            <option value="">Select Past Events</option>
-
-            {uniquePastEventsByCity.map((event: any) => (
-              <option key={event.id} value={event.id}>
-                {event.city}
-              </option>
-            ))}
-          </select>
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="pastEvents"
+              checked={pastEvents}
+              onCheckedChange={handlePastEventToggle}
+            />
+            <Label htmlFor="pastEvents" className="text-[#2f1107] text-base font-medium">Past Events</Label>
+          </div>
         </div>
       </div>
 
