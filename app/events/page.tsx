@@ -70,8 +70,7 @@ const Page = () => {
   const eventId = participant?.[0]?.eventId;
   const cafeId = participant?.[0]?.event?.cafeId;
 
-  const eventEnded = new Date();
-  const eventScheduledDate = participant?.[0]?.event?.date;
+  const FEEDBACK_DELAY_HOURS = 1;
 
   const { data: matches, isPending: matchesPending } = useMatchedGroupUsers(eventId);
 
@@ -83,6 +82,22 @@ const Page = () => {
   }
 
   if (isLoading || isPending) return <Loader />;
+
+  const hasUpcomingEvent =
+    participant?.some((item: any) => {
+      const eventDate = parseISO(item.event.date);
+      return eventDate >= new Date();
+    }) ?? false;
+
+  const feedbackVisible =
+    participant?.some((item: any) => {
+      const eventDate = parseISO(item.event.date);
+      const feedbackAvailableAt = new Date(
+        eventDate.getTime() + FEEDBACK_DELAY_HOURS * 60 * 60 * 1000
+      );
+      return new Date() >= feedbackAvailableAt;
+    }) ?? false;
+
 
   return (
     <>
@@ -287,7 +302,7 @@ const Page = () => {
                 );
               })}
               {/* CARD 3 - Group */}
-              {eventStatus === "Matched" && (
+              {eventStatus === "Matched" && hasUpcomingEvent && (
                 <>
                   {matchesPending ? (
                     <div className="text-center py-6">
@@ -410,7 +425,7 @@ const Page = () => {
                 </div>
               )}
               {/* CARD 5 - Feedback */}
-              {eventScheduledDate < eventEnded && (
+              {feedbackVisible && (
                 <div className="bg-white border border-gray-100 mt-5 shadow-sm rounded-3xl p-5 sm:p-6 hover:scale-[1.02] transition-transform cursor-pointer duration-500">
                   <div className="flex items-center gap-3 mb-3">
                     <span className="bg-orange-100 text-orange-600 p-2.5 rounded-full text-xl">
