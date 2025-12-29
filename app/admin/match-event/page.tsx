@@ -34,6 +34,7 @@ import {
 import { ChevronDown } from "lucide-react";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { useFetchAllLocations } from "@/app/queries/fetch-locations";
 
 const AdminEventCard = ({ event }: any) => {
   const id = useId();
@@ -334,10 +335,10 @@ const AdminEventCard = ({ event }: any) => {
                         </DialogDescription>
                       </DialogHeader>
 
-                      <select 
+                      <select
                         name="selectedCafe"
                         value={selectedCafe}
-                        onChange={(e) => setSelectedCafe(e.target.value)} 
+                        onChange={(e) => setSelectedCafe(e.target.value)}
                         className="w-full bg-muted px-2 border border-input py-2 rounded-md text-sm font-semibold outline-input"
                       >
                         <option value="">Select Cafe</option>
@@ -490,20 +491,90 @@ const AdminEventCard = ({ event }: any) => {
 
 export default function MatchEventPage() {
   const { data, isLoading, isError } = useFetchEvents();
+  const { data: locations } = useFetchAllLocations();
 
-  if (isLoading) return <Loader />;
+  const [searchTerm, setSearchTerm] = useState({
+    city: "",
+    pastEvents: ""
+  });
 
-  if (isError) return <p className="p-6 text-red-500 text-base font-semibold">Failed to load events.</p>;
+  const { city, pastEvents } = searchTerm;
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setSearchTerm({ ...searchTerm, [name]: value });
+  }
 
   const events = Array.isArray(data) ? data : data?.events || [];
 
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const pastEventsList = events.filter((event: any) => {
+    const eventDate = new Date(event.date);
+    eventDate.setHours(0, 0, 0, 0);
+    return eventDate < today;
+  });
+
+  const uniquePastEventsByCity = Array.from(
+    new Map(
+      pastEventsList.map((event: any) => [event.city, event])
+    ).values()
+  );
+
+  const filteredEvents = events.filter((event: any) => {
+    const eventDate = new Date(event.date);
+    eventDate.setHours(0, 0, 0, 0);
+
+    const isPastEvent = eventDate < today;
+
+    const isCityMatch = city
+      ? event.city?.toLowerCase().includes(city.toLowerCase())
+      : true;
+
+    const isPastEventSelected = pastEvents
+      ? event.id === pastEvents
+      : true;
+
+    return isPastEvent && isCityMatch && isPastEventSelected;
+  });
+
+  if (isLoading) return <Loader />
+
+  if (isError) return <p className="p-6 text-red-500 text-base font-semibold">Failed to load events.</p>
+
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Admin - Match Events</h1>
+    <div className="py-8 px-6">
+      <div className="flex items-center justify-between md:gap-10 gap-0 md:flex-row flex-col mb-7">
+        <h1 className="text-2xl font-bold md:mb-0 mb-4">Admin - Match Events</h1>
+        <div className="flex items-center justify-center gap-4 md:flex-row flex-col">
+          <select onChange={handleInputChange} value={city} name="city" id="city" className="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground border-input flex h-12 w-52 min-w-0 rounded-full border bg-muted px-5 py-2 text-base transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium md:text-sm">
+            <option value="">Select City</option>
+            {locations && locations.map((loc: any) => (
+              <option key={loc.id} value={loc.city}>{loc.city}</option>
+            ))}
+          </select>
+          <select
+            onChange={handleInputChange}
+            value={pastEvents}
+            name="pastEvents"
+            id="pastEvents"
+            className="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground border-input flex h-12 w-52 min-w-0 rounded-full border bg-muted px-5 py-2 text-base transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium md:text-sm"
+          >
+            <option value="">Select Past Events</option>
+
+            {uniquePastEventsByCity.map((event: any) => (
+              <option key={event.id} value={event.id}>
+                {event.city}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
 
       {events.length === 0 && <p>No events found.</p>}
 
-      {events.map((event: any) => (
+      {filteredEvents.map((event: any) => (
         <AdminEventCard key={event.id} event={event} />
       ))}
     </div>
