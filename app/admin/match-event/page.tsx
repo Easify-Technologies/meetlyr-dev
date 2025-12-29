@@ -536,7 +536,11 @@ export default function MatchEventPage() {
       ? event.id === pastEvents
       : true;
 
-    return isPastEvent && isCityMatch && isPastEventSelected;
+    if (pastEvents) {
+      return isPastEvent && isCityMatch && isPastEventSelected;
+    }
+
+    return isCityMatch;
   });
 
   if (isLoading) return <Loader />

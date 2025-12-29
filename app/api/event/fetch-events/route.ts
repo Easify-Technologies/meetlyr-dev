@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 export async function GET() {
   try {
     const events = await prisma.event.findMany({
-      orderBy: { date: "asc" },   // removed city sorting for safety
+      orderBy: { date: "desc" },   // removed city sorting for safety
       include: {
         cafe: {
           select: { name: true },

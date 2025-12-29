@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
         data: {
           userId,
           eventId,
-          stripeSessionId: "free-pass",
+          stripeSessionId: `free-pass-${userId}-${eventId}`,
           mode: "free",
           status: "paid",
         },

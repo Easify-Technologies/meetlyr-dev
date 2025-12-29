@@ -16,7 +16,7 @@ export async function sendMeetupEmail({
   cafe,
   date,
 }: {
-  to: string | string[]; // ✅ accept both string and string[]
+  to: string | string[];
   groupNames: string;
   cafe: { name: string; address: string };
   date: string;
@@ -38,6 +38,23 @@ export async function sendMeetupEmail({
       Your place is reserved for the meetup on <strong>${formattedDate}</strong>.
     </p>
 
+    <p><strong>📍 Meetup Location</strong></p>
+
+    <p>
+      We’ve chosen a comfortable and welcoming spot where conversations flow easily
+      and everyone can feel at ease.
+    </p>
+
+    <p>
+      <strong>Name: ${cafe.name}</strong><br />
+      <strong>Address: ${cafe.address}</strong><br />
+    </p>
+
+    <p style="font-size: 14px; color: #555;">
+      Arrive a few minutes early, grab your favorite drink, and look for a friendly
+      group ready to meet you. Our hosts will make sure you feel right at home.
+    </p>
+
     <p>Is this your first time?</p>
 
     <p>
@@ -45,37 +62,31 @@ export async function sendMeetupEmail({
     </p>
 
     <p>
-      <strong>But where is the Meetup?</strong>
-      You'll find out in the app 48 hours before the event.
-      All information will always be here:
-      <a href="https://app.meetlyr.com/" target="_blank" rel="noopener noreferrer">
-        https://app.meetlyr.com/
-      </a>
-    </p>
-
-    <p>
       <strong>What if I freak out before?</strong>
-      Don't worry, everyone's a little stressed their first time! We make sure to match your with the right people so you feel comfortable and the conversation flows naturally.
+      Don't worry, everyone's a little stressed their first time! We make sure to
+      match you with the right people so you feel comfortable and the conversation
+      flows naturally.
     </p>
 
     <p>
       <strong>How do I cancel?</strong>
       If you cancel before 48 hours, we'll have time to find someone
-      to replace you, and that's pretty cool for the rest of the group. After that, your reservation will be confirmed and cannot be modified. In case of an extraordinary event, please contact the Meetlyr team.<br />
-      <strong>IMPORTANT:</strong> cancellations can only be made in the app
-      (not by email or WhatsApp).
+      to replace you. After that, your reservation is confirmed and cannot be
+      modified. In case of an extraordinary event, please contact the Meetlyr team.
+      <br />
+      <strong>IMPORTANT:</strong> cancellations can only be made in the app.
     </p>
 
     <p>
       <strong>Who am I going to meet?</strong>
-      Meetlyr is open to everyone, especially open-minded people who want to meet
-      new people. Remember, we're not a dating app; we're not a bachelor party, but
-      a unique moment of human connection full of surprises 😇
+      Meetlyr is open to everyone—especially open-minded people who want to meet
+      new people. We're not a dating app or a bachelor party, but a unique moment of
+      human connection.
     </p>
 
     <p>
-      If you're reading this, you've done the hard part. Good job! Now, all you
-      have to do is show up and find the group ready to meet you.
+      If you're reading this, you've done the hard part. Good job! Now all you have
+      to do is show up and find the group ready to meet you.
     </p>
   </div>
 `;
