@@ -5,6 +5,10 @@ import Script from "next/script";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+export const revalidate = 0;
+
 const dmSans = DM_Sans({
   variable: "--font-sans",
   subsets: ["latin"],
