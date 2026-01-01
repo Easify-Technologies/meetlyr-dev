@@ -34,8 +34,10 @@ model User {
   freePass       Boolean   @default(true)
   freePassUsedAt DateTime?
 
-  isLoggedIn Boolean  @default(false)
-  isVerified Boolean  @default(false)
+  isLoggedIn             Boolean @default(false)
+  isVerified             Boolean @default(false)
+  faceVerificationStatus Boolean @default(false)
+
   createdAt  DateTime @default(now())
   cafeId     String?  @db.ObjectId
   locationId String?  @db.ObjectId

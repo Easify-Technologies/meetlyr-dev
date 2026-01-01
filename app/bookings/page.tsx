@@ -27,32 +27,48 @@ const Page = () => {
 
   const { mutate: joinEvent, isPending } = useJoinEvent();
 
-
-  if (isLoading) return <Loader />;
-
   const handleBooking = () => {
-    console.log("✅ handleBooking triggered");
-    console.log("booking:", booking);
-    console.log("profile:", profile);
-    console.log("session:", session);
     if (!booking) {
       toast.error("Please select an event first");
       return;
     }
 
-    // If user does NOT have active subscription -> redirect to payment
-    if (!profile?.subscriptionActive) {
+    // if(!profile?.faceVerificationStatus) {
+    //   toast.error("Please complete face verification before booking an event.");
+    //   return;
+    // }
+
+    const now = new Date();
+
+    const hasFutureSubscribedEvent = events?.some((event: any) => {
+      const eventDate = new Date(event?.date);
+
+      return (
+        eventDate >= now &&
+        Array.isArray(event?.participants) &&
+        event.participants.some(
+          (p) => p.userId === profile?.id && p.status === "Active"
+        ) &&
+        Array.isArray(event?.payment) &&
+        event.payment.some(
+          (pay) =>
+            pay.userId === profile?.id &&
+            pay.mode === "subscription" &&
+            pay.status === "paid"
+        )
+      );
+    });
+
+    if (!hasFutureSubscribedEvent) {
       router.push(`/payment?userId=${profile?.id}&eventId=${booking}`);
       return;
     }
 
-    // Otherwise -> directly join event via API
     if (!session?.user?.accessToken) {
       toast.error("You are not authorized. Please login again.");
       return;
     }
 
-    // Ensure we have a profile id before calling the API
     if (!profile?.id) {
       toast.error("Unable to find user profile. Please try again.");
       return;
@@ -75,6 +91,8 @@ const Page = () => {
       }
     );
   };
+
+  if (isLoading) return <Loader />
 
   return (
     <>
@@ -149,20 +167,30 @@ const Page = () => {
                                   value={booking}
                                 >
                                   {(() => {
-                                    // ⭐ STEP 1 — Find the currently active subscription event
-                                    const activeSubscribedEvent = events.find((event) =>
-                                      // User must be an active participant
-                                      Array.isArray(event?.participants) && event?.participants.some(
-                                        (p) => p.userId === profile?.id && p.status === "Active"
-                                      ) &&
-                                      // And must have a paid subscription payment
-                                      Array.isArray(event?.payment) && event?.payment.some(
-                                        (pay) =>
-                                          pay.userId === profile?.id &&
-                                          pay.mode === "subscription" &&
-                                          pay.status === "paid"
-                                      )
-                                    );
+                                    // ⭐ STEP 1 — Find the currently active FUTURE subscription event
+                                    const activeSubscribedEvent = events.find((event) => {
+                                      const eventDate = new Date(event?.date);
+                                      const now = new Date();
+
+                                      const isFutureEvent = eventDate >= now;
+
+                                      const isActiveParticipant =
+                                        Array.isArray(event?.participants) &&
+                                        event.participants.some(
+                                          (p) => p.userId === profile?.id && p.status === "Active"
+                                        );
+
+                                      const hasActiveSubscription =
+                                        Array.isArray(event?.payment) &&
+                                        event.payment.some(
+                                          (pay) =>
+                                            pay.userId === profile?.id &&
+                                            pay.mode === "subscription" &&
+                                            pay.status === "paid"
+                                        );
+
+                                      return isFutureEvent && isActiveParticipant && hasActiveSubscription;
+                                    });
 
                                     return events.map((event) => {
                                       const isoEventDate = event?.date;
@@ -171,36 +199,46 @@ const Page = () => {
                                         "EEEE, MMM do h:mm a"
                                       );
 
+                                      // ⭐ REQUIRED — date guard PER event (scope fix)
+                                      const eventDate = new Date(event?.date);
+                                      const now = new Date();
+                                      const isFutureEvent = eventDate >= now;
+
                                       // ⭐ STEP 2 — Check if THIS event is the active subscription
                                       const isActiveSubscriptionEvent =
-                                        Array.isArray(event?.participants) && event?.participants.some(
+                                        Array.isArray(event?.participants) &&
+                                        event.participants.some(
                                           (p) => p.userId === profile?.id && p.status === "Active"
                                         ) &&
-                                        Array.isArray(event?.payment) && event?.payment.some(
+                                        Array.isArray(event?.payment) &&
+                                        event.payment.some(
                                           (pay) =>
                                             pay.userId === profile?.id &&
                                             pay.mode === "subscription" &&
                                             pay.status === "paid"
                                         );
 
-                                      // ⭐ STEP 3 — Block all events except the subscribed one
+                                      // ⭐ STEP 3 — Block all events except the active subscribed one
                                       const isBlocked =
                                         activeSubscribedEvent &&
                                         activeSubscribedEvent.id !== event.id;
 
-                                      // Old logic still works for marking event as booked
+                                      // Old booking logic (unchanged)
                                       const isParticipant =
-                                      Array.isArray(event?.participants) && event?.participants.some((p) => p.userId === profile?.id);
+                                        Array.isArray(event?.participants) &&
+                                        event.participants.some((p) => p.userId === profile?.id);
 
                                       const hasBlockingPayment =
-                                      Array.isArray(event?.payment) && event?.payment.some(
+                                        Array.isArray(event?.payment) &&
+                                        event.payment.some(
                                           (pay) =>
                                             pay.userId === profile?.id &&
-                                            (pay.status === "paid" ||
-                                            pay.mode === "subscription")
+                                            (pay.status === "paid" || pay.mode === "subscription")
                                         );
 
-                                      const isEventBooked = isParticipant && hasBlockingPayment;
+                                      // ✅ FIX — only FUTURE booked events redirect
+                                      const isEventBooked =
+                                        isFutureEvent && isParticipant && hasBlockingPayment;
 
                                       return (
                                         <div
@@ -232,15 +270,7 @@ const Page = () => {
                                                 </span>
                                                 <div className="bg-[#2F1107] rounded-full px-3 py-2">
                                                   <span className="md:text-lg text-sm font-medium text-white leading-none">
-                                                    {formattedEventDate.split(" ")[0] +
-                                                      " " +
-                                                      formattedEventDate.split(" ")[1] +
-                                                      " " +
-                                                      formattedEventDate.split(" ")[2] +
-                                                      " " +
-                                                      formattedEventDate.split(" ")[3] +
-                                                      " " +
-                                                      formattedEventDate.split(" ")[4]}
+                                                    {formattedEventDate.split(" ").slice(0, 5).join(" ")}
                                                   </span>
                                                 </div>
                                               </div>
@@ -248,17 +278,13 @@ const Page = () => {
                                               <div className="grid grow gap-2">
                                                 <Label htmlFor={event?.id} className="flex items-center gap-2">
                                                   <h4 className="font-semibold md:text-xl text-lg text-[#2F1107]">
-                                                    {formattedEventDate.split(" ")[0] +
-                                                      " " +
-                                                      formattedEventDate.split(" ")[1] +
-                                                      " " +
-                                                      formattedEventDate.split(" ")[2]}
+                                                    {formattedEventDate.split(" ").slice(0, 3).join(" ")}
                                                   </h4>
                                                   <div className="flex items-start text-center justify-center bg-[#2F1107] rounded-full px-3 py-2">
                                                     <span className="text-lg font-medium text-white leading-none">
                                                       {formattedEventDate.split(" ")[3]}
                                                     </span>
-                                                    <span className="text-[10px] text-white ml-1 leading-none translate-y--1">
+                                                    <span className="text-[10px] text-white ml-1 leading-none">
                                                       {formattedEventDate.split(" ")[4]}
                                                     </span>
                                                   </div>
@@ -274,7 +300,7 @@ const Page = () => {
                               </div>
 
                               {/* BUTTON */}
-                              <div className="shrink-0 pt-6 pb-4">
+                              <div className="shrink-0 pt-6 pb-3">
                                 {profile?.isVerified ? (
                                   <button
                                     type="button"
@@ -290,6 +316,13 @@ const Page = () => {
                                   </div>
                                 )}
                               </div>
+
+                              {/* Face Verification */}
+                              {/* {!profile?.faceVerificationStatus && (
+                                <div className="shrink-0 pb-4">
+                                  <Link href="/face-verification" type="button" className="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm md:text-base font-medium transition-all outline-none bg-[#2f1107] text-[#ffd100] hover:bg-[#2f1107]/80 cursor-pointer h-12 px-4 py-2 rounded-full w-full">Verify Your Face</Link>
+                                </div>
+                              )} */}
                             </form>
                           </div>
                         </div>

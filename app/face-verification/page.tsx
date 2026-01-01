@@ -1,106 +1,134 @@
-'use client';
+"use client";
 
-import Webcam from "react-webcam";
 import { useRef, useState } from "react";
+import Webcam from "react-webcam";
+import { useSession } from "next-auth/react";
+import { useProfileDetails } from "../queries/profile";
 
-type Step = "LEFT" | "RIGHT" | "UPLOAD" | "DONE";
+type Step = "LEFT" | "RIGHT" | "VERIFYING" | "DONE";
 
 export default function FaceVerificationTest() {
   const webcamRef = useRef<Webcam>(null);
+  const { data: session } = useSession();
+
+  const userId = session?.user?.id ?? "";
+  const userEmail = session?.user?.email ?? "";
+
+  const { data: profile, isPending } = useProfileDetails(userEmail);
+  const avatar = profile?.avatar ?? "";
 
   const [step, setStep] = useState<Step>("LEFT");
   const [leftImage, setLeftImage] = useState<string | null>(null);
   const [rightImage, setRightImage] = useState<string | null>(null);
-  const [profileImage, setProfileImage] = useState<File | null>(null);
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
-  const capture = () => {
+  const capture = async () => {
     if (!webcamRef.current) return;
-    const img = webcamRef.current.getScreenshot();
+
+    const screenshot = webcamRef.current.getScreenshot();
+    if (!screenshot) return;
 
     if (step === "LEFT") {
-      setLeftImage(img);
+      setLeftImage(screenshot);
       setStep("RIGHT");
-    } else if (step === "RIGHT") {
-      setRightImage(img);
-      setStep("UPLOAD");
+      return;
+    }
+
+    if (step === "RIGHT") {
+      setRightImage(screenshot);
+      await verify(screenshot);
     }
   };
 
-  const verify = async () => {
-    if (!leftImage || !rightImage || !profileImage) return;
+  const verify = async (rightShot?: string) => {
+    if (!leftImage || !(rightShot || rightImage) || !userId || !avatar) return;
 
     setLoading(true);
+    setStep("VERIFYING");
 
-    const formData = new FormData();
+    try {
+      const formData = new FormData();
 
-    const leftBlob = await (await fetch(leftImage)).blob();
-    const rightBlob = await (await fetch(rightImage)).blob();
+      const leftBlob = await (await fetch(leftImage)).blob();
+      const rightBlob = await (await fetch(rightShot || rightImage!)).blob();
 
-    formData.append("left", leftBlob);
-    formData.append("right", rightBlob);
-    formData.append("profile", profileImage);
+      formData.append("left", leftBlob, "left.jpg");
+      formData.append("right", rightBlob, "right.jpg");
+      formData.append("userId", userId);
 
-    const res = await fetch("/api/face-verification", {
-      method: "POST",
-      body: formData,
-    });
+      const res = await fetch("/api/face-verification", {
+        method: "POST",
+        body: formData,
+      });
 
-    const data = await res.json();
-    setResult(data);
-    setLoading(false);
-    setStep("DONE");
+      const data = await res.json();
+      setResult(data);
+    } catch (error) {
+      console.error("Verification failed:", error);
+      setResult({ error: "Verification failed" });
+    } finally {
+      setLoading(false);
+      setStep("DONE");
+    }
   };
+
+  if (isPending) {
+    return <div className="p-6 text-center">Loading profile…</div>;
+  }
+
+  if (!avatar) {
+    return (
+      <div className="p-6 text-center text-red-600 font-semibold">
+        Please upload a profile photo before verification.
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 max-w-md mx-auto flex flex-col gap-4">
-      <h1 className="text-xl font-bold">Face Verification Test</h1>
+      <h1 className="text-xl font-bold text-center">Face Verification</h1>
 
-      {step !== "UPLOAD" && step !== "DONE" && (
+      {step !== "DONE" && (
         <>
-          <p className="font-semibold">
+          <p className="text-center font-semibold">
             {step === "LEFT" && "Turn your head LEFT"}
             {step === "RIGHT" && "Turn your head RIGHT"}
+            {step === "VERIFYING" && "Verifying your face…"}
           </p>
 
-          <Webcam
-            ref={webcamRef}
-            screenshotFormat="image/jpeg"
-            className="rounded"
-          />
+          {step !== "VERIFYING" && (
+            <Webcam
+              ref={webcamRef}
+              screenshotFormat="image/jpeg"
+              videoConstraints={{
+                facingMode: "user",
+              }}
+              className="rounded-lg"
+            />
+          )}
 
-          <button
-            onClick={capture}
-            className="bg-yellow-400 p-2 rounded font-semibold"
-          >
-            Capture
-          </button>
+          {step !== "VERIFYING" && (
+            <button
+              onClick={capture}
+              className="bg-yellow-400 hover:bg-yellow-500 transition p-2 rounded font-semibold"
+            >
+              Capture
+            </button>
+          )}
+
+          {loading && (
+            <div className="text-center text-sm text-gray-600">
+              Processing verification…
+            </div>
+          )}
         </>
       )}
 
-      {step === "UPLOAD" && (
-        <>
-          <p className="font-semibold">Upload your profile photo</p>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => setProfileImage(e.target.files?.[0] || null)}
-          />
-          <button
-            onClick={verify}
-            disabled={loading}
-            className="bg-green-500 p-2 rounded font-semibold text-white"
-          >
-            {loading ? "Verifying..." : "Verify Face"}
-          </button>
-        </>
-      )}
-
-      {result && (
-        <pre className="bg-gray-100 p-2 rounded text-sm">
-          {JSON.stringify(result, null, 2)}
-        </pre>
+      {step === "DONE" && result && (
+        <div className="bg-gray-100 p-3 rounded text-sm">
+          <pre>{JSON.stringify(result, null, 2)}</pre>
+        </div>
       )}
     </div>
   );

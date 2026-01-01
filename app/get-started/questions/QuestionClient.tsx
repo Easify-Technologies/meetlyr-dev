@@ -5,7 +5,6 @@ import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { Slider } from "@/components/ui/slider";
 import Link from "next/link";
 
 const QuestionClient = () => {
@@ -120,21 +119,8 @@ const QuestionClient = () => {
     return true;
   })();
 
-  const handleNext = () => {
-    const { key, type } = currentConfig;
-
-    let valueToSave: string | null = null;
-    if (type === "radio") {
-      valueToSave = selectedStyle || null;
-    } else if (type === "slider") {
-      valueToSave = (sliderValue && sliderValue.length > 0) ? String(sliderValue[0]) : null;
-    } else if (type === "multi") {
-      valueToSave = (selectedMulti && selectedMulti.length > 0) ? selectedMulti.join(",") : null;
-    }
-
-    if (!valueToSave) {
-      return;
-    }
+  const goNextWithValue = (valueToSave: string) => {
+    const { key } = currentConfig;
 
     const updatedForm = { ...formData, [key]: valueToSave };
     setFormData(updatedForm);
@@ -150,11 +136,31 @@ const QuestionClient = () => {
       setSliderValue([0]);
     } else {
       console.log("✅ Final Form Data:", updatedForm);
-
       localStorage.removeItem("user-details-form");
-
       router.push(`/get-started/about?${params.toString()}`);
     }
+  };
+
+  const handleNext = () => {
+    const { type } = currentConfig;
+
+    let valueToSave: string | null = null;
+
+    if (type === "radio") {
+      valueToSave = selectedStyle || null;
+    } else if (type === "slider") {
+      valueToSave =
+        sliderValue && sliderValue.length > 0 ? String(sliderValue[0]) : null;
+    } else if (type === "multi") {
+      valueToSave =
+        selectedMulti && selectedMulti.length > 0
+          ? selectedMulti.join(",")
+          : null;
+    }
+
+    if (!valueToSave) return;
+
+    goNextWithValue(valueToSave);
   };
 
   const toggleMulti = (val: string) => {
@@ -233,7 +239,10 @@ const QuestionClient = () => {
                         <RadioGroup
                           className="w-full gap-7"
                           value={selectedStyle}
-                          onValueChange={(value) => setSelectedStyle(value)}
+                          onValueChange={(value) => {
+                            setSelectedStyle(value);
+                            goNextWithValue(value);
+                          }}
                         >
                           {options?.map((style, index) => (
                             <Label
@@ -261,28 +270,29 @@ const QuestionClient = () => {
                       )}
 
                       {currentConfig.type === "slider" && (
-                        <div className="w-full flex flex-col items-center gap-6">
-                          <Slider
-                            value={sliderValue}
-                            onValueChange={setSliderValue}
-                            min={0}
-                            max={10}
-                            step={1}
-                            className="w-full max-w-md"
-                          />
-                          <div className="flex justify-between text-center text-muted-foreground text-sm w-full max-w-md">
-                            {Array.from({ length: 11 }).map((_, i) => (
-                              <span
-                                key={i}
-                                className={`w-0 flex justify-center ${sliderValue[0] === i
-                                  ? "font-bold text-foreground"
-                                  : "text-muted-foreground"
+                        <div className="grid grid-cols-5 gap-4 w-full mx-auto max-w-md">
+                          {Array.from({ length: 10 }).map((_, i) => {
+                            const value = i + 1;
+                            const isSelected = sliderValue[0] === value;
+
+                            return (
+                              <button
+                                key={value}
+                                type="button"
+                                onClick={() => {
+                                  setSliderValue([value]);
+                                  goNextWithValue(String(value));
+                                }}
+                                className={`h-14 rounded-xl cursor-pointer border text-sm font-medium transition-all
+                                  ${isSelected
+                                    ? "border-[#2F1107] bg-[#2F1107]/10 text-[#2F1107]"
+                                    : "border-[#2F1107]/40 hover:bg-[#2F1107]/5"
                                   }`}
                               >
-                                {i}
-                              </span>
-                            ))}
-                          </div>
+                                {value}
+                              </button>
+                            );
+                          })}
                         </div>
                       )}
 

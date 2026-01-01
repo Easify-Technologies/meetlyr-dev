@@ -13,6 +13,7 @@ import { FaMapLocationDot } from "react-icons/fa6";
 import { MdEvent, MdCoffee, MdFeedback } from "react-icons/md";
 import { IoIosLogOut } from "react-icons/io";
 import { GiForkKnifeSpoon } from "react-icons/gi";
+import { MdLeaderboard } from "react-icons/md";
 import {
   SidebarProvider,
   SidebarTrigger,
@@ -37,6 +38,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     { icon: FaMapLocationDot, label: "Locations", path: "/admin/locations" },
     { icon: MdEvent, label: "Events", path: "/admin/events" },
     { icon: MdCoffee, label: "Cafes", path: "/admin/cafe" },
+    { icon: MdLeaderboard, label: "Leads", path: "/admin/leads" },
     { icon: GiForkKnifeSpoon, label: "Manual Matching", path: "/admin/match-event" },
     { icon: MdFeedback, label: "Feedback", path: "/admin/feedback" },
     { icon: IoIosLogOut, label: "Logout", path: "/admin/login" },

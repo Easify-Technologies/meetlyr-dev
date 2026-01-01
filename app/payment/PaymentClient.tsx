@@ -23,16 +23,20 @@ const PaymentClient = () => {
   const eventId = params.get("eventId");
 
   const { data: profile, isPending } = useProfileDetails(email);
-  const hasPaid = profile?.payment?.some(
-    (p: { status: string }) => p.status === "paid"
+
+  const hasPaidForThisEvent = profile?.payment?.some(
+    (p: any) =>
+      p.status === "paid" &&
+      p.eventId === eventId
   );
 
   const router = useRouter();
+
   useEffect(() => {
-    if (hasPaid) {
+    if (hasPaidForThisEvent) {
       router.push("/events");
     }
-  }, [hasPaid, router]);
+  }, [hasPaidForThisEvent, router]);
 
   async function handleCheckOut() {
     if (!payment) {
@@ -40,14 +44,14 @@ const PaymentClient = () => {
       return;
     }
 
-    if(payment === "free") {
+    if (payment === "free") {
       try {
         const res = await axios.post("/api/event/free-pass", {
           userId,
           eventId
         });
 
-        if(res.data.message === "Free pass applied successfully") {
+        if (res.data.message === "Free pass applied successfully") {
           setTimeout(() => {
             router.push("/events");
           }, 1500);
@@ -87,9 +91,10 @@ const PaymentClient = () => {
     }
   }
 
-  if (isPending) return <Loader />;
+  if (isPending) return <Loader />
 
-  if (hasPaid) return <Loader />;
+  if (hasPaidForThisEvent) return <Loader />
+
   return (
     <>
       <Navbar />
@@ -118,8 +123,8 @@ const PaymentClient = () => {
               {profile?.freePass && (
                 <div
                   className={`relative flex w-full items-start gap-3 border p-4 rounded-lg shadow-sm transition-all duration-300 cursor-pointer ${payment === "free"
-                      ? "bg-green-700 border-green-700 text-white scale-[1.02]"
-                      : "bg-white border-green-600 hover:bg-green-50 text-green-700"
+                    ? "bg-green-700 border-green-700 text-white scale-[1.02]"
+                    : "bg-white border-green-600 hover:bg-green-50 text-green-700"
                     }`}
                   onClick={() => setPayment("free")}
                 >
@@ -319,7 +324,7 @@ const PaymentClient = () => {
 
             </RadioGroup>
             <div className="sticky bottom-0 bg-[#FFFFF5] py-4">
-              {hasPaid ? (
+              {hasPaidForThisEvent ? (
                 <button
                   type="button"
                   disabled
