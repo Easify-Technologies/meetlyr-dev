@@ -20,6 +20,7 @@ export async function POST(req: NextRequest) {
             date: true,
             cafe: {
               select: {
+                id: true,
                 name: true,
                 address: true,
               },
@@ -30,6 +31,7 @@ export async function POST(req: NextRequest) {
       orderBy: {
         event: { date: "desc" },
       },
+      take: 3
     });
 
     return NextResponse.json({ pastEvents }, { status: 200 });

@@ -38,6 +38,20 @@ const PaymentClient = () => {
     }
   }, [hasPaidForThisEvent, router]);
 
+  const hasAttendedAnyEvent =
+    (profile?.events?.length ?? 0) > 0 ||
+    (profile?.eventParticipants?.length ?? 0) > 0;
+
+  const hasUsedFreePass = profile?.freePass === false;
+
+  const isFreePassEligible = !hasAttendedAnyEvent && !hasUsedFreePass;
+
+  useEffect(() => {
+    if (!isFreePassEligible && payment === "free") {
+      setPayment("");
+    }
+  }, [isFreePassEligible, payment]);
+
   async function handleCheckOut() {
     if (!payment) {
       alert("Please select a payment option");
@@ -120,7 +134,7 @@ const PaymentClient = () => {
               onValueChange={(value) => setPayment(value)}
             >
               {/* Free Pass Option */}
-              {profile?.freePass && (
+              {isFreePassEligible && (
                 <div
                   className={`relative flex w-full items-start gap-3 border p-4 rounded-lg shadow-sm transition-all duration-300 cursor-pointer ${payment === "free"
                     ? "bg-green-700 border-green-700 text-white scale-[1.02]"

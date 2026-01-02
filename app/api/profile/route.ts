@@ -17,6 +17,11 @@ export async function POST(request: NextRequest) {
                         status: true,
                         stripeSessionId: true
                     }
+                },
+                eventParticipants: {
+                    select: {
+                        eventId: true
+                    }   
                 }
             }
         });

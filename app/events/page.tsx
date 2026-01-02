@@ -68,20 +68,15 @@ const Page = () => {
 
   const eventStatus = participant?.[0]?.event?.status;
   const eventId = participant?.[0]?.eventId;
-  const cafeId = participant?.[0]?.event?.cafeId;
-
-  const FEEDBACK_DELAY_HOURS = 1;
 
   const { data: matches, isPending: matchesPending } = useMatchedGroupUsers(eventId);
 
-  const toFeedback = () => {
+  const toFeedback = ({ eventId, cafeId }: { eventId: string, cafeId: string }) => {
     router.push("/feedback");
 
     localStorage.setItem("eventId", eventId);
     localStorage.setItem("cafeId", cafeId);
   }
-
-  if (isLoading || isPending) return <Loader />;
 
   const hasUpcomingEvent =
     participant?.some((item: any) => {
@@ -89,15 +84,7 @@ const Page = () => {
       return eventDate >= new Date();
     }) ?? false;
 
-  const feedbackVisible =
-    participant?.some((item: any) => {
-      const eventDate = parseISO(item.event.date);
-      const feedbackAvailableAt = new Date(
-        eventDate.getTime() + FEEDBACK_DELAY_HOURS * 60 * 60 * 1000
-      );
-      return new Date() >= feedbackAvailableAt;
-    }) ?? false;
-
+  if (isLoading || isPending) return <Loader />
 
   return (
     <>
@@ -412,31 +399,27 @@ const Page = () => {
                           <p className="font-semibold">{item.event.cafe.name}</p>
                           <p className="text-sm text-gray-500">{item.event.cafe.address}</p>
                           <p className="text-xs text-gray-400 mt-1">
-                            {new Date(item.event.date).toLocaleDateString("en-IN", {
-                              day: "2-digit",
+                            {new Date(item.event.date).toLocaleDateString("en-US", {
+                              weekday: "long",
+                              hour: "2-digit",
+                              minute: "2-digit",
                               month: "short",
-                              year: "numeric",
+                              day: "numeric",
+                              timeZone: "Europe/Paris",
                             })}
                           </p>
+                          <button onClick={() => {
+                            toFeedback({
+                              eventId: item.eventId,
+                              cafeId: item.event.cafe.id,
+                            });
+                          }} type="button" className="flex bg-[#ffd100] text-[#2f1107] shadow-md w-full text-center justify-center text-base font-semibold mt-3 items-center gap-2.5 px-2.5 py-3 mb-2 cursor-pointer rounded-xl hover:bg-[#2f1107] hover:text-[#ffd100] duration-500 transition-colors">
+                            Send a Feedback
+                          </button>
                         </DropdownMenuItem>
                       ))}
                     </DropdownMenuContent>
                   </DropdownMenu>
-                </div>
-              )}
-              {/* CARD 5 - Feedback */}
-              {feedbackVisible && (
-                <div className="bg-white border border-gray-100 mt-5 shadow-sm rounded-3xl p-5 sm:p-6 hover:scale-[1.02] transition-transform cursor-pointer duration-500">
-                  <div className="flex items-center gap-3 mb-3">
-                    <span className="bg-orange-100 text-orange-600 p-2.5 rounded-full text-xl">
-                      <VscFeedback />
-                    </span>
-                    <h2 className="text-xl font-bold">Feedback</h2>
-                  </div>
-                  <p className="text-neutral-700 md:text-base text-sm font-semibold">Share your thoughts about your event, match with each other and improve your next experience.</p>
-                  <button onClick={toFeedback} type="button" className="flex bg-[#ffd100] text-[#2f1107] shadow-md w-full text-center justify-center text-base font-semibold mt-3 items-center gap-2.5 px-2.5 py-3 mb-2 cursor-pointer rounded-xl hover:bg-[#2f1107] hover:text-[#ffd100] duration-500 transition-colors">
-                    Send a Feedback
-                  </button>
                 </div>
               )}
             </div>
