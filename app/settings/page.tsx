@@ -65,14 +65,14 @@ const healthFitnessStyles = [
 ];
 
 const kindOfPeople = [
-    { label: "Creatives, artists and musicians", value: "creative" },
-    { label: "Entrepreneurs and founders", value: "entrepreneurs" },
-    { label: "Sporty, active and outdoorsy", value: "sporty" },
-    { label: "Parents and family-focused", value: "parents" },
-    { label: "Retired - giving back", value: "retired" },
-    { label: "Deep thinkers, readers and reflective types", value: "deep_thinkers" },
-    { label: "Adventurers, travelers and explorers", value: "adventurers" },
-    { label: "I don't mind, everyone has a story", value: "everyone_has_story" },
+    { label: "Creative Souls", value: "Creative Souls" },
+    { label: "Builders & Founders", value: "Builders & Founders" },
+    { label: "Active Lifestyles", value: "Active Lifestyles" },
+    { label: "Family Life", value: "Family Life" },
+    { label: "Life After Work", value: "Life After Work" },
+    { label: "Thoughtful Minds", value: "Thoughtful Minds" },
+    { label: "Explorers", value: "Explorers" },
+    { label: "Everyone Welcome", value: "Everyone Welcome" },
 ];
 
 interface Locations {
