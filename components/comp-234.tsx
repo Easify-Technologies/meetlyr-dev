@@ -48,6 +48,8 @@ export default function OneLinerDropdown({ setFormData }: { setFormData: any }) 
       <MultipleSelector
         commandProps={{
           label: "Describe Yourself",
+          shouldFilter: true,
+          autoFocus: false,
         }}
         value={selected}
         onChange={handleSelectionChange}
