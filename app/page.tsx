@@ -25,9 +25,9 @@ export default function Home() {
       <div className="flex-1 min-h-0 flex flex-col lg:flex-row">
         {/* LEFT CONTENT */}
         <div className="w-full lg:w-1/2 flex flex-col overflow-y-auto h-full">
-          <div className="h-full flex flex-col p-4">
+          <div className="h-full flex flex-col px-4 py-8 md:px-8 md:py-12">
             {/* HEADER */}
-            <div className="grid grid-cols-2 lg:grid-cols-[1fr_auto_1fr] items-center p-4 w-full">
+            <div className="grid grid-cols-2 lg:grid-cols-[1fr_auto_1fr] items-center p-4 w-full mb-8 md:mb-12">
               <div className="flex items-center gap-2 w-24">
                 <Image
                   src="/Mocha-e1760632297719.webp"
@@ -40,41 +40,29 @@ export default function Home() {
             </div>
 
             {/* MAIN CONTENT */}
-            <div className="md:flex-1 flex flex-col justify-center items-center text-center px-4 gap-6">
+            <div className="md:flex-1 flex flex-col justify-center items-center text-center px-4 gap-8 py-6 md:py-0">
               {/* HEADLINE */}
               <div className="flex flex-col gap-4 max-w-xl">
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-semibold leading-tight mt-6">
-                  Meet people over coffee — matched by personality
-                </h1>
-                <p className="text-base md:text-lg text-muted-foreground font-medium">
-                  Take a short personality test and get seated with like-minded
-                  people at curated in-person coffee meetups.
-                </p>
-                <p className="text-sm md:text-base text-muted-foreground font-semibold">
-                  No swiping. No awkward intros. Just real conversations.
-                </p>
-              </div>
+                {/* EYEBROW */}
+                <span className="text-sm md:text-base tracking-[0.3em] font-bold text-[#2F1107]/80 uppercase">
+                  Every Weekend
+                </span>
 
-              {/* HOW IT WORKS */}
-              <div className="flex flex-col md:flex-row gap-6 md:mt-4 mt-0 text-left max-w-2xl">
-                <div className="flex gap-3 justify-center">
-                  <span className="font-semibold">1.</span>
-                  <p className="text-sm md:text-base text-muted-foreground font-medium">
-                    Answer a few personality questions (takes under 3 minutes)
-                  </p>
-                </div>
-                <div className="flex gap-3 justify-center">
-                  <span className="font-semibold">2.</span>
-                  <p className="text-sm md:text-base text-muted-foreground font-medium">
-                    We group you with people who think and communicate like you
-                  </p>
-                </div>
-                <div className="flex gap-3 justify-center">
-                  <span className="font-semibold">3.</span>
-                  <p className="text-sm md:text-base text-muted-foreground font-medium">
-                    Meet them at a hosted coffee meetup in your city
-                  </p>
-                </div>
+                {/* MAIN HEADLINE */}
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight tracking-tight text-[#2F1107] uppercase italic">
+                  Strangers meet
+                  <br />
+                  at a local cafe.
+                </h1>
+
+                {/* SUBTEXT */}
+                <p className="text-base md:text-lg text-muted-foreground font-medium max-w-xl">
+                  Book your spot now and{" "}
+                  <span className="font-semibold text-[#2F1107]">
+                    meet 3 strangers at a nearby café
+                  </span>
+                  , matched by our AI algorithm.
+                </p>
               </div>
 
               {/* CTA DESKTOP */}
@@ -83,7 +71,7 @@ export default function Home() {
                   href="/get-started"
                   className="inline-flex items-center justify-center font-medium transition-all h-12 px-4 py-2 rounded-full w-full bg-[#FFD100] text-[#2F1107] border border-[#4B3F31] hover:bg-[#2F1107] hover:text-[#FFD100] duration-500"
                 >
-                  Take the 3-minute test
+                  Get Started
                 </Link>
                 <Link
                   href="/login"
@@ -95,14 +83,14 @@ export default function Home() {
             </div>
 
             {/* FOOTER / MOBILE CTA */}
-            <div className="px-4 pb-4 flex flex-col gap-4 md:mt-0 mt-6">
+            <div className="px-4 pt-8 pb-10 md:pt-10 md:pb-12 flex flex-col gap-5">
               {/* CTA MOBILE */}
               <div className="flex flex-col gap-4 md:hidden">
                 <Link
                   href="/get-started"
                   className="inline-flex items-center justify-center font-medium transition-all h-12 px-4 py-2 rounded-full w-full bg-[#FFD100] text-[#2F1107] border border-[#4B3F31] hover:bg-[#2F1107] hover:text-[#FFD100] duration-500"
                 >
-                  Take the 3-minute test
+                  Get Started
                 </Link>
                 <Link
                   href="/login"
@@ -111,12 +99,6 @@ export default function Home() {
                   Already have an account? Sign in
                 </Link>
               </div>
-
-              {/* PRIVACY REASSURANCE */}
-              <p className="text-xs md:pt-4 pt-0 font-semibold text-muted-foreground text-center">
-                Your answers are private and only used to improve your group
-                match.
-              </p>
 
               {/* LEGAL */}
               <p className="text-xs text-muted-foreground text-center font-medium">

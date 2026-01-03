@@ -4,6 +4,7 @@ import React, { useDeferredValue, useMemo, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import Loader from '@/components/ui/loader';
+import { MdOutlineFileDownload } from "react-icons/md";
 import { useFetchAllUsers } from '@/app/queries/admin/fetch-users';
 import { useFetchAllLocations } from '@/app/queries/fetch-locations';
 
@@ -123,6 +124,10 @@ const Page = () => {
                                 <option value="Female">Female</option>
                                 <option value="Others">Others</option>
                             </select>
+                            <button onClick={() => window.open("/api/admin/export-csv")} type="button" className='flex items-center justify-center gap-2 bg-[#ffd100] text-[#2f1107] hover:bg-[#2f1107] hover:text-[#ffd100] transition-colors duration-300 rounded-full cursor-pointer px-4 py-2.5 text-base'>
+                                <span>Export</span>
+                                <MdOutlineFileDownload size={20} />
+                            </button>
                         </div>
                     </div>
 
