@@ -51,22 +51,44 @@ export async function sendMeetupEmail({
 
     <p>
       <strong>Name:</strong> ${cafe.name}<br />
-      <strong>Address:</strong>
+      <strong>Address:</strong><br />
       <a
         href="${mapUrl}"
         target="_blank"
-        display:inline-block;
-        margin-top:8px;
-        padding:10px 16px;
-        background:#FFD100;
-        color:#2F1107;
-        border-radius:6px;
-        text-decoration:none;
-        font-weight:600;
+        style="
+          display: inline-block;
+          margin-top: 8px;
+          padding: 10px 16px;
+          background: #FFD100;
+          color: #2F1107;
+          border-radius: 6px;
+          text-decoration: none;
+          font-weight: 600;
+        "
       >
         ${cafe.address}
       </a>
     </p>
+
+    <!-- 🔔 EVENTS BUTTON -->
+    <div style="margin: 30px 0; text-align: center;">
+      <a
+        href="${process.env.NEXTAUTH_URL}/events"
+        target="_blank"
+        style="
+          display: inline-block;
+          padding: 14px 28px;
+          background: #2F1107;
+          color: #ffffff;
+          border-radius: 8px;
+          text-decoration: none;
+          font-size: 16px;
+          font-weight: 600;
+        "
+      >
+        View Event Details
+      </a>
+    </div>
 
     <p style="font-size: 14px; color: #555;">
       Arrive a few minutes early, grab your favorite drink, and look for a friendly

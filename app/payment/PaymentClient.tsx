@@ -170,48 +170,50 @@ const PaymentClient = () => {
               )}
 
               {/* One-time Payment Option */}
-              <div
-                className={`relative flex w-full items-start gap-3 border p-4 rounded-lg shadow-sm transition-all duration-300 cursor-pointer ${payment === "oneTime"
-                  ? "bg-[#2F1107] border-[#2F1107] text-white scale-[1.02]"
-                  : "bg-white border-gray-300 hover:bg-[#2F1107]/10 text-[#2F1107]"
-                  }`}
-                onClick={() => setPayment("oneTime")}
-              >
-                <RadioGroupItem
-                  value="oneTime"
-                  id="one-time"
-                  className="mt-1 text-[#2F1107] data-[state=checked]:bg-white data-[state=checked]:border-white"
-                />
-                <Label
-                  htmlFor="one-time"
-                  className="flex flex-col gap-1 cursor-pointer w-full"
+              {profile?.freePass === false && (
+                <div
+                  className={`relative flex w-full items-start gap-3 border p-4 rounded-lg shadow-sm transition-all duration-300 cursor-pointer ${payment === "oneTime"
+                    ? "bg-[#2F1107] border-[#2F1107] text-white scale-[1.02]"
+                    : "bg-white border-gray-300 hover:bg-[#2F1107]/10 text-[#2F1107]"
+                    }`}
+                  onClick={() => setPayment("oneTime")}
                 >
-                  <div className="flex justify-between items-center">
-                    <span
-                      className={`text-lg md:text-xl font-semibold ${payment === "oneTime" ? "text-white" : "text-[#2F1107]"
-                        }`}
-                    >
-                      One Time
-                    </span>
-                    <span
-                      className={`text-base md:text-lg font-bold ${payment === "oneTime"
-                        ? "text-[#FFD100]"
-                        : "text-[#2F1107]"
-                        }`}
-                    >
-                      €10.00
-                    </span>
-                  </div>
-                  <span
-                    className={`text-sm ${payment === "oneTime"
-                      ? "text-white/80"
-                      : "text-[#2F1107]/70"
-                      }`}
+                  <RadioGroupItem
+                    value="oneTime"
+                    id="one-time"
+                    className="mt-1 text-[#2F1107] data-[state=checked]:bg-white data-[state=checked]:border-white"
+                  />
+                  <Label
+                    htmlFor="one-time"
+                    className="flex flex-col gap-1 cursor-pointer w-full"
                   >
-                    Single ticket for casual one-offs and see who you'll click with!
-                  </span>
-                </Label>
-              </div>
+                    <div className="flex justify-between items-center">
+                      <span
+                        className={`text-lg md:text-xl font-semibold ${payment === "oneTime" ? "text-white" : "text-[#2F1107]"
+                          }`}
+                      >
+                        One Time
+                      </span>
+                      <span
+                        className={`text-base md:text-lg font-bold ${payment === "oneTime"
+                          ? "text-[#FFD100]"
+                          : "text-[#2F1107]"
+                          }`}
+                      >
+                        €10.00
+                      </span>
+                    </div>
+                    <span
+                      className={`text-sm ${payment === "oneTime"
+                        ? "text-white/80"
+                        : "text-[#2F1107]/70"
+                        }`}
+                    >
+                      Single ticket for casual one-offs and see who you'll click with!
+                    </span>
+                  </Label>
+                </div>
+              )}
 
               {/* --- Monthly Subscription --- */}
               <div
