@@ -47,14 +47,13 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
+
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 const Page = () => {
   const { data: session } = useSession();
@@ -385,41 +384,58 @@ const Page = () => {
                     <h2 className="text-xl font-bold">Past Events</h2>
                   </div>
 
-                  <DropdownMenu>
-                    <DropdownMenuTrigger className="flex bg-[#ffd100] text-[#2f1107] shadow-md w-full text-center justify-center text-base font-semibold mt-3 items-center gap-2.5 px-2.5 py-3 mb-2 cursor-pointer rounded-xl hover:bg-[#2f1107] hover:text-[#ffd100] duration-500 transition-colors">
-                      My Events
-                    </DropdownMenuTrigger>
+                  <Accordion type="single" collapsible className="w-full space-y-4">
+                    {pastEvents.map((past: any) => (
+                      <AccordionItem
+                        key={past.id}
+                        value={past.id}
+                        className="rounded-2xl border border-[#2f1107]/10 bg-white shadow-sm overflow-hidden transition-all duration-300 data-[state=open]:shadow-md"
+                      >
+                        <AccordionTrigger
+                          className="flex items-center justify-between px-5 py-4 text-left hover:no-underline group"
+                        >
+                          <div className="flex flex-col">
+                            <span className="text-[#2f1107] font-semibold text-base md:text-lg">
+                              {new Date(past.event.date).toLocaleDateString("en-US", {
+                                weekday: "long",
+                                month: "short",
+                                day: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                                timeZone: "Europe/Paris",
+                              })}
+                            </span>
+                          </div>
+                        </AccordionTrigger>
 
-                    <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)]" align="start">
-                      <DropdownMenuLabel>Past Events</DropdownMenuLabel>
-                      <DropdownMenuSeparator />
+                        <AccordionContent className="px-5 pb-5 pt-2">
+                          <div className="flex flex-col gap-3">
+                            <div className="flex flex-col gap-1">
+                              <span className="text-[#2f1107] font-semibold text-base">
+                                {past.event.cafe.name}
+                              </span>
+                              <span className="text-sm font-semibold text-muted-foreground">
+                                {past.event.cafe.address}
+                              </span>
+                            </div>
 
-                      {pastEvents.map((item) => (
-                        <DropdownMenuItem key={item.id} className="flex flex-col items-start py-3">
-                          <p className="font-semibold">{item.event.cafe.name}</p>
-                          <p className="text-sm text-gray-500">{item.event.cafe.address}</p>
-                          <p className="text-xs text-gray-400 mt-1">
-                            {new Date(item.event.date).toLocaleDateString("en-US", {
-                              weekday: "long",
-                              hour: "2-digit",
-                              minute: "2-digit",
-                              month: "short",
-                              day: "numeric",
-                              timeZone: "Europe/Paris",
-                            })}
-                          </p>
-                          <button onClick={() => {
-                            toFeedback({
-                              eventId: item.eventId,
-                              cafeId: item.event.cafe.id,
-                            });
-                          }} type="button" className="flex bg-[#ffd100] text-[#2f1107] shadow-md w-full text-center justify-center text-base font-semibold mt-3 items-center gap-2.5 px-2.5 py-3 mb-2 cursor-pointer rounded-xl hover:bg-[#2f1107] hover:text-[#ffd100] duration-500 transition-colors">
-                            Send a Feedback
-                          </button>
-                        </DropdownMenuItem>
-                      ))}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                            <button
+                              onClick={() =>
+                                toFeedback({
+                                  eventId: past.eventId,
+                                  cafeId: past.event.cafe.id,
+                                })
+                              }
+                              type="button"
+                              className="mt-3 inline-flex items-center justify-center gap-2 rounded-xl bg-[#FFD100] px-4 py-3 text-base font-semibold text-[#2F1107] cursor-pointer shadow-sm transition-all duration-300 hover:bg-[#2F1107] hover:text-[#FFD100] hover:shadow-md"
+                            >
+                              Send Feedback
+                            </button>
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    ))}
+                  </Accordion>
                 </div>
               )}
             </div>
