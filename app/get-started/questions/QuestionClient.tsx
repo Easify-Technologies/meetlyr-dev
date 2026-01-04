@@ -172,6 +172,16 @@ const QuestionClient = () => {
     });
   };
 
+  const getSliderLabel = (value: number) => {
+    if (value <= 2) return "Strongly Disagree";
+    if (value <= 4) return "Disagree";
+    if (value <= 6) return "Neutral";
+    if (value <= 8) return "Agree";
+    return "Strongly Agree";
+  };
+
+  const sliderText = sliderValue[0] > 0 ? getSliderLabel(sliderValue[0]) : "";
+
   useEffect(() => {
     const params = Object.fromEntries(searchParams.entries());
 
@@ -283,13 +293,25 @@ const QuestionClient = () => {
                                   setSliderValue([value]);
                                   goNextWithValue(String(value));
                                 }}
-                                className={`h-14 rounded-xl cursor-pointer border text-sm font-medium transition-all
+                                className={`h-16 rounded-xl border transition-all
+                                  flex flex-col items-center justify-center text-center
                                   ${isSelected
                                     ? "border-[#2F1107] bg-[#2F1107]/10 text-[#2F1107]"
                                     : "border-[#2F1107]/40 hover:bg-[#2F1107]/5"
                                   }`}
                               >
-                                {value}
+                                {/* Number */}
+                                <span className="text-sm font-semibold leading-tight">
+                                  {value}
+                                </span>
+
+                                {/* Meaning */}
+                                <span
+                                  className={`text-[10px] mt-1 leading-tight ${isSelected ? "text-[#2F1107] font-medium" : "text-muted-foreground"
+                                    }`}
+                                >
+                                  {getSliderLabel(value)}
+                                </span>
                               </button>
                             );
                           })}

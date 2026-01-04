@@ -22,6 +22,7 @@ const AboutClient = () => {
     const router = useRouter();
 
     const [avatarFile, setAvatarFile] = useState<File | null>(null);
+    const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
     const [open, setOpen] = useState(false);
     const [date, setDate] = useState<Date | undefined>(undefined);
     const [error, setError] = useState<string>("");
@@ -36,14 +37,18 @@ const AboutClient = () => {
         const file = e.target.files?.[0];
         if (!file) return;
 
-        // ✅ Validate file size (5MB limit)
-        const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+        // ✅ Validate file size (5MB)
+        const maxSize = 5 * 1024 * 1024;
         if (file.size > maxSize) {
             toast.error("Image must be smaller than 5MB");
             return;
         }
 
         setAvatarFile(file);
+
+        // ✅ Create preview URL
+        const previewUrl = URL.createObjectURL(file);
+        setAvatarPreview(previewUrl);
     };
 
     const is18OrOlder = (dob: Date) => {
@@ -138,6 +143,14 @@ const AboutClient = () => {
             setDate(new Date(dateOfBirth));
         }
     }, []);
+
+    useEffect(() => {
+        return () => {
+            if (avatarPreview) {
+                URL.revokeObjectURL(avatarPreview);
+            }
+        };
+    }, [avatarPreview]);
 
     return (
         <>
@@ -283,6 +296,18 @@ const AboutClient = () => {
                                                 placeholder:text-gray-400
                                                 focus:border-[#2f1107] focus:ring-1"
                                             />
+                                            {avatarPreview && (
+                                                <div className="mt-6 flex justify-center">
+                                                    <div className="relative w-24 h-24 rounded-full overflow-hidden border border-[#2F1107]/30">
+                                                        <Image
+                                                            src={avatarPreview}
+                                                            alt="Avatar Preview"
+                                                            fill
+                                                            className="object-cover"
+                                                        />
+                                                    </div>
+                                                </div>
+                                            )}
                                         </div>
                                     </form>
                                     {error && <p className="text-red-500 text-base font-semibold">{error}</p>}
