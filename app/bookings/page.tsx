@@ -109,7 +109,7 @@ const Page = () => {
                 >
                   <div className="relative" style={{ height: "calc(30vh)" }}>
                     <Image
-                      alt=""
+                      alt="meetlyr-booking"
                       className="absolute inset-0 w-full h-full object-cover opacity-90"
                       src="/meetlyr-bookings.png"
                       width={100}

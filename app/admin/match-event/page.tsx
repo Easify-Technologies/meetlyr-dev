@@ -36,6 +36,7 @@ import { ChevronDown } from "lucide-react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useFetchAllLocations } from "@/app/queries/fetch-locations";
+import { useSendReminder } from "@/app/queries/admin/reminder";
 
 const AdminEventCard = ({ event }: any) => {
   const id = useId();
@@ -436,28 +437,31 @@ const AdminEventCard = ({ event }: any) => {
         )}
       </div>
 
-      {
-        existingGroups && existingGroups.length > 0 && (
-          event?.status !== "Matched" ? (
-            <button
-              onClick={handleSendConfirmation}
-              disabled={loading}
-              type="button"
-              className="bg-[#2f1107] text-[#ffd100] mt-4 rounded-md p-3 cursor-pointer transition-colors duration-300 hover:bg-[#ffd100] font-semibold hover:text-[#2f1107]"
-            >
-              {loading ? "Sending..." : "Send Confirmation"}
-            </button>
-          ) : (
-            <button
-              type="button"
-              disabled
-              className="bg-neutral-300 text-neutral-600 mt-4 rounded-md p-3 cursor-not-allowed font-semibold"
-            >
-              Confirmed
-            </button>
+      <div className="flex items-center gap-3">
+        {
+          existingGroups && existingGroups.length > 0 && (
+            event?.status !== "Matched" ? (
+              <button
+                onClick={handleSendConfirmation}
+                disabled={loading}
+                type="button"
+                className="bg-[#2f1107] text-[#ffd100] mt-4 rounded-md p-3 cursor-pointer transition-colors duration-300 hover:bg-[#ffd100] font-semibold hover:text-[#2f1107]"
+              >
+                {loading ? "Sending..." : "Send Confirmation"}
+              </button>
+            ) : (
+              <button
+                type="button"
+                disabled
+                className="bg-neutral-300 text-neutral-600 mt-4 rounded-md p-3 cursor-not-allowed font-semibold"
+              >
+                Confirmed
+              </button>
+            )
           )
-        )
-      }
+        }
+        <button type="button" className="bg-[#2f1107] text-[#ffd100] mt-4 rounded-md p-3 cursor-pointer transition-colors duration-300 hover:bg-[#ffd100] font-semibold hover:text-[#2f1107]">Send Reminder</button>
+      </div>
 
       {
         message && (
