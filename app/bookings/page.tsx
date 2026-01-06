@@ -33,10 +33,36 @@ const Page = () => {
       return;
     }
 
-    // if(!profile?.faceVerificationStatus) {
-    //   toast.error("Please complete face verification before booking an event.");
-    //   return;
-    // }
+    if (profile?.subscriptionActive) {
+      if (!session?.user?.accessToken) {
+        toast.error("You are not authorized. Please login again.");
+        return;
+      }
+
+      if (!profile?.id) {
+        toast.error("Unable to find user profile. Please try again.");
+        return;
+      }
+
+      joinEvent(
+        {
+          userId: profile.id,
+          eventId: booking,
+          token: session.user.accessToken,
+        },
+        {
+          onSuccess: () => {
+            toast.success("Successfully joined the event!");
+            router.push("/events");
+          },
+          onError: () => {
+            toast.error("Failed to join event");
+          },
+        }
+      );
+
+      return;
+    }
 
     const now = new Date();
 
@@ -63,33 +89,6 @@ const Page = () => {
       router.push(`/payment?userId=${profile?.id}&eventId=${booking}`);
       return;
     }
-
-    if (!session?.user?.accessToken) {
-      toast.error("You are not authorized. Please login again.");
-      return;
-    }
-
-    if (!profile?.id) {
-      toast.error("Unable to find user profile. Please try again.");
-      return;
-    }
-
-    joinEvent(
-      {
-        userId: profile.id,
-        eventId: booking,
-        token: session.user.accessToken,
-      },
-      {
-        onSuccess: () => {
-          toast.success("Successfully joined the event!");
-          router.push("/events");
-        },
-        onError: () => {
-          toast.error("Failed to join event");
-        },
-      }
-    );
   };
 
   if (isLoading) return <Loader />
