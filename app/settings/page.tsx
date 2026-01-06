@@ -64,15 +64,15 @@ const healthFitnessStyles = [
     { label: "Not a major focus right now", value: "not_major_focus" }
 ];
 
-const kindOfPeople = [
-    { label: "Creative Souls", value: "Creative Souls" },
-    { label: "Builders & Founders", value: "Builders & Founders" },
-    { label: "Active Lifestyles", value: "Active Lifestyles" },
-    { label: "Family Life", value: "Family Life" },
-    { label: "Life After Work", value: "Life After Work" },
-    { label: "Thoughtful Minds", value: "Thoughtful Minds" },
-    { label: "Explorers", value: "Explorers" },
-    { label: "Everyone Welcome", value: "Everyone Welcome" },
+const kindOfPeopleUI = [
+  { label: "Creative Souls", value: "creative" },
+  { label: "Builders & Founders", value: "entrepreneurs" },
+  { label: "Active Lifestyles", value: "sporty" },
+  { label: "Family Life", value: "parents" },
+  { label: "Life After Work", value: "retired" },
+  { label: "Thoughtful Minds", value: "deep_thinkers" },
+  { label: "Explorers", value: "adventurers" },
+  { label: "Everyone Welcome", value: "everyone_has_story" },
 ];
 
 interface Locations {
@@ -81,6 +81,16 @@ interface Locations {
     country: string;
     imageUrl: string;
 }
+
+export type KindOfPeopleKey =
+    | "creative"
+    | "entrepreneurs"
+    | "sporty"
+    | "parents"
+    | "retired"
+    | "deep_thinkers"
+    | "adventurers"
+    | "everyone_has_story";
 
 const Page = () => {
     const { data: session } = useSession();
@@ -95,6 +105,26 @@ const Page = () => {
     const { mutateAsync } = useDeleteUser();
     const { mutate: mutatePortal, isPending: pendingPortal } = useOpenCustomerPortal();
     const { mutate: mutateSubscription, isPending: pendingSubscription } = useManageSubscription();
+
+    const KIND_OF_PEOPLE_VALUE_MAP: Record<string, KindOfPeopleKey> = {
+        creative: "creative",
+        entrepreneurs: "entrepreneurs",
+        sporty: "sporty",
+        parents: "parents",
+        retired: "retired",
+        deep_thinkers: "deep_thinkers",
+        adventurers: "adventurers",
+        everyone_has_story: "everyone_has_story",
+
+        "Creative Souls": "creative",
+        "Builders & Founders": "entrepreneurs",
+        "Active Lifestyles": "sporty",
+        "Family Life": "parents",
+        "Life After Work": "retired",
+        "Thoughtful Minds": "deep_thinkers",
+        "Explorers": "adventurers",
+        "Everyone Welcome": "everyone_has_story",
+    };
 
     const [open, setOpen] = useState(false);
     const [formData, setFormData] = useState({
@@ -133,8 +163,13 @@ const Page = () => {
     const healthFitness = healthFitnessStyles.find(
         (item) => item.value === profile?.healthAndFitness
     );
-    const meetingPeople = kindOfPeople.filter((item) =>
-        profile?.kindOfPeople?.includes(item.value)
+    const normalizedProfileKinds: KindOfPeopleKey[] =
+        profile?.kindOfPeople
+            ?.map((value: string) => KIND_OF_PEOPLE_VALUE_MAP[value])
+            .filter(Boolean) ?? [];
+
+    const meetingPeople = kindOfPeopleUI.filter((item) =>
+        normalizedProfileKinds.includes(item.value as KindOfPeopleKey)
     );
 
     const handleSubscriptionStatus = () => {
