@@ -204,7 +204,7 @@ const Page = () => {
                                       const isFutureEvent = eventDate >= now;
 
                                       // ⭐ STEP 2 — Check if THIS event is the active subscription
-                                      const isActiveSubscriptionEvent =
+                                      const isSubscribedToThisEvent =
                                         Array.isArray(event?.participants) &&
                                         event.participants.some(
                                           (p) => p.userId === profile?.id && p.status === "Active"
@@ -237,7 +237,11 @@ const Page = () => {
 
                                       // ✅ FIX — only FUTURE booked events redirect
                                       const isEventBooked =
-                                        isFutureEvent && isParticipant && hasBlockingPayment;
+                                        isFutureEvent &&
+                                        (
+                                          isSubscribedToThisEvent ||
+                                          (isParticipant && hasBlockingPayment)
+                                        );
 
                                       return (
                                         <div
