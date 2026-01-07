@@ -65,10 +65,22 @@ const Page = () => {
   const { mutate, isPending: cancelEventPending } = useCancelMyEvent();
   const { data: pastEvents } = useGetPastEvents(profile?.id);
 
-  const eventStatus = participant?.[0]?.event?.status;
-  const eventId = participant?.[0]?.eventId;
+  const hasUpcomingEvent = participant?.some((item: any) => 
+    { 
+      const eventDate = parseISO(item.event.date); 
+      return eventDate >= new Date(); 
+    }) ?? false;
 
-  const { data: matches, isPending: matchesPending } = useMatchedGroupUsers(eventId);
+  const upcomingParticipant = participant?.find((item: any) => {
+    const eventDate = parseISO(item.event.date);
+    return eventDate >= new Date();
+  });
+
+  const eventStatus = upcomingParticipant?.event?.status;
+  const eventId = upcomingParticipant?.eventId;
+
+  const { data: matches, isPending: matchesPending } =
+    useMatchedGroupUsers(eventStatus === "Matched" ? eventId : undefined);
 
   const toFeedback = ({ eventId, cafeId }: { eventId: string, cafeId: string }) => {
     router.push("/feedback");
@@ -76,12 +88,6 @@ const Page = () => {
     localStorage.setItem("eventId", eventId);
     localStorage.setItem("cafeId", cafeId);
   }
-
-  const hasUpcomingEvent =
-    participant?.some((item: any) => {
-      const eventDate = parseISO(item.event.date);
-      return eventDate >= new Date();
-    }) ?? false;
 
   if (isLoading || isPending) return <Loader />
 
