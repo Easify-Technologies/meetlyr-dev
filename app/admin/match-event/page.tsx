@@ -36,7 +36,6 @@ import { ChevronDown } from "lucide-react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useFetchAllLocations } from "@/app/queries/fetch-locations";
-import { useSendReminder } from "@/app/queries/admin/reminder";
 
 const AdminEventCard = ({ event }: any) => {
   const id = useId();
@@ -53,6 +52,7 @@ const AdminEventCard = ({ event }: any) => {
   const [editGroup, setEditGroup] = useState<any>(null);
   const [isGroupEdited, SetIsGroupEdited] = useState(false);
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
+  const [reminderStatus, setReminderStatus] = useState(false);
   const [formData, setFormData] = useState({
     groupName: "",
     cafes: ""
@@ -148,7 +148,54 @@ const AdminEventCard = ({ event }: any) => {
     } finally {
       setLoading(false);
     }
-  };
+  }
+
+  const handleSendReminder = async () => {
+    setLoading(true);
+    try {
+      for (const group of existingGroups) {
+        const matchedMembers = group.members
+          .map((participantId: string) =>
+            event.participants.find((p: any) => p.id === participantId)
+          )
+          .filter(Boolean);
+
+        const to = matchedMembers
+          .map((member: any) => member.user?.email)
+          .filter(Boolean);
+
+        if (!to.length) continue;
+
+        const groupNames = matchedMembers
+          .map((member: any) => member.user?.name || "Guest")
+          .join(", ");
+
+        const date = event?.date || new Date().toISOString();
+
+        const res = await axios.post("/api/event/reminder", {
+          to,
+          groupNames,
+          cafe: group.cafe,
+          date,
+        });
+
+        if (res.data.message === "Reminder emails sent successfully!") {
+          toast.success("Reminder emails sent successfully!");
+          setReminderStatus(true);
+        }
+        else {
+          toast.error("Failed to send reminder emails");
+        }
+
+        return res.data;
+      }
+    } catch (error) {
+      console.log(error);
+    }
+    finally {
+      setLoading(false);
+    }
+  }
 
   const handleSaveGroup = async () => {
     if (selectedMembers.length < 2) {
@@ -460,7 +507,26 @@ const AdminEventCard = ({ event }: any) => {
             )
           )
         }
-        <button type="button" className="bg-[#2f1107] text-[#ffd100] mt-4 rounded-md p-3 cursor-pointer transition-colors duration-300 hover:bg-[#ffd100] font-semibold hover:text-[#2f1107]">Send Reminder</button>
+        {event?.status === "Matched" && (
+          <button
+            type="button"
+            disabled={loading || reminderStatus}
+            onClick={handleSendReminder}
+            className={`mt-4 rounded-md p-3 font-semibold transition-colors duration-300
+      ${loading || reminderStatus
+                ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+                : "bg-[#ffd100] text-[#2f1107] hover:bg-[#2f1107] hover:text-[#ffd100] cursor-pointer"
+              }
+    `}
+          >
+            {loading
+              ? "Sending..."
+              : reminderStatus
+                ? "Reminder Sent"
+                : "Send Reminder"}
+          </button>
+        )}
+
       </div>
 
       {
