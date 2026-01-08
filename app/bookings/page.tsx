@@ -217,17 +217,14 @@ const Page = () => {
                                             pay.status === "paid"
                                         );
 
-                                      // ⭐ STEP 3 — Block all events except the active subscribed one
-                                      const isBlocked =
-                                        activeSubscribedEvent &&
-                                        activeSubscribedEvent.id !== event.id;
-
                                       // Old booking logic (unchanged)
                                       const isParticipant =
                                         Array.isArray(event?.participants) &&
-                                        event.participants.some((p) => p.userId === profile?.id);
+                                        event.participants.some(
+                                          (p) => p.userId === profile?.id
+                                        );
 
-                                      const hasBlockingPayment =
+                                      const hasPaidPayment =
                                         Array.isArray(event?.payment) &&
                                         event.payment.some(
                                           (pay) =>
@@ -235,11 +232,14 @@ const Page = () => {
                                             pay.status === "paid"
                                         );
 
-                                      // ✅ FIX — only FUTURE booked events redirect
                                       const isEventBooked =
                                         isFutureEvent &&
                                         isParticipant &&
-                                        hasBlockingPayment;
+                                        hasPaidPayment;
+
+                                      const isBlocked =
+                                        activeSubscribedEvent &&
+                                        activeSubscribedEvent.id !== event.id;
 
                                       return (
                                         <div
@@ -260,7 +260,7 @@ const Page = () => {
                                             <RadioGroupItem
                                               value={event?.id}
                                               id={event?.id}
-                                              disabled={isBlocked}
+                                              disabled={!!isBlocked}
                                               className="order-1 after:absolute after:inset-0 cursor-pointer border-[#2F1107] text-[#2F1107] data-[state=checked]:bg-[#2F1107] data-[state=checked]:border-[#2F1107] data-[state=checked]:text-[#2F1107]"
                                             />
 
