@@ -232,16 +232,14 @@ const Page = () => {
                                         event.payment.some(
                                           (pay) =>
                                             pay.userId === profile?.id &&
-                                            (pay.status === "paid" || pay.mode === "subscription")
+                                            pay.status === "paid"
                                         );
 
                                       // ✅ FIX — only FUTURE booked events redirect
                                       const isEventBooked =
                                         isFutureEvent &&
-                                        (
-                                          isSubscribedToThisEvent ||
-                                          (isParticipant && hasBlockingPayment)
-                                        );
+                                        isParticipant &&
+                                        hasBlockingPayment;
 
                                       return (
                                         <div
