@@ -73,7 +73,7 @@ const Page = () => {
         eventDate >= now &&
         Array.isArray(event?.participants) &&
         event.participants.some(
-          (p) => p.userId === profile?.id && p.status === "Active"
+          (p) => p.userId === profile?.id && (p.status === "Active" || p.status === null)
         ) &&
         Array.isArray(event?.payment) &&
         event.payment.some(
@@ -166,8 +166,8 @@ const Page = () => {
                                   value={booking}
                                 >
                                   {(() => {
-                                    // ⭐ STEP 1 — Find the currently active FUTURE subscription event
-                                    const activeSubscribedEvent = events.find((event) => {
+                                    // ⭐ STEP 1 — Find ANY currently active FUTURE booked event (subscription, payment, or free)
+                                    const activeBookedEvent = events.find((event) => {
                                       const eventDate = new Date(event?.date);
                                       const now = new Date();
 
@@ -176,19 +176,18 @@ const Page = () => {
                                       const isActiveParticipant =
                                         Array.isArray(event?.participants) &&
                                         event.participants.some(
-                                          (p) => p.userId === profile?.id && p.status === "Active"
+                                          (p) => p.userId === profile?.id && (p.status === "Active" || p.status === null)
                                         );
 
-                                      const hasActiveSubscription =
+                                      const hasActivePaidBooking =
                                         Array.isArray(event?.payment) &&
                                         event.payment.some(
                                           (pay) =>
                                             pay.userId === profile?.id &&
-                                            pay.mode === "subscription" &&
                                             pay.status === "paid"
                                         );
 
-                                      return isFutureEvent && isActiveParticipant && hasActiveSubscription;
+                                      return isFutureEvent && isActiveParticipant && hasActivePaidBooking;
                                     });
 
                                     return events.map((event) => {
@@ -207,7 +206,7 @@ const Page = () => {
                                       const isSubscribedToThisEvent =
                                         Array.isArray(event?.participants) &&
                                         event.participants.some(
-                                          (p) => p.userId === profile?.id && p.status === "Active"
+                                          (p) => p.userId === profile?.id && (p.status === "Active" || p.status === null)
                                         ) &&
                                         Array.isArray(event?.payment) &&
                                         event.payment.some(
@@ -217,11 +216,11 @@ const Page = () => {
                                             pay.status === "paid"
                                         );
 
-                                      // Old booking logic (unchanged)
-                                      const isParticipant =
+                                      // ⭐ FIXED — Check for ACTIVE participant (status === "Active" or null) with paid payment OR free pass
+                                      const isActiveParticipant =
                                         Array.isArray(event?.participants) &&
                                         event.participants.some(
-                                          (p) => p.userId === profile?.id
+                                          (p) => p.userId === profile?.id && (p.status === "Active" || p.status === null)
                                         );
 
                                       const hasPaidPayment =
@@ -232,14 +231,24 @@ const Page = () => {
                                             pay.status === "paid"
                                         );
 
+                                      const hasFreePass =
+                                        Array.isArray(event?.payment) &&
+                                        event.payment.some(
+                                          (pay) =>
+                                            pay.userId === profile?.id &&
+                                            pay.mode === "free" &&
+                                            pay.status === "paid"
+                                        );
+
+                                      // An event is booked if it's future, user is ACTIVE participant, and has paid OR used free pass
                                       const isEventBooked =
                                         isFutureEvent &&
-                                        isParticipant &&
-                                        hasPaidPayment;
+                                        isActiveParticipant &&
+                                        (hasPaidPayment || hasFreePass);
 
                                       const isBlocked =
-                                        activeSubscribedEvent &&
-                                        activeSubscribedEvent.id !== event.id;
+                                        activeBookedEvent &&
+                                        activeBookedEvent.id !== event.id;
 
                                       return (
                                         <div
@@ -264,7 +273,18 @@ const Page = () => {
                                               className="order-1 after:absolute after:inset-0 cursor-pointer border-[#2F1107] text-[#2F1107] data-[state=checked]:bg-[#2F1107] data-[state=checked]:border-[#2F1107] data-[state=checked]:text-[#2F1107]"
                                             />
 
-                                            {isEventBooked ? (
+                                            {isBlocked ? (
+                                              <div className="w-full flex md:flex-row flex-col md:items-center items-start md:gap-2.5 gap-2">
+                                                <span className="md:text-base text-sm text-[#2f1107] font-semibold">
+                                                  Cancel your current booking to join this event
+                                                </span>
+                                                <div className="bg-muted rounded-full px-3 py-2">
+                                                  <span className="md:text-lg text-sm font-medium text-[#2f1107] leading-none">
+                                                    {formattedEventDate.split(" ").slice(0, 5).join(" ")}
+                                                  </span>
+                                                </div>
+                                              </div>
+                                            ) : isEventBooked ? (
                                               <div className="w-full flex md:flex-row flex-col md:items-center items-start md:gap-2.5 gap-2">
                                                 <span className="md:text-base text-sm text-[#2f1107] font-semibold">
                                                   Event Already Booked!

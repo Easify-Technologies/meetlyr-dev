@@ -87,6 +87,7 @@ export async function POST(request: NextRequest) {
       minute: "2-digit",
       month: "short",
       day: "numeric",
+      timeZone: "Europe/Paris",
     });
 
     // Send joining email

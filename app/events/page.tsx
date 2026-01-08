@@ -16,7 +16,6 @@ import { TbUsersGroup, TbCancel } from "react-icons/tb";
 import { MdOutlineArrowOutward, MdOutlineLocationOn, MdEventNote, MdEmojiEvents } from "react-icons/md";
 import { LuCalendarClock } from "react-icons/lu";
 import { GiCoffeeCup } from "react-icons/gi";
-import { VscFeedback } from "react-icons/vsc";
 import { FaMale, FaFemale } from "react-icons/fa";
 import { BiMaleFemale } from "react-icons/bi";
 import { BsFillEmojiTearFill } from "react-icons/bs";
@@ -347,7 +346,7 @@ const Page = () => {
                                 )}
 
                                 {member.gender === "female" && (
-                                  <div className="flex items-center gap-1">
+                                  <div className="flex items-center gap-1 my-1">
                                     <button type="button" className="bg-pink-600 text-white rounded-full p-1.5">
                                       <FaFemale />
                                     </button>
@@ -356,7 +355,7 @@ const Page = () => {
                                 )}
 
                                 {member.gender === "other" && (
-                                  <div className="flex items-center gap-1">
+                                  <div className="flex items-center gap-1 my-1">
                                     <button type="button" className="bg-yellow-600 text-white rounded-full p-1.5">
                                       <BiMaleFemale />
                                     </button>
