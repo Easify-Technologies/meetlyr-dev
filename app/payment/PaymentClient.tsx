@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Navbar from "@/components/ui/Navbar";
 import { Label } from "@/components/ui/label";
@@ -42,12 +42,15 @@ const PaymentClient = () => {
     (profile?.events?.length ?? 0) > 0 ||
     (profile?.eventParticipants?.length ?? 0) > 0;
 
-  const freePassAvailable = profile?.freePass === true;
-  const freePassUsed =
-    profile?.freePass === false || profile?.freePass === undefined;
-
-  const isFreePassEligible =
-    !hasAttendedAnyEvent && freePassAvailable;
+  // Free pass eligibility logic:
+  // 1. New users: freePass = true AND no events attended
+  // 2. Existing users (freePass = undefined): Give free pass if they haven't attended any events
+  // 3. Users who used free pass: freePass = false (not eligible anymore)
+  const isFreePassEligible = 
+    !hasAttendedAnyEvent && (profile?.freePass === true || profile?.freePass === undefined);
+  
+  // Show one-time payment only if user is not eligible for free pass
+  const showOneTimePayment = !isFreePassEligible;
 
   useEffect(() => {
     if (!isFreePassEligible && payment === "free") {
@@ -178,7 +181,7 @@ const PaymentClient = () => {
               )}
 
               {/* One-time Payment Option */}
-              {freePassUsed && (
+              {showOneTimePayment && (
                 <div
                   className={`relative flex w-full items-start gap-3 border p-4 rounded-lg shadow-sm transition-all duration-300 cursor-pointer ${payment === "oneTime"
                     ? "bg-[#2F1107] border-[#2F1107] text-white scale-[1.02]"
