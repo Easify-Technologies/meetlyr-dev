@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import nodemailer from "nodemailer";
+import { prisma } from "@/lib/prisma";
 
 export const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
@@ -13,27 +14,41 @@ export const transporter = nodemailer.createTransport({
 
 export async function POST(req: NextRequest) {
   try {
-    const { to, groupNames, cafe, date } = await req.json();
+    const { groupNames, eventId, cafe, date } = await req.json();
 
-    const formattedDate = new Date(date).toLocaleString("en-US", {
-      weekday: "long",
-      hour: "2-digit",
-      minute: "2-digit",
-      month: "short",
-      day: "numeric",
-      timeZone: "Europe/Paris",
+    const group = await prisma.matchGroup.findFirst({
+      where: { eventId },
     });
 
-    const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-      cafe.address
-    )}`;
+    if (!group) {
+      return NextResponse.json({ error: "Group not found" }, { status: 404 });
+    }
 
-    const html = `
+    const participants = await prisma.eventParticipant.findMany({
+      where: { id: { in: group.members } },
+      include: { user: true },
+    });
+
+    for (const p of participants) {
+      const formattedDate = new Date(date).toLocaleString("en-US", {
+        weekday: "long",
+        hour: "2-digit",
+        minute: "2-digit",
+        month: "short",
+        day: "numeric",
+        timeZone: "Europe/Paris",
+      });
+
+      const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+        cafe.address
+      )}`;
+
+      const html = `
     <div style="font-family: Arial, Helvetica, sans-serif; background-color: #f6f6f6; padding: 24px;">
       <div style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 10px; padding: 24px; line-height: 1.6; color: #2F1107;">
 
     <p style="font-size: 16px; margin-top: 0;">
-      Hello ${groupNames},
+      Hello ${p.user?.name},
     </p>
 
     <p style="font-size: 16px;">
@@ -109,16 +124,20 @@ export async function POST(req: NextRequest) {
 
   </div>
 </div>
-    `;
+  `;
 
-    await transporter.sendMail({
-      from: `"Meetlyr" <${process.env.SMTP_USER}>`,
-      to,
-      subject: "Coffee Meetup Reminder ☕",
-      html,
-    });
+      await transporter.sendMail({
+        from: `"Meetlyr" <${process.env.SMTP_USER}>`,
+        to: p.user?.email ?? "",
+        subject: "Coffee Meetup Reminder ☕",
+        html,
+      });
+    }
 
-    return NextResponse.json({ message: "Reminder emails sent successfully!" }, { status: 200 });
+    return NextResponse.json(
+      { message: "Reminder emails sent successfully!" },
+      { status: 200 }
+    );
   } catch (error) {
     console.error(error);
     return NextResponse.json(

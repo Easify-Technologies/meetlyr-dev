@@ -175,6 +175,7 @@ const AdminEventCard = ({ event }: any) => {
         const res = await axios.post("/api/event/reminder", {
           to,
           groupNames,
+          eventId: event.id,
           cafe: group.cafe,
           date,
         });
