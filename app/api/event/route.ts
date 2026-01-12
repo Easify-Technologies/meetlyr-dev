@@ -2,28 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyAuthToken } from "@/lib/auth";
 
-function getNextSundays(count: number): Date[] {
-  const sundays: Date[] = [];
-  const now = new Date();
-
-  let nextSunday = new Date(now);
-  nextSunday.setDate(now.getDate() + ((7 - now.getDay()) % 7 || 7));
-  nextSunday.setHours(10, 0, 0, 0); // 10 AM
-
-  for (let i = 0; i < count; i++) {
-    const newDate = new Date(nextSunday);
-    newDate.setDate(nextSunday.getDate() + i * 7);
-    sundays.push(newDate);
-  }
-
-  return sundays;
-}
-
 export async function POST(request: NextRequest) {
   try {
     const auth = verifyAuthToken(request);
 
-    // Admin check
     if (!auth?.adminId) {
       return NextResponse.json(
         { message: "Only admins can create events" },
@@ -31,81 +13,75 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { city } = await request.json();
+    // Expect frontend to send: city, country, locationId, date (ISO), optional time
+    const { city, country, locationId, date } = await request.json();
 
-    if (!city) {
+    if (!city || !country || !locationId || !date) {
       return NextResponse.json(
-        { message: "City is required" },
+        { message: "city, country, locationId and date are required" },
         { status: 400 }
       );
     }
 
-    // Find location by city
-    const location = await prisma.location.findFirst({
-      where: { city: { equals: city, mode: "insensitive" } },
-    });
-
-    if (!location) {
+    const eventDateTime = new Date(date);
+    if (isNaN(eventDateTime.getTime())) {
       return NextResponse.json(
-        { message: "Location for this city not found" },
-        { status: 404 }
+        { message: "Invalid date format" },
+        { status: 400 }
       );
     }
 
-    const sundays = getNextSundays(4);
-    const createdEvents = [];
+    // Prevent duplicate event
+    const existing = await prisma.event.findFirst({
+      where: {
+        date: eventDateTime,
+        locationId,
+      },
+    });
 
-    for (const sunday of sundays) {
-      // Prevent duplicate creation
-      const existing = await prisma.event.findFirst({
-        where: {
-          date: sunday,
-          locationId: location.id,
-        },
-      });
-
-      if (existing) continue;
-
-      // Booking open = 3 weeks before
-      const bookingOpen = new Date(sunday);
-      bookingOpen.setDate(sunday.getDate() - 21);
-      bookingOpen.setHours(10, 0, 0, 0);
-
-      // Booking close = Friday before Sunday
-      const bookingClose = new Date(sunday);
-      bookingClose.setDate(sunday.getDate() - 2);
-      bookingClose.setHours(10, 0, 0, 0);
-
-      const event = await prisma.event.create({
-        data: {
-          date: sunday,
-          city: location.city,
-          country: location.country,
-          createdBy: auth.adminId,
-          locationId: location.id,
-          bookingOpen,
-          bookingClose,
-          status: "Open",
-        },
-      });
-
-      createdEvents.push(event);
+    if (existing) {
+      return NextResponse.json(
+        { message: "Event already exists for this date and location" },
+        { status: 409 }
+      );
     }
+
+    // Booking open = 3 weeks before event
+    const bookingOpen = new Date(eventDateTime);
+    bookingOpen.setDate(bookingOpen.getDate() - 21);
+
+    // Booking close = 2 days before event
+    const bookingClose = new Date(eventDateTime);
+    bookingClose.setDate(bookingClose.getDate() - 2);
+
+    const event = await prisma.event.create({
+      data: {
+        date: eventDateTime,
+        city,
+        country,
+        locationId,
+        createdBy: auth.adminId,
+        bookingOpen,
+        bookingClose,
+        status: "Open",
+      },
+    });
 
     return NextResponse.json({
       success: true,
-      message: `Events created for ${city} for next 4 Sundays`,
-      createdCount: createdEvents.length,
-      events: createdEvents,
+      message: `Event created for ${city}`,
+      event,
     });
+
   } catch (err: any) {
     console.error("Event creation error:", err);
     return NextResponse.json(
-      { message: "Failed to create events", error: err.message },
+      { message: "Failed to create event", error: err.message },
       { status: 500 }
     );
   }
 }
+
 
 export async function GET(request: NextRequest) {
   try {

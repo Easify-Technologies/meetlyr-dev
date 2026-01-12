@@ -157,14 +157,14 @@ const Page = () => {
                                     name="locationId"
                                     id="cafe"
                                     onChange={handleInputChange}
-                                    value={formData.locationId}
+                                    value={formData.locationId || ""}
                                     disabled={!formData.city}
                                     className="file:text-foreground mb-5 placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground border-input flex h-16 w-full rounded-full border bg-muted px-5 py-2"
                                 >
                                     <option value="">Select Café</option>
 
                                     {filteredCafes.map((cafe: any) => (
-                                        <option key={cafe.id} value={cafe.location?.id}>
+                                        <option key={cafe.id} value={cafe.locationId}>
                                             {cafe.name}
                                         </option>
                                     ))}
