@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import Loader from '@/components/ui/loader';
 import { MdOutlineFileDownload } from "react-icons/md";
+import { HiPencilSquare } from "react-icons/hi2";
 import { useFetchAllUsers } from '@/app/queries/admin/fetch-users';
 import { useFetchAllLocations } from '@/app/queries/fetch-locations';
 
@@ -16,6 +17,17 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
+
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog"
+import { Label } from '@/components/ui/label';
+import { useUpdateCredits } from '@/app/queries/update-credits';
 
 interface UserProps {
     id: string;
@@ -51,12 +63,14 @@ interface LocationProps {
 const Page = () => {
     const { data: users, isPending } = useFetchAllUsers();
     const { data: locations } = useFetchAllLocations();
+    const { mutate, isPending: creditsPending, isSuccess, isError, data, error } = useUpdateCredits();
 
     const [searchTerm, setSearchTerm] = useState({
         name: "",
         country: "",
         gender: ""
     });
+    const [credits, setCredits] = useState(1);
 
     const { name, country, gender } = searchTerm;
 
@@ -124,7 +138,7 @@ const Page = () => {
                                 <option value="Female">Female</option>
                                 <option value="Others">Others</option>
                             </select>
-                            <button onClick={() => window.open("/api/admin/export-csv")} type="button" className='flex items-center justify-center gap-2 bg-[#ffd100] text-[#2f1107] hover:bg-[#2f1107] hover:text-[#ffd100] transition-colors duration-300 rounded-full cursor-pointer px-4 py-2.5 text-base'>
+                            <button onClick={() => window.open("/api/admin/export-users")} type="button" className='flex items-center justify-center gap-2 bg-[#ffd100] text-[#2f1107] hover:bg-[#2f1107] hover:text-[#ffd100] transition-colors duration-300 rounded-full cursor-pointer px-4 py-2.5 text-base'>
                                 <span>Export</span>
                                 <MdOutlineFileDownload size={20} />
                             </button>
@@ -155,7 +169,8 @@ const Page = () => {
                                             "Kind of People",
                                             "Payment Mode",
                                             "Payment Status",
-                                            "Image"
+                                            "Image",
+                                            "Action"
                                         ].map((heading, i) => (
                                             <TableHead key={i} className="text-[#2f1107] whitespace-nowrap">
                                                 {heading}
@@ -198,6 +213,59 @@ const Page = () => {
                                                     quality={100}
                                                     priority
                                                 />
+                                            </TableCell>
+                                            <TableCell>
+                                                {(user?.payment?.[0]?.mode === "subscription" && user?.payment?.[0]?.status === "paid") ? (
+                                                    <Dialog>
+                                                        <DialogTrigger className='bg-green-600 rounded-md text-white cursor-pointer flex items-center justify-center p-2 transition-colors duration-300 hover:bg-green-700'>
+                                                            <HiPencilSquare size={18} />
+                                                        </DialogTrigger>
+                                                        <DialogContent>
+                                                            <DialogHeader>
+                                                                <DialogTitle>Edit Subscription</DialogTitle>
+                                                                <div className="flex flex-col gap-2 mt-3">
+                                                                    <Label className="text-sm font-semibold text-[#2f1107]">
+                                                                        Credits
+                                                                    </Label>
+
+                                                                    <input
+                                                                        className="bg-muted px-5 py-2 outline-none border-0 rounded-lg w-full h-12 text-[#2F1107] font-medium text-base"
+                                                                        type="number"
+                                                                        name="credits"
+                                                                        id="credits"
+                                                                        value={credits}
+                                                                        min={1}
+                                                                        max={10}
+                                                                        onChange={(e) => setCredits(Number(e.target.value))}
+                                                                    />
+                                                                </div>
+                                                                {isError && (
+                                                                    <p
+                                                                        data-slot="form-message"
+                                                                        className="text-destructive text-sm"
+                                                                    >
+                                                                        {(error as Error).message}
+                                                                    </p>
+                                                                )}
+                                                                {isSuccess && data?.message && (
+                                                                    <p data-slot="form-message" className="text-green-500 text-sm">
+                                                                        {data.message}
+                                                                    </p>
+                                                                )}
+                                                                <button disabled={creditsPending} onClick={() => {
+                                                                    mutate({
+                                                                        credits,
+                                                                        userId: user.id
+                                                                    })
+                                                                }} type="button" className='bg-[#ffd100] text-[#2f1107] mt-1 rounded-md text-sm font-semibold p-2 cursor-pointer transition-colors duration-300 hover:bg-[#2f1107] hover:text-[#ffd100]'>
+                                                                    {creditsPending ? "Updating..." : "Update"}
+                                                                </button>
+                                                            </DialogHeader>
+                                                        </DialogContent>
+                                                    </Dialog>
+                                                ) : (
+                                                    "---"
+                                                )}
                                             </TableCell>
                                         </TableRow>
                                     ))}
@@ -245,7 +313,57 @@ const Page = () => {
                                     </p>
                                     <p className='capitalize'><span className="font-semibold">Payment Mode:</span> {user?.payment?.[0]?.mode ?? "---"}</p>
                                     <p className='capitalize'><span className="font-semibold">Payment Status:</span> {user?.payment?.[0]?.status ?? "unpaid"}</p>
-                                    <p></p>
+                                    {(user?.payment?.[0]?.mode === "subscription" && user?.payment?.[0]?.status === "paid") ? (
+                                        <Dialog>
+                                            <DialogTrigger className='bg-green-600 rounded-md text-white cursor-pointer mt-1.5 flex items-center justify-center p-2 transition-colors duration-300 hover:bg-green-700'>
+                                                <HiPencilSquare size={18} />
+                                            </DialogTrigger>
+                                            <DialogContent>
+                                                <DialogHeader>
+                                                    <DialogTitle>Edit Subscription</DialogTitle>
+                                                    <div className="flex flex-col gap-2 mt-3">
+                                                        <Label className="text-sm font-semibold text-[#2f1107]">
+                                                            Credits
+                                                        </Label>
+
+                                                        <input
+                                                            className="bg-muted px-5 py-2 outline-none border-0 rounded-lg w-full h-12 text-[#2F1107] font-medium text-base"
+                                                            type="number"
+                                                            name="credits"
+                                                            id="credits"
+                                                            value={credits}
+                                                            min={1}
+                                                            max={10}
+                                                            onChange={(e) => setCredits(Number(e.target.value))}
+                                                        />
+                                                    </div>
+                                                    {isError && (
+                                                        <p
+                                                            data-slot="form-message"
+                                                            className="text-destructive text-sm"
+                                                        >
+                                                            {(error as Error).message}
+                                                        </p>
+                                                    )}
+                                                    {isSuccess && data?.message && (
+                                                        <p data-slot="form-message" className="text-green-500 text-sm">
+                                                            {data.message}
+                                                        </p>
+                                                    )}
+                                                    <button disabled={creditsPending} onClick={() => {
+                                                        mutate({
+                                                            credits,
+                                                            userId: user.id
+                                                        })
+                                                    }} type="button" className='bg-[#ffd100] text-[#2f1107] mt-1 rounded-md text-sm font-semibold p-2 cursor-pointer transition-colors duration-300 hover:bg-[#2f1107] hover:text-[#ffd100]'>
+                                                        {creditsPending ? "Updating..." : "Update"}
+                                                    </button>
+                                                </DialogHeader>
+                                            </DialogContent>
+                                        </Dialog>
+                                    ) : (
+                                        null
+                                    )}
                                 </div>
                             </div>
                         ))}

@@ -296,8 +296,9 @@ const AboutClient = () => {
                                                 placeholder:text-gray-400
                                                 focus:border-[#2f1107] focus:ring-1"
                                             />
+                                            <p className="text-xs text-muted-foreground font-semibold mt-4">Help us keep our community safe! Please upload a clear, solo profile photo to help us verify your account. This step is required to avoid account interruption.</p>
                                             {avatarPreview && (
-                                                <div className="mt-6 flex justify-center">
+                                                <div className="mt-5 flex justify-center">
                                                     <div className="relative w-24 h-24 rounded-full overflow-hidden border border-[#2F1107]/30">
                                                         <Image
                                                             src={avatarPreview}

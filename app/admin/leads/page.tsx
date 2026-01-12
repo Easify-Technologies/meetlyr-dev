@@ -1,9 +1,9 @@
 'use client';
 
-import React from 'react';
 import Link from 'next/link';
 import { useFetchUserLeads } from '@/app/queries/admin/user-leads';
 import { parseISO, format } from "date-fns";
+import { MdOutlineFileDownload } from "react-icons/md";
 
 import {
     Table,
@@ -48,6 +48,10 @@ const page = () => {
                                 </svg>
                             </Link>
                             <h3 className="text-2xl md:text-3xl font-bold">All Leads</h3>
+                            <button onClick={() => window.open("/api/admin/export-leads")} type="button" className='ml-7 flex items-center justify-center gap-2 bg-[#ffd100] text-[#2f1107] hover:bg-[#2f1107] hover:text-[#ffd100] transition-colors duration-300 rounded-full cursor-pointer px-4 py-2.5 text-base'>
+                                <span>Export</span>
+                                <MdOutlineFileDownload size={20} />
+                            </button>
                         </div>
                     </div>
                     <div className='w-full mt-10'>
