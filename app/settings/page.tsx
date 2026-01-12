@@ -20,6 +20,7 @@ import { useManageSubscription } from '../queries/manage-subscription';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 import {
     Dialog,
     DialogContent,
@@ -38,6 +39,17 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+    Drawer,
+    DrawerClose,
+    DrawerContent,
+    DrawerDescription,
+    DrawerFooter,
+    DrawerHeader,
+    DrawerTitle,
+    DrawerTrigger,
+} from "@/components/ui/drawer";
+import { Button } from '@/components/ui/button';
 
 const connectionStyles = [
     { label: "I ask questions", value: "ask_questions" },
@@ -65,14 +77,14 @@ const healthFitnessStyles = [
 ];
 
 const kindOfPeopleUI = [
-  { label: "Creative Souls", value: "creative" },
-  { label: "Builders & Founders", value: "entrepreneurs" },
-  { label: "Active Lifestyles", value: "sporty" },
-  { label: "Family Life", value: "parents" },
-  { label: "Life After Work", value: "retired" },
-  { label: "Thoughtful Minds", value: "deep_thinkers" },
-  { label: "Explorers", value: "adventurers" },
-  { label: "Everyone Welcome", value: "everyone_has_story" },
+    { label: "Creative Souls", value: "creative" },
+    { label: "Builders & Founders", value: "entrepreneurs" },
+    { label: "Active Lifestyles", value: "sporty" },
+    { label: "Family Life", value: "parents" },
+    { label: "Life After Work", value: "retired" },
+    { label: "Thoughtful Minds", value: "deep_thinkers" },
+    { label: "Explorers", value: "adventurers" },
+    { label: "Everyone Welcome", value: "everyone_has_story" },
 ];
 
 interface Locations {
@@ -98,6 +110,8 @@ const Page = () => {
     const email = session?.user?.email ?? "";
     const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
     const [subscriptionStatus, setSubscriptionStatus] = useState<boolean>(false);
+    const [avatarFile, setAvatarFile] = useState<File | null>(null);
+    const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
 
     const { data: profile, isLoading } = useProfileDetails(email);
     const { data: locations = [] } = useFetchAllLocations();
@@ -177,6 +191,22 @@ const Page = () => {
         setSubscriptionStatus(true);
     }
 
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const maxSize = 5 * 1024 * 1024;
+        if (file.size > maxSize) {
+            toast.error("Image must be smaller than 5MB");
+            return;
+        }
+
+        setAvatarFile(file);
+
+        const previewUrl = URL.createObjectURL(file);
+        setAvatarPreview(previewUrl);
+    };
+
     const handleDeleteUser = async () => {
         try {
             await mutateAsync({ userId: profile?.id });
@@ -243,21 +273,80 @@ const Page = () => {
                                                     <div className="flex flex-col gap-4">
                                                         <div className="flex flex-col items-center justify-center gap-4">
                                                             <div className="relative -mt-18 lg:mt-0 flex justify-center">
-                                                                <div className="relative cursor-pointer group">
-                                                                    <span data-slot="avatar" className="relative flex size-8 shrink-0 overflow-hidden rounded-full w-24 h-24 border-4 border-white">
-                                                                        <span data-slot="avatar-fallback" className="bg-muted flex size-full items-center justify-center rounded-full text-xl">
-                                                                            <Image
-                                                                                src={profile?.avatar}
-                                                                                alt={profile?.name}
-                                                                                width={100}
-                                                                                height={100}
-                                                                                quality={100}
-                                                                                priority
-                                                                                className='w-full h-full object-cover'
-                                                                            />
+                                                                <Drawer>
+                                                                    <DrawerTrigger className="relative cursor-pointer group">
+                                                                        <span data-slot="avatar" className="relative flex size-8 shrink-0 overflow-hidden rounded-full w-24 h-24 border-4 border-white">
+                                                                            <span data-slot="avatar-fallback" className="bg-muted flex size-full items-center justify-center rounded-full text-xl">
+                                                                                <Image
+                                                                                    src={profile?.avatar}
+                                                                                    alt={profile?.name}
+                                                                                    width={100}
+                                                                                    height={100}
+                                                                                    quality={100}
+                                                                                    priority
+                                                                                    className='w-full h-full object-cover'
+                                                                                />
+                                                                            </span>
                                                                         </span>
-                                                                    </span>
-                                                                </div>
+                                                                        <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center transition-opacity duration-200 opacity-0 group-hover:opacity-100">
+                                                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-camera w-8 h-8 text-white" aria-hidden="true">
+                                                                                <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path>
+                                                                                <circle cx="12" cy="13" r="3"></circle>
+                                                                            </svg>
+                                                                        </div>
+                                                                        <button data-slot="button" className="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm md:text-base font-medium transition-all select-none disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg:not([class*='size-'])]:size-4 shrink-0 [&amp;_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-secondary text-secondary-foreground size-9 absolute bottom-0 right-0 rounded-full hover:bg-secondary">
+                                                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-square-pen" aria-hidden="true">
+                                                                                <path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                                                                <path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"></path>
+                                                                            </svg>
+                                                                        </button>
+                                                                    </DrawerTrigger>
+                                                                    <DrawerContent>
+                                                                        <DrawerHeader>
+                                                                            <DrawerTitle>Update Your Profile Picture</DrawerTitle>
+
+                                                                            <DrawerDescription>
+                                                                                Choose an image to upload as your profile picture.
+                                                                            </DrawerDescription>
+
+                                                                            <div className="mt-4">
+                                                                                <input
+                                                                                    type="file"
+                                                                                    name="imageUrl"
+                                                                                    id="imageUrl"
+                                                                                    accept=".jpg, .jpeg, .png, .webp, .gif"
+                                                                                    onChange={handleFileChange}
+                                                                                    className="w-full rounded-full border border-gray-300 bg-gray-100 px-5 py-3 text-base text-gray-700
+                                                                                    transition-colors duration-200 outline-none
+                                                                                    file:mr-4 file:rounded-full file:border-0
+                                                                                    file:bg-[#2f1107] file:px-4 file:py-2
+                                                                                    file:text-sm file:font-semibold file:text-white
+                                                                                    file:hover:bg-[#2f1107]/90
+                                                                                    focus:border-[#2f1107] focus:ring-1"
+                                                                                />
+
+                                                                                {avatarPreview && (
+                                                                                    <div className="mt-5 flex justify-center">
+                                                                                        <div className="relative h-24 w-24 overflow-hidden rounded-full border border-[#2F1107]/30">
+                                                                                            <Image
+                                                                                                src={avatarPreview}
+                                                                                                alt="Avatar Preview"
+                                                                                                fill
+                                                                                                className="object-cover"
+                                                                                            />
+                                                                                        </div>
+                                                                                    </div>
+                                                                                )}
+                                                                            </div>
+                                                                        </DrawerHeader>
+                                                                        <DrawerFooter>
+                                                                            <Button className='bg-[#ffd100] text-[#2f1107] text-sm mb-1 font-semibold transition-colors duration-300 hover:bg-[#2f1107] hover:text-[#ffd100] cursor-pointer'>Submit</Button>
+                                                                            <DrawerClose>
+                                                                                <Button className='w-full cursor-pointer' variant="outline">Cancel</Button>
+                                                                            </DrawerClose>
+                                                                        </DrawerFooter>
+                                                                    </DrawerContent>
+                                                                </Drawer>
                                                             </div>
                                                             <div className="text-center">
                                                                 <h2 className="text-3xl md:text-4xl lg:text-5xl text-[#2f1107] font-semibold">{profile?.name}</h2>
