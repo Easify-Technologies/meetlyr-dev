@@ -11,10 +11,12 @@ import Link from 'next/link';
 import axios from 'axios';
 import { signOut } from 'next-auth/react';
 import { FaLocationArrow } from "react-icons/fa";
+import { IoIosClose } from "react-icons/io";
 import { CheckCircle } from "lucide-react";
 import { useFetchAllLocations } from "../queries/fetch-locations";
 import { useUpdateUserLocation } from '../queries/update-location';
 import { useDeleteUser } from '../queries/delete-user';
+import { useUpdateAvatar } from '../queries/update-avatar';
 import { useOpenCustomerPortal } from '../queries/stripe-customer-portal';
 import { useManageSubscription } from '../queries/manage-subscription';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -117,8 +119,9 @@ const Page = () => {
     const { data: locations = [] } = useFetchAllLocations();
     const { mutate, isPending } = useUpdateUserLocation(profile?.id);
     const { mutateAsync } = useDeleteUser();
-    const { mutate: mutatePortal, isPending: pendingPortal } = useOpenCustomerPortal();
+    const { mutate: mutateAvatar, isSuccess, isPending: avatarPending, isError, data, error } = useUpdateAvatar();
     const { mutate: mutateSubscription, isPending: pendingSubscription } = useManageSubscription();
+    // const { mutate: mutatePortal, isPending: pendingPortal } = useOpenCustomerPortal();
 
     const KIND_OF_PEOPLE_VALUE_MAP: Record<string, KindOfPeopleKey> = {
         creative: "creative",
@@ -327,23 +330,51 @@ const Page = () => {
 
                                                                                 {avatarPreview && (
                                                                                     <div className="mt-5 flex justify-center">
-                                                                                        <div className="relative h-24 w-24 overflow-hidden rounded-full border border-[#2F1107]/30">
+                                                                                        <div className="relative h-28 w-28 overflow-hidden rounded-full border border-[#2F1107]/30 group">
                                                                                             <Image
                                                                                                 src={avatarPreview}
-                                                                                                alt="Avatar Preview"
+                                                                                                alt={avatarPreview || "Avatar Preview"}
                                                                                                 fill
                                                                                                 className="object-cover"
                                                                                             />
+
+                                                                                            {/* Translucent overlay */}
+                                                                                            <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
+                                                                                                <button
+                                                                                                    onClick={() => {
+                                                                                                        setAvatarFile(null);
+                                                                                                        setAvatarPreview(null);
+                                                                                                    }}
+                                                                                                    type="button"
+                                                                                                    className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-white/90 text-[#2F1107] shadow"
+                                                                                                >
+                                                                                                    <IoIosClose size={24} />
+                                                                                                </button>
+                                                                                            </div>
                                                                                         </div>
                                                                                     </div>
                                                                                 )}
                                                                             </div>
                                                                         </DrawerHeader>
+                                                                        {isError && (
+                                                                            <p data-slot="form-message" className="text-destructive text-center text-sm font-semibold">{(error as Error).message}</p>
+                                                                        )}
+                                                                        {isSuccess && data?.message && (
+                                                                            <p data-slot="form-message" className="text-green-500 text-center text-sm font-semibold">{data.message}</p>
+                                                                        )}
                                                                         <DrawerFooter>
-                                                                            <Button className='bg-[#ffd100] text-[#2f1107] text-sm mb-1 font-semibold transition-colors duration-300 hover:bg-[#2f1107] hover:text-[#ffd100] cursor-pointer'>Submit</Button>
+                                                                            <Button onClick={() => {
+                                                                                mutateAvatar({
+                                                                                    avatar: avatarFile,
+                                                                                    userId: session?.user?.id as string
+                                                                                })
+                                                                            }} disabled={avatarPending} className='bg-[#ffd100] text-[#2f1107] text-sm mb-1 font-semibold transition-colors duration-300 hover:bg-[#2f1107] hover:text-[#ffd100] cursor-pointer'>
+                                                                                {avatarPending ? "Uploading..." : "Upload"}
+                                                                            </Button>
                                                                             <DrawerClose>
                                                                                 <Button className='w-full cursor-pointer' variant="outline">Cancel</Button>
                                                                             </DrawerClose>
+                                                                            <p className='text-muted-foreground text-sm text-center mt-3'>Help us keep our community safe! Please upload a clear, solo profile photo to help us verify your account. This step is required to avoid account interruption.</p>
                                                                         </DrawerFooter>
                                                                     </DrawerContent>
                                                                 </Drawer>
