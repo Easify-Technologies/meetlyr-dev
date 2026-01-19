@@ -22,13 +22,28 @@ const Page = () => {
   const userId = session?.user?.email ?? "";
 
   const [booking, setBooking] = useState("");
+  const [suggestionData, setSuggestionData] = useState({
+    day: "",
+    time: "",
+  });
+  const [suggestionStatus, setSuggestionStatus] = useState(false);
+  const { day, time } = suggestionData;
+
   const { data: profile, isLoading } = useProfileDetails(userId);
   const { data } = useGetAllEvents(profile?.city);
   const events = data?.events ?? [];
 
   const { mutate: joinEvent, isPending } = useJoinEvent();
 
-  const { mutate: addSuggestion } = useAddSuggestions();
+  const { mutate: addSuggestion, isSuccess, isError, data: suggestionRes, error } = useAddSuggestions();
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setSuggestionData((prev => ({
+      ...prev,
+      [name]: value
+    })))
+  }
 
   const handleBooking = () => {
     if (!booking) {
@@ -344,6 +359,8 @@ const Page = () => {
                                     <select
                                       id="day"
                                       name="day"
+                                      value={day}
+                                      onChange={handleInputChange}
                                       className="bg-white px-4 py-2 outline-none rounded-full h-11 text-[#2F1107] text-sm font-medium"
                                     >
                                       <option value="">Select Day</option>
@@ -364,6 +381,8 @@ const Page = () => {
                                     <select
                                       id="time"
                                       name="time"
+                                      value={time}
+                                      onChange={handleInputChange}
                                       className="bg-white px-4 py-2 outline-none rounded-full h-11 text-[#2F1107] text-sm font-medium"
                                     >
                                       <option value="">Select Time</option>
@@ -377,7 +396,28 @@ const Page = () => {
                                   </div>
                                 </div>
 
+                                {isError && (
+                                  <p
+                                    data-slot="form-message"
+                                    className="text-destructive text-sm"
+                                  >
+                                    {(error as Error).message}
+                                  </p>
+                                )}
+                                {isSuccess && suggestionRes?.message && (
+                                  <p data-slot="form-message" className="text-green-500 text-sm">
+                                    {suggestionRes.message}
+                                  </p>
+                                )}
+
                                 <button
+                                  onClick={() => {
+                                    addSuggestion({
+                                      userId: session?.user?.id ?? "",
+                                      day,
+                                      time
+                                    })
+                                  }}
                                   type="button"
                                   className="mt-4 w-full h-11 rounded-full border border-[#2f1107] cursor-pointer text-[#2f1107] text-sm font-semibold hover:bg-[#2f1107]/5 transition"
                                 >
