@@ -320,6 +320,66 @@ const Page = () => {
                                 </RadioGroup>
                               </div>
 
+                              <div className="mt-8 rounded-2xl border border-muted bg-muted/40 p-5">
+                                <h4 className="text-sm font-semibold text-muted-foreground text-center">
+                                  Can’t make these dates?
+                                </h4>
+
+                                <p className="text-xs text-muted-foreground text-center mt-1">
+                                  Suggest a preferred day and time, and we’ll try to accommodate you.
+                                </p>
+
+                                <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                  {/* Day */}
+                                  <div className="flex flex-col gap-1.5">
+                                    <label
+                                      htmlFor="day"
+                                      className="text-[#2f1107] text-sm font-semibold"
+                                    >
+                                      Day
+                                    </label>
+                                    <select
+                                      id="day"
+                                      className="bg-white px-4 py-2 outline-none rounded-full h-11 text-[#2F1107] text-sm font-medium"
+                                    >
+                                      <option value="">Select Day</option>
+                                      <option value="Friday">Friday</option>
+                                      <option value="Saturday">Saturday</option>
+                                      <option value="Sunday">Sunday</option>
+                                    </select>
+                                  </div>
+
+                                  {/* Time */}
+                                  <div className="flex flex-col gap-1.5">
+                                    <label
+                                      htmlFor="time"
+                                      className="text-[#2f1107] text-sm font-semibold"
+                                    >
+                                      Time
+                                    </label>
+                                    <select
+                                      id="time"
+                                      className="bg-white px-4 py-2 outline-none rounded-full h-11 text-[#2F1107] text-sm font-medium"
+                                    >
+                                      <option value="">Select Time</option>
+                                      <option value="11:00 AM – 12:00 PM">
+                                        11:00 AM – 12:00 PM
+                                      </option>
+                                      <option value="6:00 PM – 7:00 PM">
+                                        6:00 PM – 7:00 PM
+                                      </option>
+                                    </select>
+                                  </div>
+                                </div>
+
+                                <button
+                                  type="button"
+                                  className="mt-4 w-full h-11 rounded-full border border-[#2f1107] cursor-pointer text-[#2f1107] text-sm font-semibold hover:bg-[#2f1107]/5 transition"
+                                >
+                                  Send Suggestion
+                                </button>
+                              </div>
+
                               {/* BUTTON */}
                               <div className="shrink-0 pt-6 pb-3">
                                 {profile?.isVerified ? (
