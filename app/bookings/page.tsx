@@ -26,7 +26,11 @@ const Page = () => {
     day: "",
     time: "",
   });
-  const [suggestionStatus, setSuggestionStatus] = useState(false);
+  const [suggestionBox, setSuggestionBox] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    return !localStorage.getItem(`suggestionSubmitted_${session?.user?.id}`);
+  });
+
   const { day, time } = suggestionData;
 
   const { data: profile, isLoading } = useProfileDetails(userId);
@@ -35,15 +39,38 @@ const Page = () => {
 
   const { mutate: joinEvent, isPending } = useJoinEvent();
 
-  const { mutate: addSuggestion, isSuccess, isError, data: suggestionRes, error } = useAddSuggestions();
+  const { mutate: addSuggestion, isPending: suggestionPending, isSuccess, isError, data: suggestionRes, error } = useAddSuggestions();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { name, value } = e.target;
     setSuggestionData((prev => ({
       ...prev,
       [name]: value
-    })))
+    })));
   }
+
+  const handleSendSuggestion = () => {
+    addSuggestion(
+      {
+        userId: session?.user?.id ?? "",
+        day,
+        time,
+      },
+      {
+        onSuccess: (res) => {
+          if (res?.message === "Suggestion added successfully") {
+            setTimeout(() => {
+              localStorage.setItem(
+                `suggestionSubmitted_${session?.user?.id}`,
+                "true"
+              );
+              setSuggestionBox(false);
+            }, 3000);
+          }
+        },
+      }
+    );
+  };
 
   const handleBooking = () => {
     if (!booking) {
@@ -338,92 +365,90 @@ const Page = () => {
                                 </RadioGroup>
                               </div>
 
-                              <div className="mt-8 rounded-2xl border border-muted bg-muted/40 p-5">
-                                <h4 className="text-sm font-semibold text-muted-foreground text-center">
-                                  Can’t make these dates?
-                                </h4>
+                              {/* Suggestion Form */}
+                              {suggestionBox && (
+                                <div className="mt-8 rounded-2xl border border-muted bg-muted/40 p-5">
+                                  <h4 className="text-sm font-semibold text-muted-foreground text-center">
+                                    Can’t make these dates?
+                                  </h4>
 
-                                <p className="text-xs text-muted-foreground text-center mt-1">
-                                  Suggest a preferred day and time, and we’ll try to accommodate you.
-                                </p>
+                                  <p className="text-xs text-muted-foreground text-center mt-1">
+                                    Suggest a preferred day and time, and we’ll try to accommodate you.
+                                  </p>
 
-                                <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                  {/* Day */}
-                                  <div className="flex flex-col gap-1.5">
-                                    <label
-                                      htmlFor="day"
-                                      className="text-[#2f1107] text-sm font-semibold"
-                                    >
-                                      Day
-                                    </label>
-                                    <select
-                                      id="day"
-                                      name="day"
-                                      value={day}
-                                      onChange={handleInputChange}
-                                      className="bg-white px-4 py-2 outline-none rounded-full h-11 text-[#2F1107] text-sm font-medium"
-                                    >
-                                      <option value="">Select Day</option>
-                                      <option value="Friday">Friday</option>
-                                      <option value="Saturday">Saturday</option>
-                                      <option value="Sunday">Sunday</option>
-                                    </select>
+                                  <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    {/* Day */}
+                                    <div className="flex flex-col gap-1.5">
+                                      <label
+                                        htmlFor="day"
+                                        className="text-[#2f1107] text-sm font-semibold"
+                                      >
+                                        Day
+                                      </label>
+                                      <select
+                                        id="day"
+                                        name="day"
+                                        value={day}
+                                        onChange={handleInputChange}
+                                        className="bg-white px-4 py-2 outline-none rounded-full h-11 text-[#2F1107] text-sm font-medium"
+                                      >
+                                        <option value="">Select Day</option>
+                                        <option value="Friday">Friday</option>
+                                        <option value="Saturday">Saturday</option>
+                                        <option value="Sunday">Sunday</option>
+                                      </select>
+                                    </div>
+
+                                    {/* Time */}
+                                    <div className="flex flex-col gap-1.5">
+                                      <label
+                                        htmlFor="time"
+                                        className="text-[#2f1107] text-sm font-semibold"
+                                      >
+                                        Time
+                                      </label>
+                                      <select
+                                        id="time"
+                                        name="time"
+                                        value={time}
+                                        onChange={handleInputChange}
+                                        className="bg-white px-4 py-2 outline-none rounded-full h-11 text-[#2F1107] text-sm font-medium"
+                                      >
+                                        <option value="">Select Time</option>
+                                        <option value="11:00 AM – 12:00 PM">
+                                          11:00 AM – 12:00 PM
+                                        </option>
+                                        <option value="6:00 PM – 7:00 PM">
+                                          6:00 PM – 7:00 PM
+                                        </option>
+                                      </select>
+                                    </div>
                                   </div>
 
-                                  {/* Time */}
-                                  <div className="flex flex-col gap-1.5">
-                                    <label
-                                      htmlFor="time"
-                                      className="text-[#2f1107] text-sm font-semibold"
+                                  {isError && (
+                                    <p
+                                      data-slot="form-message"
+                                      className="text-destructive text-sm text-center mt-3"
                                     >
-                                      Time
-                                    </label>
-                                    <select
-                                      id="time"
-                                      name="time"
-                                      value={time}
-                                      onChange={handleInputChange}
-                                      className="bg-white px-4 py-2 outline-none rounded-full h-11 text-[#2F1107] text-sm font-medium"
-                                    >
-                                      <option value="">Select Time</option>
-                                      <option value="11:00 AM – 12:00 PM">
-                                        11:00 AM – 12:00 PM
-                                      </option>
-                                      <option value="6:00 PM – 7:00 PM">
-                                        6:00 PM – 7:00 PM
-                                      </option>
-                                    </select>
-                                  </div>
-                                </div>
+                                      {(error as Error).message}
+                                    </p>
+                                  )}
+                                  {isSuccess && suggestionRes?.message && (
+                                    <p data-slot="form-message" className="text-green-500 text-sm text-center mt-3">
+                                      {suggestionRes.message}
+                                    </p>
+                                  )}
 
-                                {isError && (
-                                  <p
-                                    data-slot="form-message"
-                                    className="text-destructive text-sm"
+                                  <button
+                                    onClick={handleSendSuggestion}
+                                    type="button"
+                                    disabled={suggestionPending || !day || !time}
+                                    className="mt-4 w-full h-11 rounded-full border border-[#2f1107] cursor-pointer text-[#2f1107] text-sm font-semibold hover:bg-[#2f1107]/5 transition"
                                   >
-                                    {(error as Error).message}
-                                  </p>
-                                )}
-                                {isSuccess && suggestionRes?.message && (
-                                  <p data-slot="form-message" className="text-green-500 text-sm">
-                                    {suggestionRes.message}
-                                  </p>
-                                )}
-
-                                <button
-                                  onClick={() => {
-                                    addSuggestion({
-                                      userId: session?.user?.id ?? "",
-                                      day,
-                                      time
-                                    })
-                                  }}
-                                  type="button"
-                                  className="mt-4 w-full h-11 rounded-full border border-[#2f1107] cursor-pointer text-[#2f1107] text-sm font-semibold hover:bg-[#2f1107]/5 transition"
-                                >
-                                  Send Suggestion
-                                </button>
-                              </div>
+                                    {suggestionPending ? "Sending..." : "Send Suggestion"}
+                                  </button>
+                                </div>
+                              )}
 
                               {/* BUTTON */}
                               <div className="shrink-0 pt-6 pb-3">

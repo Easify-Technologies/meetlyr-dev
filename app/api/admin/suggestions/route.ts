@@ -10,7 +10,8 @@ export async function POST(req: NextRequest) {
         { error: "Missing required fields" },
         { status: 400 },
       );
-    } else {
+    }
+    else {
       const suggestion = await prisma.suggestions.create({
         data: {
           userId,
@@ -19,7 +20,7 @@ export async function POST(req: NextRequest) {
         },
       });
 
-      return NextResponse.json({ suggestion }, { status: 200 });
+      return NextResponse.json({ message: "Suggestion added successfully", suggestion }, { status: 200 });
     }
   } catch (error) {
     console.error("Error adding suggestion:", error);
