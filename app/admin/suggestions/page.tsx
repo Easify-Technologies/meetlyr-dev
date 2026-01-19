@@ -1,6 +1,5 @@
 "use client";
 
-import React from 'react';
 import Link from 'next/link';
 import {
     Table,
@@ -13,7 +12,13 @@ import {
 import { parseISO, format } from "date-fns";
 import Loader from '@/components/ui/loader';
 
+import { useFetchSuggestions } from '@/app/queries/admin/fetch-suggestions';
+
 const Page = () => {
+    const { data: suggestions, isPending } = useFetchSuggestions();
+
+    if (isPending) return <Loader />
+
     return (
         <>
             <section className='w-screen min-h-screen bg-[#FFFFF5] relative'>
@@ -58,7 +63,21 @@ const Page = () => {
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    
+                                    {suggestions && suggestions.map((suggestion: any, index: number) => {
+                                        const isoCreatedAt = suggestion?.createdAt;
+                                        const formattedDate = format(parseISO(isoCreatedAt), "EEEE, MMM do h:mm a");
+
+                                        return (
+                                            <TableRow className="even:bg-[#2f1107] hover:bg-[#2f1107]/30 border-none even:text-white" key={suggestion.id}>
+                                                <TableCell>{index + 1}</TableCell>
+                                                <TableCell>{suggestion?.user?.name}</TableCell>
+                                                <TableCell>{suggestion?.user?.email}</TableCell>
+                                                <TableCell>{suggestion?.day}</TableCell>
+                                                <TableCell>{suggestion?.time}</TableCell>
+                                                <TableCell>{formattedDate}</TableCell>
+                                            </TableRow>
+                                        );
+                                    })}
                                 </TableBody>
                             </Table>
                         </div>
