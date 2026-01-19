@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Navbar from "@/components/ui/Navbar";
 import Image from "next/image";
 import Link from "next/link";
@@ -26,10 +26,18 @@ const Page = () => {
     day: "",
     time: "",
   });
-  const [suggestionBox, setSuggestionBox] = useState<boolean>(() => {
-    if (typeof window === "undefined") return false;
-    return !localStorage.getItem(`suggestionSubmitted_${session?.user?.id}`);
-  });
+  const storageKey = session?.user?.id
+    ? `suggestionSubmitted_${session.user.id}`
+    : null;
+
+  const [suggestionBox, setSuggestionBox] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (!storageKey) return;
+
+    const alreadySubmitted = localStorage.getItem(storageKey);
+    setSuggestionBox(!alreadySubmitted);
+  }, [storageKey]);
 
   const { day, time } = suggestionData;
 
@@ -50,26 +58,11 @@ const Page = () => {
   }
 
   const handleSendSuggestion = () => {
-    addSuggestion(
-      {
-        userId: session?.user?.id ?? "",
-        day,
-        time,
-      },
-      {
-        onSuccess: (res) => {
-          if (res?.message === "Suggestion added successfully") {
-            setTimeout(() => {
-              localStorage.setItem(
-                `suggestionSubmitted_${session?.user?.id}`,
-                "true"
-              );
-              setSuggestionBox(false);
-            }, 3000);
-          }
-        },
-      }
-    );
+    addSuggestion({
+      userId: session?.user?.id ?? "",
+      day,
+      time,
+    });
   };
 
   const handleBooking = () => {
@@ -135,6 +128,19 @@ const Page = () => {
       return;
     }
   };
+
+  useEffect(() => {
+    if (
+      isSuccess &&
+      suggestionRes?.message === "Suggestion added successfully" &&
+      storageKey
+    ) {
+      localStorage.setItem(storageKey, "true");
+      setTimeout(() => {
+        setSuggestionBox(false);
+      }, 2500);
+    }
+  }, [isSuccess, suggestionRes, storageKey]);
 
   if (isLoading) return <Loader />
 
