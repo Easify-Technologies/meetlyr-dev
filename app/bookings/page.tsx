@@ -14,6 +14,7 @@ import { parseISO, format } from "date-fns";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { useJoinEvent } from "../queries/useJoinEvents";
+import { useAddSuggestions } from "../queries/admin/add-suggestions";
 
 const Page = () => {
   const { data: session } = useSession();
@@ -26,6 +27,8 @@ const Page = () => {
   const events = data?.events ?? [];
 
   const { mutate: joinEvent, isPending } = useJoinEvent();
+
+  const { mutate: addSuggestion } = useAddSuggestions();
 
   const handleBooking = () => {
     if (!booking) {
@@ -340,6 +343,7 @@ const Page = () => {
                                     </label>
                                     <select
                                       id="day"
+                                      name="day"
                                       className="bg-white px-4 py-2 outline-none rounded-full h-11 text-[#2F1107] text-sm font-medium"
                                     >
                                       <option value="">Select Day</option>
@@ -359,6 +363,7 @@ const Page = () => {
                                     </label>
                                     <select
                                       id="time"
+                                      name="time"
                                       className="bg-white px-4 py-2 outline-none rounded-full h-11 text-[#2F1107] text-sm font-medium"
                                     >
                                       <option value="">Select Time</option>

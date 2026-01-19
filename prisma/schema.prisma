@@ -51,10 +51,11 @@ model User {
   interests String?
   payment   Payment[]
 
-  subscriptionActive  Boolean    @default(false)
+  subscriptionActive  Boolean       @default(false)
   subscriptionEndsAt  DateTime?
-  subscriptionCredits Int        @default(0)
+  subscriptionCredits Int           @default(0)
   feedbacks           Feedback[]
+  suggestions         Suggestions[]
 }
 
 model Lead {
@@ -190,4 +191,14 @@ model Feedback {
   user  User  @relation(fields: [userId], references: [id])
   event Event @relation(fields: [eventId], references: [id])
   cafe  Cafe  @relation(fields: [cafeId], references: [id])
+}
+
+model Suggestions {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  day       String
+  time      String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
 }

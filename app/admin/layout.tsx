@@ -11,6 +11,7 @@ import { IoHomeOutline } from "react-icons/io5";
 import { LuCircleUserRound } from "react-icons/lu";
 import { FaMapLocationDot } from "react-icons/fa6";
 import { MdEvent, MdCoffee, MdFeedback } from "react-icons/md";
+import { HiOutlineLightBulb } from "react-icons/hi";
 import { IoIosLogOut } from "react-icons/io";
 import { GiForkKnifeSpoon } from "react-icons/gi";
 import { MdLeaderboard } from "react-icons/md";
@@ -41,6 +42,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     { icon: MdLeaderboard, label: "Leads", path: "/admin/leads" },
     { icon: GiForkKnifeSpoon, label: "Manual Matching", path: "/admin/match-event" },
     { icon: MdFeedback, label: "Feedback", path: "/admin/feedback" },
+    { icon: HiOutlineLightBulb, label: "Suggestions", path: "/admin/suggestions" },
     { icon: IoIosLogOut, label: "Logout", path: "/admin/login" },
   ]
 
