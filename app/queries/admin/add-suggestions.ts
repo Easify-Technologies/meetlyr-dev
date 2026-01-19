@@ -13,7 +13,7 @@ const addSuggestions = async (data: {
   time: string;
 }) => {
   try {
-    const res = await axios.post("/api/admin/suggestions", data);
+    const res = await axios.post("/api/admin/add-suggestions", data);
     return res.data;
   } catch (error) {
     const axiosErr = error as AxiosError<ApiError>;

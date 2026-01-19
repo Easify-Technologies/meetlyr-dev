@@ -5,7 +5,7 @@ import axios from "axios";
 
 const fetchSuggestions = async() => {
     try {
-        const res = await axios.get("/api/admin/suggestions");
+        const res = await axios.get("/api/admin/fetch-suggestions");
         return res.data.suggestions;
     } catch (error) {
         console.error("Error fetching suggestions: ", error);
