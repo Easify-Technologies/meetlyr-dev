@@ -16,6 +16,13 @@ import toast from "react-hot-toast";
 import { useJoinEvent } from "../queries/useJoinEvents";
 import { useAddSuggestions } from "../queries/admin/add-suggestions";
 
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
+
 const Page = () => {
   const { data: session } = useSession();
   const router = useRouter();
@@ -373,87 +380,76 @@ const Page = () => {
 
                               {/* Suggestion Form */}
                               {suggestionBox && (
-                                <div className="mt-8 rounded-2xl border border-muted bg-muted/40 p-5">
-                                  <h4 className="text-sm font-semibold text-muted-foreground text-center">
-                                    Can’t make these dates?
-                                  </h4>
-
-                                  <p className="text-xs text-muted-foreground text-center mt-1">
-                                    Suggest a preferred day and time, and we’ll try to accommodate you.
-                                  </p>
-
-                                  <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                    {/* Day */}
-                                    <div className="flex flex-col gap-1.5">
-                                      <label
-                                        htmlFor="day"
-                                        className="text-[#2f1107] text-sm font-semibold"
-                                      >
-                                        Day
-                                      </label>
-                                      <select
-                                        id="day"
-                                        name="day"
-                                        value={day}
-                                        onChange={handleInputChange}
-                                        className="bg-white px-4 py-2 outline-none rounded-full h-11 text-[#2F1107] text-sm font-medium"
-                                      >
-                                        <option value="">Select Day</option>
-                                        <option value="Friday">Friday</option>
-                                        <option value="Saturday">Saturday</option>
-                                        <option value="Sunday">Sunday</option>
-                                      </select>
-                                    </div>
-
-                                    {/* Time */}
-                                    <div className="flex flex-col gap-1.5">
-                                      <label
-                                        htmlFor="time"
-                                        className="text-[#2f1107] text-sm font-semibold"
-                                      >
-                                        Time
-                                      </label>
-                                      <select
-                                        id="time"
-                                        name="time"
-                                        value={time}
-                                        onChange={handleInputChange}
-                                        className="bg-white px-4 py-2 outline-none rounded-full h-11 text-[#2F1107] text-sm font-medium"
-                                      >
-                                        <option value="">Select Time</option>
-                                        <option value="11:00 AM – 12:00 PM">
-                                          11:00 AM – 12:00 PM
-                                        </option>
-                                        <option value="6:00 PM – 7:00 PM">
-                                          6:00 PM – 7:00 PM
-                                        </option>
-                                      </select>
-                                    </div>
-                                  </div>
-
-                                  {isError && (
-                                    <p
-                                      data-slot="form-message"
-                                      className="text-destructive text-sm text-center mt-3"
-                                    >
-                                      {(error as Error).message}
-                                    </p>
-                                  )}
-                                  {isSuccess && suggestionRes?.message && (
-                                    <p data-slot="form-message" className="text-green-500 text-sm text-center mt-3">
-                                      {suggestionRes.message}
-                                    </p>
-                                  )}
-
-                                  <button
-                                    onClick={handleSendSuggestion}
-                                    type="button"
-                                    disabled={suggestionPending || !day || !time}
-                                    className="mt-4 w-full h-11 rounded-full border border-[#2f1107] cursor-pointer text-[#2f1107] text-sm font-semibold hover:bg-[#2f1107]/5 transition"
+                                <Accordion type="single" collapsible className="mt-8">
+                                  <AccordionItem
+                                    value="suggest-time"
+                                    className="rounded-2xl border border-muted bg-muted/40 px-4"
                                   >
-                                    {suggestionPending ? "Sending..." : "Send Suggestion"}
-                                  </button>
-                                </div>
+                                    <AccordionTrigger className="text-sm font-semibold text-muted-foreground hover:no-underline">
+                                      Can’t make these dates?
+                                    </AccordionTrigger>
+
+                                    <AccordionContent className="pb-4">
+                                      <p className="text-xs text-muted-foreground text-center mb-4">
+                                        Suggest a preferred day and time, and we’ll try to accommodate you.
+                                      </p>
+
+                                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        {/* Day */}
+                                        <div className="flex flex-col gap-1.5">
+                                          <label htmlFor="day" className="text-sm font-semibold text-[#2f1107]">
+                                            Day
+                                          </label>
+
+                                          <select className="bg-white px-4 py-2 shadow outline-none rounded-full h-11 text-[#2F1107] text-sm font-medium" value={day} name="day" onChange={handleInputChange}>
+                                            <option value="">Select Day</option>
+                                            <option value="Friday">Friday</option>
+                                            <option value="Saturday">Saturday</option>
+                                            <option value="Sunday">Sunday</option>
+                                          </select>
+                                        </div>
+
+                                        {/* Time */}
+                                        <div className="flex flex-col gap-1.5">
+                                          <label htmlFor="time" className="text-sm font-semibold text-[#2f1107]">
+                                            Time
+                                          </label>
+
+                                          <select className="bg-white px-4 py-2 outline-none shadow rounded-full h-11 text-[#2F1107] text-sm font-medium" value={time} name="time" onChange={handleInputChange}>
+                                            <option value="">Select Time</option>
+                                            <option value="11:00 AM – 12:00 PM">
+                                              11:00 AM – 12:00 PM
+                                            </option>
+                                            <option value="6:00 PM – 7:00 PM">
+                                              6:00 PM – 7:00 PM
+                                            </option>
+                                          </select>
+                                        </div>
+                                      </div>
+
+                                      {isError && (
+                                        <p className="text-destructive text-sm text-center mt-3">
+                                          {(error as Error).message}
+                                        </p>
+                                      )}
+
+                                      {isSuccess && suggestionRes?.message && (
+                                        <p className="text-green-500 text-sm text-center mt-3">
+                                          {suggestionRes.message}
+                                        </p>
+                                      )}
+
+                                      <button
+                                        type="button"
+                                        onClick={handleSendSuggestion}
+                                        disabled={suggestionPending || !day || !time}
+                                        className="mt-5 w-full h-11 rounded-full border border-[#2f1107] cursor-pointer text-[#2f1107] text-sm font-semibold hover:bg-[#2f1107]/5 transition"
+                                      >
+                                        {suggestionPending ? "Sending..." : "Send Suggestion"}
+                                      </button>
+                                    </AccordionContent>
+                                  </AccordionItem>
+                                </Accordion>
                               )}
 
                               {/* BUTTON */}
