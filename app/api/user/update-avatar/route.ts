@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
     if (file.size > maxSize) {
       return NextResponse.json(
         { error: "File too large. Maximum size is 5MB" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
           (error, result) => {
             if (error) reject(error);
             else resolve(result);
-          }
+          },
         );
 
         streamifier.createReadStream(buffer).pipe(uploadStream);
@@ -51,19 +51,19 @@ export async function POST(request: NextRequest) {
     const result: any = await uploadPromise();
 
     const updateAvatar = await prisma.user.update({
-        where: {
-            id: userId
-        },
-        data: {
-            avatar: result.secure_url
-        }
+      where: {
+        id: userId,
+      },
+      data: {
+        avatar: result.secure_url,
+      },
     });
 
     return NextResponse.json({
       success: true,
       url: result.secure_url,
       public_id: result.public_id,
-      message: "Avatar uploaded successfully"
+      message: "Avatar uploaded successfully",
     });
   } catch (error) {
     console.error("Upload failed:", error);

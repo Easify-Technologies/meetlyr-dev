@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useRef } from 'react';
 import Navbar from '@/components/ui/Navbar';
 import Image from 'next/image';
 import { useSession } from 'next-auth/react';
@@ -112,8 +112,10 @@ const Page = () => {
     const email = session?.user?.email ?? "";
     const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
     const [subscriptionStatus, setSubscriptionStatus] = useState<boolean>(false);
+
     const [avatarFile, setAvatarFile] = useState<File | null>(null);
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+    const fileInputRef = useRef<HTMLInputElement | null>(null);
 
     const { data: profile, isLoading } = useProfileDetails(email);
     const { data: locations = [] } = useFetchAllLocations();
@@ -307,13 +309,13 @@ const Page = () => {
                                                                     <DrawerContent>
                                                                         <DrawerHeader>
                                                                             <DrawerTitle>Update Your Profile Picture</DrawerTitle>
-
                                                                             <DrawerDescription>
                                                                                 Choose an image to upload as your profile picture.
                                                                             </DrawerDescription>
 
                                                                             <div className="mt-4">
                                                                                 <input
+                                                                                    ref={fileInputRef}
                                                                                     type="file"
                                                                                     name="imageUrl"
                                                                                     id="imageUrl"
@@ -344,6 +346,10 @@ const Page = () => {
                                                                                                     onClick={() => {
                                                                                                         setAvatarFile(null);
                                                                                                         setAvatarPreview(null);
+
+                                                                                                        if(fileInputRef.current) {
+                                                                                                            fileInputRef.current.value = "";
+                                                                                                        }
                                                                                                     }}
                                                                                                     type="button"
                                                                                                     className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-white/90 text-[#2F1107] shadow"
@@ -368,7 +374,7 @@ const Page = () => {
                                                                                     avatar: avatarFile,
                                                                                     userId: session?.user?.id as string
                                                                                 })
-                                                                            }} disabled={avatarPending} className='bg-[#ffd100] text-[#2f1107] text-sm mb-1 font-semibold transition-colors duration-300 hover:bg-[#2f1107] hover:text-[#ffd100] cursor-pointer'>
+                                                                            }} disabled={avatarPending || !avatarFile} className='bg-[#ffd100] text-[#2f1107] text-sm mb-1 font-semibold transition-colors duration-300 hover:bg-[#2f1107] hover:text-[#ffd100] cursor-pointer'>
                                                                                 {avatarPending ? "Uploading..." : "Upload"}
                                                                             </Button>
                                                                             <DrawerClose>

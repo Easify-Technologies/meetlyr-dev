@@ -382,15 +382,15 @@ const Page = () => {
                               {suggestionBox && (
                                 <Accordion type="single" collapsible className="mt-8">
                                   <AccordionItem
-                                    value="suggest-time"
+                                    value="suggestion"
                                     className="rounded-2xl border border-muted bg-muted/40 px-4"
                                   >
-                                    <AccordionTrigger className="text-sm font-semibold text-muted-foreground hover:no-underline">
+                                    <AccordionTrigger className="text-base pb-1.5 font-semibold cursor-pointer text-muted-foreground hover:no-underline">
                                       Can’t make these dates?
                                     </AccordionTrigger>
 
                                     <AccordionContent className="pb-4">
-                                      <p className="text-xs text-muted-foreground text-center mb-4">
+                                      <p className="text-sm text-muted-foreground mb-5">
                                         Suggest a preferred day and time, and we’ll try to accommodate you.
                                       </p>
 
@@ -443,7 +443,7 @@ const Page = () => {
                                         type="button"
                                         onClick={handleSendSuggestion}
                                         disabled={suggestionPending || !day || !time}
-                                        className="mt-5 w-full h-11 rounded-full border border-[#2f1107] cursor-pointer text-[#2f1107] text-sm font-semibold hover:bg-[#2f1107]/5 transition"
+                                        className="mt-5 w-full h-11 rounded-full border border-[#2f1107] cursor-pointer text-[#2f1107] text-sm font-semibold hover:bg-[#2f1107]/10 transition"
                                       >
                                         {suggestionPending ? "Sending..." : "Send Suggestion"}
                                       </button>

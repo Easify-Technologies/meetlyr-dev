@@ -6,7 +6,7 @@ import axios, { AxiosError } from "axios";
 
 type ApiError = { error: string };
 
-const updateAvatar = async (data: { avatar: File | null, userId: string; }) => {
+const updateAvatar = async (data: { avatar: File | null; userId: string }) => {
   try {
     if (!data.avatar) {
       throw new Error("Avatar file is required");
@@ -25,7 +25,6 @@ const updateAvatar = async (data: { avatar: File | null, userId: string; }) => {
 
     const res = await axios.post("/api/user/update-avatar", formData);
     return res.data;
-
   } catch (error) {
     const axiosErr = error as AxiosError<ApiError>;
     throw new Error(axiosErr.response?.data?.error || "Something went wrong");
@@ -33,7 +32,7 @@ const updateAvatar = async (data: { avatar: File | null, userId: string; }) => {
 };
 
 export function useUpdateAvatar() {
-    return useMutation({
-        mutationFn: updateAvatar
-    })
+  return useMutation({
+    mutationFn: updateAvatar,
+  });
 }
