@@ -70,8 +70,8 @@ const Page = () => {
                                         return (
                                             <TableRow className="even:bg-[#2f1107] hover:bg-[#2f1107]/30 border-none even:text-white" key={suggestion.id}>
                                                 <TableCell>{index + 1}</TableCell>
-                                                <TableCell>{suggestion?.user?.name}</TableCell>
-                                                <TableCell>{suggestion?.user?.email}</TableCell>
+                                                <TableCell>{suggestion?.user?.name ?? "N/A"}</TableCell>
+                                                <TableCell>{suggestion?.user?.email ?? "N/A"}</TableCell>
                                                 <TableCell>{suggestion?.day}</TableCell>
                                                 <TableCell>{suggestion?.time}</TableCell>
                                                 <TableCell>{formattedDate}</TableCell>

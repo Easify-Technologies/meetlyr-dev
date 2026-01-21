@@ -195,10 +195,10 @@ model Feedback {
 
 model Suggestions {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId    String   @db.ObjectId
+  userId    String?  @db.ObjectId
   day       String
   time      String
   createdAt DateTime @default(now())
 
-  user User @relation(fields: [userId], references: [id])
+  user User? @relation(fields: [userId], references: [id])
 }
