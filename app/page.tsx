@@ -114,7 +114,7 @@ export default function Home() {
                 </Link>
                 ,{" "}
                 <Link
-                  href="https://meetlyr.com/terms-and-conditions/"
+                  href="https://meetlyr.com/privacy-policy/"
                   className="text-foreground"
                 >
                   Privacy Policy
