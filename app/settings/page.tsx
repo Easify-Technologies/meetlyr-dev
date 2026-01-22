@@ -392,7 +392,7 @@ const Page = () => {
                                                                         <button
                                                                             type="button"
                                                                             onClick={() => setOpen(true)}
-                                                                            className="flex items-center justify-center gap-2 mt-3 bg-[#fff100] text-[#2f1107] border border-[#2f1107] text-sm font-semibold cursor-pointer py-2.5 px-2 rounded-md hover:bg-[#2f1107] hover:text-[#fff100] transition-colors duration-500"
+                                                                            className="flex items-center justify-center mx-auto text-center gap-2 mt-3 bg-[#fff100] text-[#2f1107] border border-[#2f1107] text-sm font-semibold cursor-pointer py-2.5 px-2 rounded-md hover:bg-[#2f1107] hover:text-[#fff100] transition-colors duration-500"
                                                                         >
                                                                             <FaLocationArrow size={15} />
                                                                             <span>
@@ -771,7 +771,7 @@ const Page = () => {
                                                                     </div>
                                                                 </Link>
                                                                 <div data-orientation="horizontal" role="none" data-slot="separator" className="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px"></div>
-                                                                <Link href="https://meetlyr.com/terms-and-conditions/" target="_blank" rel="noopener noreferrer">
+                                                                <Link href="https://meetlyr.com/privacy-policy/" target="_blank" rel="noopener noreferrer">
                                                                     <div className="flex flex-row justify-between px-4 py-1 items-center hover:bg-muted/50 transition-colors">
                                                                         <div className="flex flex-col gap-1">
                                                                             <p className="text-base md:text-lg">Privacy Policy</p>
@@ -803,7 +803,7 @@ const Page = () => {
                                                                 </svg>
                                                                 Logout
                                                             </button>
-                                                            <div className='pb-16 md:pb-0'>
+                                                            <div className='pb-20 md:pb-0'>
                                                                 <AlertDialog>
                                                                     <AlertDialogTrigger asChild>
                                                                         <button data-slot="dialog-trigger" className="inline-flex cursor-pointer items-center justify-center gap-2 whitespace-nowrap text-sm md:text-base font-medium transition-all select-none disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg:not([class*='size-'])]:size-4 shrink-0 [&amp;_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:hover:bg-accent/50 h-12 px-4 py-2 rounded-full w-full text-destructive hover:text-destructive hover:bg-destructive/10" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="radix-«rbh»" data-state="closed">

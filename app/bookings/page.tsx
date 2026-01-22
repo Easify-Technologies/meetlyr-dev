@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Navbar from "@/components/ui/Navbar";
 import Image from "next/image";
 import Link from "next/link";
@@ -64,13 +64,13 @@ const Page = () => {
     })));
   }
 
-  const handleSendSuggestion = () => {
+  const handleSendSuggestion = useCallback(() => {
     addSuggestion({
       userId: session?.user?.id ?? "",
       day,
       time,
     });
-  };
+  }, [suggestionData]);
 
   const handleBooking = () => {
     if (!booking) {
@@ -185,14 +185,14 @@ const Page = () => {
                       <div className="flex justify-center items-center">
                         <Link
                           href="#"
-                          className="flex items-center gap-2 text-sm font-medium text-[#2f1107]"
+                          className="flex items-center gap-1.5 text-sm font-medium md:text-[#2f1107] text-white md:bg-transparent bg-[#2f1107] pl-3 pr-3.5 py-2.5 rounded-md md:justify-normal justify-center"
                         >
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
                             width="24"
                             height="24"
                             viewBox="0 0 24 24"
-                            fill="none"
+                            fill="#ffffff"
                             stroke="currentColor"
                             strokeWidth="2"
                             strokeLinecap="round"
@@ -203,7 +203,7 @@ const Page = () => {
                             <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path>
                             <circle cx="12" cy="10" r="3"></circle>
                           </svg>
-                          <p className="md:text-base text-xl font-semibold text-center underline decoration-dashed">
+                          <p className="text-base font-semibold text-center underline decoration-dashed">
                             {profile?.city}, {profile?.country}
                           </p>
                         </Link>
@@ -385,7 +385,7 @@ const Page = () => {
                                     value="suggestion"
                                     className="rounded-2xl border border-muted bg-muted/40 px-4"
                                   >
-                                    <AccordionTrigger className="text-base pb-1.5 font-semibold cursor-pointer text-muted-foreground hover:no-underline">
+                                    <AccordionTrigger className="text-base font-semibold cursor-pointer text-muted-foreground hover:no-underline">
                                       Can’t make these dates?
                                     </AccordionTrigger>
 
