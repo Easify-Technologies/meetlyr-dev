@@ -10,6 +10,7 @@ import { useProfileDetails } from "../queries/profile";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import Loader from "@/components/ui/loader";
 import axios from "axios";
+import Image from "next/image";
 
 const PaymentClient = () => {
   const params = useSearchParams();
@@ -137,6 +138,13 @@ const PaymentClient = () => {
                 <p className="text-base text-muted-foreground">
                   Friends are waiting for you
                 </p>
+                <Image
+                  src="/diamond.png"
+                  alt="payment-panel"
+                  width={100}
+                  height={100}
+                  className="object-cover text-center mx-auto py-2"
+                />
               </div>
             </div>
             <RadioGroup
@@ -252,10 +260,10 @@ const PaymentClient = () => {
                       Monthly Subscription
                     </span>
                     <span
-                      className={`text-base md:text-lg font-bold ${payment === "monthly" ? "text-[#FFD100]" : "text-[#2F1107]"
+                      className={`text-sm md:text-lg font-bold ${payment === "monthly" ? "text-[#FFD100]" : "text-[#2F1107]"
                         }`}
                     >
-                      €15.00 / month
+                      €15.00/month
                     </span>
                   </div>
                   <span
@@ -293,10 +301,10 @@ const PaymentClient = () => {
                       3-Month Subscription
                     </span>
                     <span
-                      className={`text-base md:text-lg font-bold ${payment === "3months" ? "text-[#FFD100]" : "text-[#2F1107]"
+                      className={`text-sm md:text-lg font-bold ${payment === "3months" ? "text-[#FFD100]" : "text-[#2F1107]"
                         }`}
                     >
-                      €35.00 / 3 months
+                      €35.00/3 months
                     </span>
                   </div>
                   <span
@@ -334,10 +342,10 @@ const PaymentClient = () => {
                       6-Month Subscription
                     </span>
                     <span
-                      className={`text-base md:text-lg font-bold ${payment === "6months" ? "text-[#FFD100]" : "text-[#2F1107]"
+                      className={`text-sm md:text-lg font-bold ${payment === "6months" ? "text-[#FFD100]" : "text-[#2F1107]"
                         }`}
                     >
-                      €60.00 / 6 months
+                      €60.00/6 months
                     </span>
                   </div>
                   <span
