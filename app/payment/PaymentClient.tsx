@@ -7,10 +7,16 @@ import { Label } from "@/components/ui/label";
 import { useSession } from "next-auth/react";
 import { useProfileDetails } from "../queries/profile";
 
+import Image from "next/image";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import Loader from "@/components/ui/loader";
 import axios from "axios";
-import Image from "next/image";
+
+import { FaKey } from "react-icons/fa";
+import { BsStars, BsChatDotsFill } from "react-icons/bs";
+import { MdPayments } from "react-icons/md";
+import { IoStopwatch } from "react-icons/io5";
+import Link from "next/link";
 
 const PaymentClient = () => {
   const params = useSearchParams();
@@ -47,9 +53,9 @@ const PaymentClient = () => {
   // 1. New users: freePass = true AND no events attended
   // 2. Existing users (freePass = undefined): Give free pass if they haven't attended any events
   // 3. Users who used free pass: freePass = false (not eligible anymore)
-  const isFreePassEligible = 
+  const isFreePassEligible =
     !hasAttendedAnyEvent && (profile?.freePass === true || profile?.freePass === undefined);
-  
+
   // Show one-time payment only if user is not eligible for free pass
   const showOneTimePayment = !isFreePassEligible;
 
@@ -140,10 +146,10 @@ const PaymentClient = () => {
                 </p>
                 <Image
                   src="/diamond.png"
-                  alt="payment-panel"
+                  alt="diamond"
                   width={100}
                   height={100}
-                  className="object-cover text-center mx-auto py-2"
+                  className="object-cover my-2 mx-auto text-center"
                 />
               </div>
             </div>
@@ -173,15 +179,15 @@ const PaymentClient = () => {
 
                   <Label htmlFor="free" className="flex flex-col gap-1 cursor-pointer w-full">
                     <div className="flex justify-between items-center">
-                      <span className="text-lg md:text-xl font-semibold">
+                      <span className={`text-lg md:text-xl font-semibold ${payment === "free" ? "text-white" : "text-inherit"}`}>
                         Free Pass
                       </span>
-                      <span className="text-base md:text-lg font-bold">
+                      <span className={`text-base md:text-lg font-bold ${payment === "free" ? "text-white" : "text-inherit"}`}>
                         €0.00
                       </span>
                     </div>
 
-                    <span className="text-sm opacity-90">
+                    <span className={`text-sm opacity-90 ${payment === "free" ? "text-white" : "text-inherit"}`}>
                       Your first event is on us. One-time only.
                     </span>
                   </Label>
@@ -260,10 +266,10 @@ const PaymentClient = () => {
                       Monthly Subscription
                     </span>
                     <span
-                      className={`text-sm md:text-lg font-bold ${payment === "monthly" ? "text-[#FFD100]" : "text-[#2F1107]"
+                      className={`text-base md:text-lg font-bold ${payment === "monthly" ? "text-[#FFD100]" : "text-[#2F1107]"
                         }`}
                     >
-                      €15.00/month
+                      €15.00
                     </span>
                   </div>
                   <span
@@ -301,10 +307,10 @@ const PaymentClient = () => {
                       3-Month Subscription
                     </span>
                     <span
-                      className={`text-sm md:text-lg font-bold ${payment === "3months" ? "text-[#FFD100]" : "text-[#2F1107]"
+                      className={`text-base md:text-lg font-bold ${payment === "3months" ? "text-[#FFD100]" : "text-[#2F1107]"
                         }`}
                     >
-                      €35.00/3 months
+                      €35.00
                     </span>
                   </div>
                   <span
@@ -342,10 +348,10 @@ const PaymentClient = () => {
                       6-Month Subscription
                     </span>
                     <span
-                      className={`text-sm md:text-lg font-bold ${payment === "6months" ? "text-[#FFD100]" : "text-[#2F1107]"
+                      className={`text-base md:text-lg font-bold ${payment === "6months" ? "text-[#FFD100]" : "text-[#2F1107]"
                         }`}
                     >
-                      €60.00/6 months
+                      €60.00
                     </span>
                   </div>
                   <span
@@ -358,7 +364,52 @@ const PaymentClient = () => {
               </div>
 
             </RadioGroup>
-            <div className="sticky bottom-0 bg-[#FFFFF5] py-4">
+
+            <div className="bg-white shadow-sm py-3 px-4 mt-4 rounded-lg">
+              <div className="flex flex-col gap-3.5">
+                <div className="flex flex-col gap-1.5">
+                  <div className="flex items-center gap-2">
+                    <FaKey className="bg-[#ff83de] rounded-full text-white p-2 flex items-center justify-center" size={30} />
+                    <h3 className="text-xl font-bold text-[#2f1107]">Unlimited access</h3>
+                  </div>
+                  <p className="text-lg tracking-wide leading-7 font-medium pl-[38px]">Step into curated experiences, invite-only meetups, and social moments designed to help you meet people you’ll actually vibe with — every single week.</p>
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <div className="flex items-center gap-2">
+                    <BsStars className="bg-[#f97709] rounded-full text-white p-2 flex items-center justify-center" size={30} />
+                    <h3 className="text-xl font-bold text-[#2f1107]">Always something fresh</h3>
+                  </div>
+                  <p className="text-lg tracking-wide leading-7 font-medium pl-[38px]">New venues, new energy, new people. Every experience feels different, because it is.</p>
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <div className="flex items-center gap-2">
+                    <BsChatDotsFill className="bg-[#9788fd] rounded-full text-white p-2 flex items-center justify-center" size={30} />
+                    <h3 className="text-xl font-bold text-[#2f1107]">Real connections only</h3>
+                  </div>
+                  <p className="text-lg tracking-wide leading-7 font-medium pl-[38px]">Meet people you genuinely click with, then stay connected after the event — no awkward follow-ups, no forced networking.</p>
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <div className="flex items-center gap-2">
+                    <MdPayments className="bg-[#00bb7c] rounded-full text-white p-2 flex items-center justify-center" size={30} />
+                    <h3 className="text-xl font-bold text-[#2f1107]">Total freedom</h3>
+                  </div>
+                  <p className="text-lg tracking-wide leading-7 font-medium pl-[38px]">Cancel anytime. Switch plans or get a refund within 14 days. Zero pressure, zero strings.</p>
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <div className="flex items-center gap-2">
+                    <IoStopwatch className="bg-[#0aabe3] rounded-full text-white p-2 flex items-center justify-center" size={30} />
+                    <h3 className="text-xl font-bold text-[#2f1107]">Just the beginning</h3>
+                  </div>
+                  <p className="text-lg tracking-wide leading-7 font-medium pl-[38px]">Coming soon: group chats, city maps, new experience formats, and smarter ways to make your city feel like yours.</p>
+                </div>
+              </div>
+            </div>
+
+            <Link className="text-xl underline text-[#2f1107] font-bold text-center mb-5" href="https://meetlyr.com/terms-and-conditions/" target="_blank">
+              Terms & Conditions
+            </Link>
+
+            <div className="fixed bottom-0 left-0 right-0 z-50 bg-[#FFFFF5] py-4 px-4">
               {hasPaidForThisEvent ? (
                 <button
                   type="button"
