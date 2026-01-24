@@ -1,8 +1,8 @@
 'use client';
 
-import React from 'react';
-import Link from 'next/link';
+import React, { useEffect, useState } from 'react';
 import { useFetchAllLocations } from '@/app/queries/fetch-locations';
+import Link from 'next/link';
 
 import { FaPlus } from "react-icons/fa";
 import {
@@ -16,6 +16,15 @@ import {
 import Loader from '@/components/ui/loader';
 import Image from 'next/image';
 
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+
 interface LocationProps {
   id: string;
   city: string;
@@ -25,6 +34,22 @@ interface LocationProps {
 
 const Page = () => {
   const { data: locations, isPending } = useFetchAllLocations();
+
+  const ITEMS_PER_PAGE = 10;
+
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const totalItems = locations?.length ?? 0;
+  const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+
+  const paginatedLocations = locations?.slice(startIndex, endIndex);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [locations]);
 
   if (isPending) return <Loader />
 
@@ -77,12 +102,12 @@ const Page = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {locations?.map((location: LocationProps, idx: number) => (
+                  {paginatedLocations?.map((location: LocationProps, idx: number) => (
                     <TableRow
                       key={location.id}
                       className="even:bg-[#2f1107] hover:bg-[#2f1107]/30 border-none even:text-white"
                     >
-                      <TableCell className="font-medium">{idx + 1}</TableCell>
+                      <TableCell className="font-medium">{startIndex + idx + 1}</TableCell>
                       <TableCell className="whitespace-nowrap">{location?.city}</TableCell>
                       <TableCell className="whitespace-nowrap">{location?.country}</TableCell>
                       <TableCell>
@@ -104,6 +129,42 @@ const Page = () => {
               </Table>
             </div>
           </div>
+          {/* Pagination */}
+          <Pagination className="mt-6 mx-auto">
+            <PaginationContent>
+
+              {/* Previous */}
+              <PaginationItem>
+                <PaginationPrevious
+                  onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                  className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
+                />
+              </PaginationItem>
+
+              {/* Page numbers */}
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <PaginationItem key={page}>
+                  <PaginationLink
+                    isActive={page === currentPage}
+                    onClick={() => setCurrentPage(page)}
+                  >
+                    {page}
+                  </PaginationLink>
+                </PaginationItem>
+              ))}
+
+              {/* Next */}
+              <PaginationItem>
+                <PaginationNext
+                  onClick={() =>
+                    setCurrentPage((p) => Math.min(p + 1, totalPages))
+                  }
+                  className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""}
+                />
+              </PaginationItem>
+
+            </PaginationContent>
+          </Pagination>
         </div>
       </section>
     </>

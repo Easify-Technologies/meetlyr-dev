@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
     Table,
@@ -14,8 +15,33 @@ import Loader from '@/components/ui/loader';
 
 import { useFetchSuggestions } from '@/app/queries/admin/fetch-suggestions';
 
+import {
+    Pagination,
+    PaginationContent,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+} from "@/components/ui/pagination";
+
 const Page = () => {
     const { data: suggestions, isPending } = useFetchSuggestions();
+
+    const ITEMS_PER_PAGE = 10;
+
+    const [currentPage, setCurrentPage] = useState(1);
+
+    const totalItems = suggestions?.length ?? 0;
+    const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+
+    const paginatedSuggestions = suggestions?.slice(startIndex, endIndex);
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [suggestions]);
 
     if (isPending) return <Loader />
 
@@ -63,13 +89,13 @@ const Page = () => {
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {suggestions && suggestions.map((suggestion: any, index: number) => {
+                                    {suggestions && paginatedSuggestions.map((suggestion: any, index: number) => {
                                         const isoCreatedAt = suggestion?.createdAt;
                                         const formattedDate = format(parseISO(isoCreatedAt), "EEEE, MMM do h:mm a");
 
                                         return (
                                             <TableRow className="even:bg-[#2f1107] hover:bg-[#2f1107]/30 border-none even:text-white" key={suggestion.id}>
-                                                <TableCell>{index + 1}</TableCell>
+                                                <TableCell>{startIndex + index + 1}</TableCell>
                                                 <TableCell>{suggestion?.user?.name ?? "N/A"}</TableCell>
                                                 <TableCell>{suggestion?.user?.email ?? "N/A"}</TableCell>
                                                 <TableCell>{suggestion?.day}</TableCell>
@@ -82,6 +108,42 @@ const Page = () => {
                             </Table>
                         </div>
                     </div>
+                    {/* Pagination */}
+                    <Pagination className="mt-6 mx-auto">
+                        <PaginationContent>
+
+                            {/* Previous */}
+                            <PaginationItem>
+                                <PaginationPrevious
+                                    onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                                    className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
+                                />
+                            </PaginationItem>
+
+                            {/* Page numbers */}
+                            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                                <PaginationItem key={page}>
+                                    <PaginationLink
+                                        isActive={page === currentPage}
+                                        onClick={() => setCurrentPage(page)}
+                                    >
+                                        {page}
+                                    </PaginationLink>
+                                </PaginationItem>
+                            ))}
+
+                            {/* Next */}
+                            <PaginationItem>
+                                <PaginationNext
+                                    onClick={() =>
+                                        setCurrentPage((p) => Math.min(p + 1, totalPages))
+                                    }
+                                    className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""}
+                                />
+                            </PaginationItem>
+
+                        </PaginationContent>
+                    </Pagination>
                 </div>
             </section>
         </>

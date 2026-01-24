@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useDeferredValue, useMemo, useState } from 'react';
+import React, { useDeferredValue, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useFetchEvents } from '@/app/queries/get-events';
 import { parseISO, format } from "date-fns";
@@ -17,6 +17,15 @@ import {
 import Loader from '@/components/ui/loader';
 import { useFetchAllLocations } from '@/app/queries/fetch-locations';
 import { useRemoveEvent } from '@/app/queries/admin/remove-event';
+
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 interface EventProps {
   id: string;
@@ -70,6 +79,22 @@ const Page = () => {
       );
     });
   }, [events, deferredCountry, deferredDate]);
+
+  const ITEMS_PER_PAGE = 10;
+
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const totalItems = filteredEvents?.length ?? 0;
+  const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+
+  const paginatedEvents = filteredEvents?.slice(startIndex, endIndex);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filteredEvents]);
 
   if (isPending) return <Loader />
 
@@ -151,7 +176,7 @@ const Page = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {events && filteredEvents.map((event: EventProps, idx: number) => {
+                  {events && paginatedEvents.map((event: EventProps, idx: number) => {
                     const isoEventDate = event?.date;
                     const isoCreatedDate = event?.createdAt;
 
@@ -160,7 +185,7 @@ const Page = () => {
 
                     return (
                       <TableRow className="even:bg-[#2f1107] hover:bg-[#2f1107]/30 border-none even:text-white" key={event.id}>
-                        <TableCell className="font-medium">{idx + 1}</TableCell>
+                        <TableCell className="font-medium">{startIndex + idx + 1}</TableCell>
                         <TableCell>{formattedEventDate}</TableCell>
                         <TableCell>{event?.city}</TableCell>
                         <TableCell>{event?.country}</TableCell>
@@ -181,6 +206,42 @@ const Page = () => {
               </Table>
             </div>
           </div>
+          {/* Pagination */}
+          <Pagination className="mt-6 mx-auto">
+            <PaginationContent>
+
+              {/* Previous */}
+              <PaginationItem>
+                <PaginationPrevious
+                  onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                  className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
+                />
+              </PaginationItem>
+
+              {/* Page numbers */}
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <PaginationItem key={page}>
+                  <PaginationLink
+                    isActive={page === currentPage}
+                    onClick={() => setCurrentPage(page)}
+                  >
+                    {page}
+                  </PaginationLink>
+                </PaginationItem>
+              ))}
+
+              {/* Next */}
+              <PaginationItem>
+                <PaginationNext
+                  onClick={() =>
+                    setCurrentPage((p) => Math.min(p + 1, totalPages))
+                  }
+                  className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""}
+                />
+              </PaginationItem>
+
+            </PaginationContent>
+          </Pagination>
         </div>
       </section>
     </>

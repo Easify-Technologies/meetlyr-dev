@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useDeferredValue, useMemo, useState } from 'react';
+import React, { useDeferredValue, useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import Loader from '@/components/ui/loader';
@@ -8,6 +8,8 @@ import { MdOutlineFileDownload } from "react-icons/md";
 import { HiPencilSquare } from "react-icons/hi2";
 import { useFetchAllUsers } from '@/app/queries/admin/fetch-users';
 import { useFetchAllLocations } from '@/app/queries/fetch-locations';
+import { useUpdateCredits } from '@/app/queries/update-credits';
+import { Label } from '@/components/ui/label';
 
 import {
     Table,
@@ -25,9 +27,16 @@ import {
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-} from "@/components/ui/dialog"
-import { Label } from '@/components/ui/label';
-import { useUpdateCredits } from '@/app/queries/update-credits';
+} from "@/components/ui/dialog";
+
+import {
+    Pagination,
+    PaginationContent,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+} from "@/components/ui/pagination";
 
 interface UserProps {
     id: string;
@@ -92,6 +101,22 @@ const Page = () => {
             );
         });
     }, [users, deferredName, deferredCountry, deferredGender]);
+
+    const ITEMS_PER_PAGE = 10;
+
+    const [currentPage, setCurrentPage] = useState(1);
+
+    const totalItems = filteredUsers?.length ?? 0;
+    const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+
+    const paginatedUsers = filteredUsers?.slice(startIndex, endIndex);
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [filteredUsers]);
 
     if (isPending) return <Loader />
 
@@ -179,12 +204,12 @@ const Page = () => {
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {filteredUsers?.map((user: UserProps, idx: number) => (
+                                    {paginatedUsers?.map((user: UserProps, idx: number) => (
                                         <TableRow
                                             key={user.id}
                                             className="even:bg-[#2f1107] hover:bg-[#2f1107]/30 border-none even:text-white"
                                         >
-                                            <TableCell className="font-medium">{idx + 1}</TableCell>
+                                            <TableCell className="font-medium">{startIndex + idx + 1}</TableCell>
                                             <TableCell>{user?.name}</TableCell>
                                             <TableCell>{user?.email}</TableCell>
                                             <TableCell>{user?.phoneNumber}</TableCell>
@@ -276,14 +301,14 @@ const Page = () => {
 
                     {/* Card layout (mobile) */}
                     <div className="md:hidden mt-8 space-y-4">
-                        {filteredUsers?.map((user: UserProps, idx: number) => (
+                        {paginatedUsers?.map((user: UserProps, idx: number) => (
                             <div
                                 key={user.id}
                                 className="bg-white border border-gray-200 rounded-xl shadow-sm p-4 flex flex-col gap-2"
                             >
                                 <div className="flex justify-between items-center border-b pb-2">
                                     <h4 className="font-bold text-lg text-[#2f1107]">{user?.name}</h4>
-                                    <span className="text-sm text-gray-500">#{idx + 1}</span>
+                                    <span className="text-sm text-gray-500">#{startIndex + idx + 1}</span>
                                 </div>
                                 <Image
                                     className='w-[60px] h-[60px] object-cover'
@@ -368,6 +393,42 @@ const Page = () => {
                             </div>
                         ))}
                     </div>
+                    {/* Pagination */}
+                    <Pagination className="mt-6 mx-auto">
+                        <PaginationContent>
+
+                            {/* Previous */}
+                            <PaginationItem>
+                                <PaginationPrevious
+                                    onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                                    className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
+                                />
+                            </PaginationItem>
+
+                            {/* Page numbers */}
+                            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                                <PaginationItem key={page}>
+                                    <PaginationLink
+                                        isActive={page === currentPage}
+                                        onClick={() => setCurrentPage(page)}
+                                    >
+                                        {page}
+                                    </PaginationLink>
+                                </PaginationItem>
+                            ))}
+
+                            {/* Next */}
+                            <PaginationItem>
+                                <PaginationNext
+                                    onClick={() =>
+                                        setCurrentPage((p) => Math.min(p + 1, totalPages))
+                                    }
+                                    className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""}
+                                />
+                            </PaginationItem>
+
+                        </PaginationContent>
+                    </Pagination>
                 </div>
             </section>
         </>

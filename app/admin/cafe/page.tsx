@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useDeferredValue } from 'react';
+import React, { useState, useMemo, useDeferredValue, useEffect } from 'react';
 import Link from 'next/link';
 import { useFetchAllCafes } from '@/app/queries/fetch-cafes';
 import { useFetchAllLocations } from '@/app/queries/fetch-locations';
@@ -16,6 +16,15 @@ import {
 } from "@/components/ui/table";
 import Loader from '@/components/ui/loader';
 import Image from 'next/image';
+
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 interface CafesProps {
   id: string;
@@ -39,10 +48,26 @@ const Page = () => {
   }
 
   const filteredCafes = useMemo(() => {
-    if(!deferredCity) return cafes;
+    if (!deferredCity) return cafes;
 
     return cafes?.filter((cafe: CafesProps) => cafe.location.city === deferredCity);
   }, [cafes, deferredCity]);
+
+  const ITEMS_PER_PAGE = 10;
+
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const totalItems = filteredCafes?.length ?? 0;
+  const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+
+  const paginatedCafes = filteredCafes?.slice(startIndex, endIndex);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filteredCafes]);
 
   if (isPending) return <Loader />
 
@@ -103,9 +128,9 @@ const Page = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredCafes?.map((cafe: CafesProps, idx: number) => (
+                  {paginatedCafes?.map((cafe: CafesProps, idx: number) => (
                     <TableRow className="even:bg-[#2f1107] hover:bg-[#2f1107]/30 border-none even:text-white" key={cafe.id}>
-                      <TableCell className="font-medium">{idx + 1}</TableCell>
+                      <TableCell className="font-medium">{startIndex + idx + 1}</TableCell>
                       <TableCell>{cafe?.name}</TableCell>
                       <TableCell>{cafe?.address}</TableCell>
                       <TableCell>{cafe?.location?.city}</TableCell>
@@ -126,6 +151,42 @@ const Page = () => {
               </Table>
             </div>
           </div>
+          {/* Pagination */}
+          <Pagination className="mt-6 mx-auto">
+            <PaginationContent>
+
+              {/* Previous */}
+              <PaginationItem>
+                <PaginationPrevious
+                  onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                  className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
+                />
+              </PaginationItem>
+
+              {/* Page numbers */}
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <PaginationItem key={page}>
+                  <PaginationLink
+                    isActive={page === currentPage}
+                    onClick={() => setCurrentPage(page)}
+                  >
+                    {page}
+                  </PaginationLink>
+                </PaginationItem>
+              ))}
+
+              {/* Next */}
+              <PaginationItem>
+                <PaginationNext
+                  onClick={() =>
+                    setCurrentPage((p) => Math.min(p + 1, totalPages))
+                  }
+                  className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""}
+                />
+              </PaginationItem>
+
+            </PaginationContent>
+          </Pagination>
         </div>
       </section>
     </>

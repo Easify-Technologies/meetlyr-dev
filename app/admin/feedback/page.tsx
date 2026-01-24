@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   Table,
@@ -14,10 +14,35 @@ import { parseISO, format } from "date-fns";
 import { useGetFeedbacks } from '@/app/queries/admin/get-feedbacks';
 import Loader from '@/components/ui/loader';
 
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+
 const Page = () => {
   const { data: feedbacks, isPending } = useGetFeedbacks();
 
-  if(isPending) return <Loader />;
+  const ITEMS_PER_PAGE = 10;
+
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const totalItems = feedbacks?.length ?? 0;
+  const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+
+  const paginatedFeedbacks = feedbacks?.slice(startIndex, endIndex);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [feedbacks]);
+
+  if (isPending) return <Loader />;
 
   return (
     <>
@@ -64,13 +89,13 @@ const Page = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {feedbacks && feedbacks.map((feedback, index: number) => {
+                  {feedbacks && paginatedFeedbacks.map((feedback: any, index: number) => {
                     const isoEventDate = feedback?.event?.date;
                     const formattedEventDate = format(parseISO(isoEventDate), "EEEE, MMM do h:mm a");
 
-                    return(
+                    return (
                       <TableRow className="even:bg-[#2f1107] hover:bg-[#2f1107]/30 border-none even:text-white" key={feedback.id}>
-                        <TableCell>{index + 1}</TableCell>
+                        <TableCell>{startIndex + index + 1}</TableCell>
                         <TableCell>{feedback?.user?.name}</TableCell>
                         <TableCell>{formattedEventDate}</TableCell>
                         <TableCell>{feedback?.cafe?.name}</TableCell>
@@ -84,6 +109,42 @@ const Page = () => {
               </Table>
             </div>
           </div>
+          {/* Pagination */}
+          <Pagination className="mt-6 mx-auto">
+            <PaginationContent>
+
+              {/* Previous */}
+              <PaginationItem>
+                <PaginationPrevious
+                  onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                  className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
+                />
+              </PaginationItem>
+
+              {/* Page numbers */}
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <PaginationItem key={page}>
+                  <PaginationLink
+                    isActive={page === currentPage}
+                    onClick={() => setCurrentPage(page)}
+                  >
+                    {page}
+                  </PaginationLink>
+                </PaginationItem>
+              ))}
+
+              {/* Next */}
+              <PaginationItem>
+                <PaginationNext
+                  onClick={() =>
+                    setCurrentPage((p) => Math.min(p + 1, totalPages))
+                  }
+                  className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""}
+                />
+              </PaginationItem>
+
+            </PaginationContent>
+          </Pagination>
         </div>
       </section>
     </>
