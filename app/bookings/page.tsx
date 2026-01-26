@@ -15,6 +15,7 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { useJoinEvent } from "../queries/useJoinEvents";
 import { useAddSuggestions } from "../queries/admin/add-suggestions";
+import { BiSolidCoffee } from "react-icons/bi";
 
 import {
   Accordion,
@@ -356,6 +357,9 @@ const Page = () => {
                                             ) : (
                                               <div className="grid grow gap-2">
                                                 <Label htmlFor={event?.id} className="flex items-center gap-2">
+                                                  <div className="bg-[#ffd100] text-[#2f1107] w-11 h-11 mr-1 flex items-center justify-center rounded-full">
+                                                    <BiSolidCoffee size={20} />
+                                                  </div>
                                                   <h4 className="font-semibold md:text-xl text-lg text-[#2F1107]">
                                                     {formattedEventDate.split(" ").slice(0, 3).join(" ")}
                                                   </h4>

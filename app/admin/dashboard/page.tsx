@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import { FaHouseUser } from "react-icons/fa";
 import { MdEvent } from "react-icons/md";
 import { FaMapLocationDot } from "react-icons/fa6";
@@ -10,11 +9,28 @@ import { TbBulbFilled } from "react-icons/tb";
 
 import { useFetchAllAdminData } from '@/app/queries/admin/dashboard';
 import Loader from '@/components/ui/loader';
+import KpiCard from "@/components/ui/Kpis";
 
 const Page = () => {
-  const { users, cafes, locations, events, leads, suggestions, isLoading } = useFetchAllAdminData();
+  const {
+    users = [],
+    cafes = [],
+    locations = [],
+    events = [],
+    leads = [],
+    suggestions = [],
+    isLoading,
+  } = useFetchAllAdminData();
 
-  if(isLoading) return <Loader />
+  const convertedLeads = leads.filter(
+    (lead: { status: string }) => lead.status === "completed"
+  ).length;
+
+  const leadConversionRate = leads.length
+    ? Math.round((convertedLeads / leads.length) * 100)
+    : 0;
+
+  if (isLoading) return <Loader />
 
   return (
     <>
@@ -24,61 +40,62 @@ const Page = () => {
             Dashboard
           </h1>
           <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
-            <div className='bg-white shadow rounded-xl p-3 flex items-center justify-between gap-3'>
-              <div className='w-16 h-16 rounded-full bg-[#ffd100] flex items-center justify-center p-2 text-[#2f1107]'>
-                <FaHouseUser size={30} />
-              </div>
-              <div className="flex flex-col items-end gap-1">
-                <span className="text-[#2f1107] text-3xl font-bold">{users?.length > 9 ? `${users?.length}` : `0${users?.length}`}</span>
-                <span className="text-[#202124] font-medium text-base">Users</span>
-              </div>
-            </div>
-            <div className='bg-white shadow rounded-xl p-3 flex items-center justify-between gap-3'>
-              <div className='w-16 h-16 rounded-full bg-[#ffd100] flex items-center justify-center p-2 text-[#2f1107]'>
-                <MdEvent size={30} />
-              </div>
-              <div className="flex flex-col items-end gap-1">
-                <span className="text-[#2f1107] text-3xl font-bold">{events?.length > 9 ? `${events?.length}` : `0${events?.length}`}</span>
-                <span className="text-[#202124] font-medium text-base">Events</span>
-              </div>
-            </div>
-            <div className='bg-white shadow rounded-xl p-3 flex items-center justify-between gap-3'>
-              <div className='w-16 h-16 rounded-full bg-[#ffd100] flex items-center justify-center p-2 text-[#2f1107]'>
-                <FaMapLocationDot size={30} />
-              </div>
-              <div className="flex flex-col items-end gap-1">
-                <span className="text-[#2f1107] text-3xl font-bold">{locations?.length > 9 ? `${locations?.length}` : `0${locations?.length}`}</span>
-                <span className="text-[#202124] font-medium text-base">Locations</span>
-              </div>
-            </div>
-            <div className='bg-white shadow rounded-xl p-3 flex items-center justify-between gap-3'>
-              <div className='w-16 h-16 rounded-full bg-[#ffd100] flex items-center justify-center p-2 text-[#2f1107]'>
-                <IoIosCafe size={30} />
-              </div>
-              <div className="flex flex-col items-end gap-1">
-                <span className="text-[#2f1107] text-3xl font-bold">{cafes?.length > 9 ? `${cafes?.length}` : `0${cafes?.length}`}</span>
-                <span className="text-[#202124] font-medium text-base">Cafes</span>
-              </div>
-            </div>
-            <div className='bg-white shadow rounded-xl p-3 flex items-center justify-between gap-3'>
-              <div className='w-16 h-16 rounded-full bg-[#ffd100] flex items-center justify-center p-2 text-[#2f1107]'>
-                <SiGoogleads size={30} />
-              </div>
-              <div className="flex flex-col items-end gap-1">
-                <span className="text-[#2f1107] text-3xl font-bold">{leads?.length > 9 ? `${leads?.length}` : `0${leads?.length}`}</span>
-                <span className="text-[#202124] font-medium text-base">Leads</span>
-              </div>
-            </div>
-            <div className='bg-white shadow rounded-xl p-3 flex items-center justify-between gap-3'>
-              <div className='w-16 h-16 rounded-full bg-[#ffd100] flex items-center justify-center p-2 text-[#2f1107]'>
-                <TbBulbFilled size={30} />
-              </div>
-              <div className="flex flex-col items-end gap-1">
-                <span className="text-[#2f1107] text-3xl font-bold">{suggestions?.length > 9 ? `${suggestions?.length}` : `0${suggestions?.length}`}</span>
-                <span className="text-[#202124] font-medium text-base">Suggestions</span>
-              </div>
-            </div>
+            <KpiCard
+              icon={<FaHouseUser size={30} />}
+              value={users.length}
+              label="Users"
+              change={12}
+              trend="up"
+              period="Last 30 days"
+            />
+
+            <KpiCard
+              icon={<MdEvent size={30} />}
+              value={events.length}
+              label="Events"
+              change={-5}
+              trend="down"
+              period="Last 30 days"
+            />
+
+            <KpiCard
+              icon={<FaMapLocationDot size={30} />}
+              value={locations.length}
+              label="Locations"
+              change={8}
+              trend="up"
+              period="Last 30 days"
+            />
+
+            <KpiCard
+              icon={<IoIosCafe size={30} />}
+              value={cafes.length}
+              label="Cafes"
+              change={8}
+              trend="up"
+              period="Last 30 days"
+            />
+
+            <KpiCard
+              icon={<SiGoogleads size={30} />}
+              value={`${leadConversionRate}%`}
+              label="Leads"
+              change={+8}
+              trend="up"
+              period="Last 30 days"
+            />
+
+            <KpiCard
+              icon={<TbBulbFilled size={30} />}
+              value={suggestions.length}
+              label="Suggestions"
+              change={-12}
+              trend="down"
+              period="Last 30 days"
+            />
+
           </div>
+
         </div>
       </section>
     </>
