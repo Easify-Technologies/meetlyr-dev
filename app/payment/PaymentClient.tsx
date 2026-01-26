@@ -12,10 +12,11 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import Loader from "@/components/ui/loader";
 import axios from "axios";
 
-import { FaKey } from "react-icons/fa";
+import { FaKey, FaArrowLeft } from "react-icons/fa";
 import { BsStars, BsChatDotsFill } from "react-icons/bs";
 import { MdPayments } from "react-icons/md";
 import { IoStopwatch } from "react-icons/io5";
+import { GiRoundStar } from "react-icons/gi";
 import Link from "next/link";
 
 const PaymentClient = () => {
@@ -136,7 +137,10 @@ const PaymentClient = () => {
           <div className="flex flex-col w-full gap-4 md:gap-6 items-stretch justify-start flex-nowrap flex-1 min-h-0">
             <div className="flex flex-row gap-3 items-center justify-between flex-nowrap">
               <div className="flex flex-col w-full gap-1 items-stretch justify-start flex-nowrap">
-                <div className="flex flex-row gap-1 items-center justify-start flex-nowrap">
+                <div className="flex flex-row gap-2 items-center justify-start flex-nowrap">
+                  <button type="button" className="md:hidden block text-[#2f1107] cursor-pointer" onClick={() => router.back()}>
+                    <FaArrowLeft size={20} />
+                  </button>
                   <h1 className="text-2xl md:text-3xl font-bold font-serif">
                     Book your next Event
                   </h1>
@@ -362,8 +366,24 @@ const PaymentClient = () => {
                   </span>
                 </Label>
               </div>
-
             </RadioGroup>
+
+            <div className="flex md:flex-row flex-col items-center justify-center w-full mt-4 gap-4">
+              <div className="bg-white shadow-sm rounded-lg px-4 py-3">
+                {Array.from({ length: 5 }).map((_, index) => (
+                  <GiRoundStar key={index} className="text-[#ffd100] inline-block" size={24} />
+                ))}
+                <p className="text-lg tracking-wide leading-7 font-medium my-2">The vibe was super chill and welcoming. It didn’t feel awkward or forced at all. Talking to new people felt easy, like hanging out with friends you just hadn’t met before.</p>
+                <span className="text-[#2f1107] font-semibold text-sm">~ Meetlyr User</span>
+              </div>
+              <div className="bg-white shadow-sm rounded-lg px-4 py-3">
+                {Array.from({ length: 5 }).map((_, index) => (
+                  <GiRoundStar key={index} className="text-[#ffd100] inline-block" size={24} />
+                ))}
+                <p className="text-lg tracking-wide leading-7 font-medium my-2">Such a fun and fresh way to meet people in the city. The energy was really good, the conversations flowed naturally, and I left feeling happy, inspired, and low-key buzzing.</p>
+                <span className="text-[#2f1107] font-semibold text-sm">~ Meetlyr User</span>
+              </div>
+            </div>
 
             <div className="bg-white shadow-sm py-3 px-4 mt-4 rounded-lg">
               <div className="flex flex-col gap-3.5">
