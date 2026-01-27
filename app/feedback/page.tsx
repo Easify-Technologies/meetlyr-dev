@@ -1,97 +1,245 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
-import Navbar from '@/components/ui/Navbar';
-import { useSession } from 'next-auth/react';
-import StarRatingComponent from '@/components/comp-171';
+import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
+import Navbar from "@/components/ui/Navbar";
+import StarRatingComponent from "@/components/comp-171";
+import { useSendFeedback } from "../queries/feedback";
 
-import { useSendFeedback } from '../queries/feedback';
+const TOTAL_STEPS = 4;
+
+const RatingRow = ({
+  label,
+  value,
+  onChange
+}: {
+  label: string;
+  value: string;
+  onChange: (val: any) => void;
+}) => {
+  return (
+    <div className="flex flex-col gap-2 text-center">
+      <p className="font-medium">{label}</p>
+      <div className="flex justify-center">
+        <StarRatingComponent value={value} onChange={onChange} />
+      </div>
+    </div>
+  );
+};
 
 const Page = () => {
   const { data: session } = useSession();
   const userId = session?.user?.id ?? "";
 
+  const [currentStep, setCurrentStep] = useState(1);
   const [eventId, setEventId] = useState("");
   const [cafeId, setCafeId] = useState("");
+
   const [rating, setRating] = useState({
-    cafeRating: "",
-    participantRating: "",
-    atmosphereRating: ""
+    overall: "",
+    participant: "",
+    cafe: "",
+    atmosphere: "",
+    food: "",
+    service: ""
   });
 
-  const { cafeRating, participantRating, atmosphereRating } = rating;
+  const { mutate, isPending } = useSendFeedback();
 
-  const { mutate, isPending, isSuccess, data, error, isError } = useSendFeedback();
+  useEffect(() => {
+    setEventId(localStorage.getItem("eventId") ?? "");
+    setCafeId(localStorage.getItem("cafeId") ?? "");
+  }, []);
 
-  const handleSendFeedback = () => {
+  const handleNext = () => {
+    if (currentStep < TOTAL_STEPS) {
+      setCurrentStep(prev => prev + 1);
+    } else {
+      handleSubmit();
+    }
+  };
+
+  const handleBack = () => {
+    if (currentStep > 1) {
+      setCurrentStep(prev => prev - 1);
+    }
+  };
+
+  const handleSubmit = () => {
     mutate({
       eventId,
       cafeId,
       userId,
-      cafeRating: Number(cafeRating), 
-      participantRating: Number(participantRating),
-      atmosphereRating: Number(atmosphereRating)
+      overallRating: Number(rating.overall),
+      participantRating: Number(rating.participant),
+      cafeRating: Number(rating.cafe),
+      atmosphereRating: Number(rating.atmosphere),
+      foodRating: Number(rating.food),
+      serviceRating: Number(rating.service)
     });
-  }
+  };
 
-  useEffect(() => {
-    const storedEventId = localStorage.getItem("eventId") ?? "";
-    const storedCafeId = localStorage.getItem("cafeId") ?? "";
+  const renderStep = () => {
+    switch (currentStep) {
+      case 1:
+        return (
+          <>
+            <h4 className="text-2xl text-[#2f1107] font-semibold mb-1">
+              How was your event?
+            </h4>
+            <p className="text-neutral-600 mb-6">
+              Rate your overall experience
+            </p>
+            <StarRatingComponent
+              value={rating.overall}
+              onChange={(val: any) =>
+                setRating(prev => ({ ...prev, overall: val }))
+              }
+            />
+          </>
+        );
 
-    setEventId(storedEventId);
-    setCafeId(storedCafeId);
-  }, []);
+      case 2:
+        return (
+          <>
+            <h4 className="text-2xl text-[#2f1107] font-semibold mb-6">
+              What did you think of your participant?
+            </h4>
+            <StarRatingComponent
+              value={rating.participant}
+              onChange={(val: any) =>
+                setRating(prev => ({ ...prev, participant: val }))
+              }
+            />
+          </>
+        );
+
+      case 3:
+        return (
+          <>
+            <h4 className="text-2xl text-[#2f1107] font-semibold mb-6">
+              What did you think of the restaurant?
+            </h4>
+            <StarRatingComponent
+              value={rating.cafe}
+              onChange={(val: any) =>
+                setRating(prev => ({ ...prev, cafe: val }))
+              }
+            />
+          </>
+        );
+
+      case 4:
+        return (
+          <>
+            <h4 className="text-2xl text-[#2f1107] font-semibold mb-6">
+              Can you give us more details?
+            </h4>
+
+            <div className="space-y-6 w-full">
+              <RatingRow
+                label="How did you find the atmosphere?"
+                value={rating.atmosphere}
+                onChange={(val: any) =>
+                  setRating(prev => ({ ...prev, atmosphere: val }))
+                }
+              />
+
+              <RatingRow
+                label="How did you find the food?"
+                value={rating.food}
+                onChange={(val: any) =>
+                  setRating(prev => ({ ...prev, food: val }))
+                }
+              />
+
+              <RatingRow
+                label="How did you find the service?"
+                value={rating.service}
+                onChange={(val: any) =>
+                  setRating(prev => ({ ...prev, service: val }))
+                }
+              />
+            </div>
+          </>
+        );
+
+      default:
+        return null;
+    }
+  };
+
+  const isStepValid = () => {
+    switch (currentStep) {
+      case 1:
+        return Boolean(rating.overall);
+
+      case 2:
+        return Boolean(rating.participant);
+
+      case 3:
+        return Boolean(rating.cafe);
+
+      case 4:
+        return (
+          Boolean(rating.atmosphere) &&
+          Boolean(rating.food) &&
+          Boolean(rating.service)
+        );
+
+      default:
+        return false;
+    }
+  };
 
   return (
     <>
       <Navbar />
 
-      <section className="relative w-full min-h-screen bg-gradient-to-b from-amber-50 to-white px-5 md:px-10 py-16 flex flex-col items-center overflow-hidden">
-        <div className="absolute top-0 left-0 w-40 h-40 bg-amber-100 rounded-full blur-3xl opacity-40"></div>
-        <div className="absolute bottom-0 right-0 w-56 h-56 bg-amber-200 rounded-full blur-3xl opacity-40"></div>
-
-        <h2 className='text-amber-600 text-4xl font-bold mb-4'>Feedback</h2>
-        <div className='flex flex-col justify-center items-center'>
-          <h4 className='text-2xl font-semibold mb-0.5'>How was your event?</h4>
-          <span className='text-neutral-700 font-semibold'>Rate your overall experience.</span>
+      <section className="relative bg-gradient-to-b from-amber-50 to-white px-5 py-16 flex flex-col items-center">
+        <h2 className="text-[#2f1107] text-3xl font-bold mb-5">Feedback</h2>
+        {/* Progress Bar */}
+        <div className="w-full max-w-md h-1.5 bg-neutral-200 rounded-full mb-8">
+          <div
+            className="h-full bg-gradient-to-r from-yellow-400 to-amber-900 rounded-full transition-all duration-300"
+            style={{ width: `${(currentStep / TOTAL_STEPS) * 100}%` }}
+          />
         </div>
 
-        <div className='w-full mx-auto flex flex-col items-center justify-center mt-10'>
-          <div className='flex flex-col gap-2 mb-4'>
-            <h4 className='font-semibold text-lg'>What do you think of the cafe?</h4>
-            <div className='flex items-center justify-center gap-1'>
-              <StarRatingComponent
-                value={cafeRating}
-                onChange={(val) => setRating(prev => ({ ...prev, cafeRating: val }))}
-              />
-            </div>
-          </div>
-          <div className='flex flex-col gap-2 mb-4'>
-            <h4 className='font-semibold text-lg'>What do you think of your participant?</h4>
-            <div className='flex items-center justify-center gap-1'>
-              <StarRatingComponent
-                value={participantRating}
-                onChange={(val) => setRating(prev => ({ ...prev, participantRating: val }))}
-              />
-            </div>
-          </div>
-          <div className='flex flex-col gap-2'>
-            <h4 className='font-semibold text-lg text-center'>How did you find the atmosphere and service?</h4>
-            <div className='flex items-center justify-center gap-1'>
-              <StarRatingComponent
-                value={atmosphereRating}
-                onChange={(val) => setRating(prev => ({ ...prev, atmosphereRating: val }))}
-              />
-            </div>
-          </div>
+        {/* Content */}
+        <div className="w-full max-w-md flex flex-col items-center text-center">
+          {renderStep()}
         </div>
 
-        <button disabled={isPending} onClick={handleSendFeedback} type="button" className='bg-[#ffd100] text-[#2f1107] shadow-md md:w-64 w-full text-center justify-center text-base font-semibold mt-5 items-center gap-2.5 px-2.5 py-3 cursor-pointer rounded-full hover:bg-[#2f1107] hover:text-[#ffd100] duration-500 transition-colors'>
-          {isPending ? "Submitting..." : "Submit"}
-        </button>
+        {/* Navigation */}
+        <div className="w-full max-w-md mt-8 pb-6">
+          <button
+            onClick={handleNext}
+            disabled={!isStepValid() || isPending}
+            className={`
+            w-full py-3 rounded-full font-semibold transition-colors
+            ${isStepValid()
+                ? "bg-[#ffd100] text-[#2f1107] duration-300 cursor-pointer hover:bg-[#2f1107] hover:text-[#ffd100]"
+                : "bg-neutral-300 text-neutral-500 cursor-not-allowed"}
+            `}
+          >
+            {currentStep === TOTAL_STEPS
+              ? isPending ? "Submitting..." : "Submit"
+              : "Next"}
+          </button>
+
+          {currentStep > 1 && (
+            <button
+              onClick={handleBack}
+              className="w-full bg-black text-base text-white mt-3 cursor-pointer duration-500 hover:bg-neutral-700 py-3 rounded-full font-semibold"
+            >
+              Back
+            </button>
+          )}
+        </div>
       </section>
     </>
-  )
-}
+  );
+};
 
-export default Page
+export default Page;
