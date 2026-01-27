@@ -87,9 +87,36 @@ const Page = () => {
             <h4 className="text-2xl text-[#2f1107] font-semibold mb-1">
               How was your event?
             </h4>
-            <p className="text-neutral-600 mb-6">
+            <p className="text-neutral-600 mb-3.5">
               Rate your overall experience
             </p>
+            <div className="bg-white shadow-sm rounded-lg py-3 px-4 mb-3.5 w-full">
+              <div className="flex items-center mb-3">
+                {[
+                  "/avatars/man.png",
+                  "/avatars/woman.png",
+                  "/avatars/man-2.png",
+                  "/avatars/woman-2.png"
+                ].map((src, index) => (
+                  <div
+                    key={index}
+                    className="w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-sm"
+                    style={{
+                      marginLeft: index === 0 ? 0 : -10,
+                      zIndex: 10 - index
+                    }}
+                  >
+                    <img
+                      src={src}
+                      alt="avatar"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                ))}
+              </div>
+              <h4 className="text-neutral-600 text-start text-base font-semibold mb-1">Café</h4>
+              <h4 className="text-[#2f1107] text-start font-semibold">Café de la Paix</h4>
+            </div>
             <StarRatingComponent
               value={rating.overall}
               onChange={(val: any) =>
@@ -120,6 +147,16 @@ const Page = () => {
             <h4 className="text-2xl text-[#2f1107] font-semibold mb-6">
               What did you think of the restaurant?
             </h4>
+            <div className="bg-white shadow-sm rounded-lg py-3 px-4 mb-3.5 w-full">
+              <div className="flex flex-col items-start justify-start gap-1.5 mb-2">
+                <h4 className="text-neutral-600 text-start text-base font-semibold">Café</h4>
+                <span className="text-sm font-semibold text-[#2f1107]">Café de la Paix</span>
+              </div>
+              <div className="flex flex-col items-start justify-start gap-1.5 mb-2">
+                <h4 className="text-neutral-600 text-start text-base font-semibold mt-3.5">Address</h4>
+                <span className="text-sm font-semibold text-[#2f1107]">5 Place de l'Opéra, 75002 Paris, France</span>
+              </div>
+            </div>
             <StarRatingComponent
               value={rating.cafe}
               onChange={(val: any) =>

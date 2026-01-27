@@ -1,6 +1,6 @@
 "use client";
 
-import { RiStarFill } from "@remixicon/react";
+import { GiRoundStar } from "react-icons/gi";
 import { useId, useState } from "react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
@@ -26,7 +26,7 @@ export default function StarRatingComponent({ value, onChange }) {
           >
             <RadioGroupItem className="sr-only" id={`${id}-${v}`} value={v} />
 
-            <RiStarFill
+            <GiRoundStar
               className={`transition-all w-9 h-9 ${
                 displayRating >= v ? "text-amber-500" : "text-neutral-400"
               } group-hover:scale-110`}
