@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import nodemailer from "nodemailer";
 import { prisma } from "@/lib/prisma";
+import nodemailer from "nodemailer";
 
 export const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
@@ -14,7 +14,7 @@ export const transporter = nodemailer.createTransport({
 
 export async function POST(req: NextRequest) {
   try {
-    const { eventId, cafe, date } = await req.json();
+    const { eventId } = await req.json();
 
     const group = await prisma.matchGroup.findFirst({
       where: { eventId },
@@ -96,7 +96,7 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json(
-      { message: "Reminder emails sent successfully!" },
+      { message: "Feedback email sent successfully!" },
       { status: 200 },
     );
   } catch (error) {

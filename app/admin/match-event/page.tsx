@@ -47,6 +47,7 @@ const AdminEventCard = ({ event }: any) => {
   const [showGroupInput, setShowGroupInput] = useState(false);
   const [loading, setLoading] = useState(false);
   const [feedbackLoading, setFeedbackLoading] = useState(false);
+  const [feedbackSent, setFeedbackSent] = useState(false);
   const [message, setMessage] = useState("");
   const [selectedCafe, setSelectedCafe] = useState("");
   const [cafes, setCafes] = useState([]);
@@ -199,6 +200,9 @@ const AdminEventCard = ({ event }: any) => {
     }
   }
 
+  // 1 hour after the event time
+  const eventHasPassed = Date.now() > new Date(event?.date).getTime() + 60 * 60 * 1000;
+
   const handleSendFeedbackEmail = async () => {
     setFeedbackLoading(true);
     try {
@@ -231,6 +235,7 @@ const AdminEventCard = ({ event }: any) => {
 
         if (res.data.message === "Feedback email sent successfully!") {
           toast.success("Feedback email sent successfully!");
+          setFeedbackSent(true);
         }
         else {
           toast.error("Failed to send feedback email");
@@ -575,9 +580,22 @@ const AdminEventCard = ({ event }: any) => {
                 : "Send Reminder"}
           </button>
         )}
-        <button onClick={handleSendFeedbackEmail} disabled={feedbackLoading} type="button" className="bg-[#507dbc] text-white rounded-md p-3 font-semibold transition-colors duration-300 cursor-pointer hover:bg-[#507dbc]/70">
-          {feedbackLoading ? "Sending..." : "Send Feedback Email"}
-        </button>
+        {eventHasPassed && (
+          <button onClick={handleSendFeedbackEmail} disabled={feedbackLoading || feedbackSent} type="button" className={
+            `rounded-md p-3 font-semibold transition-colors duration-300
+          ${feedbackLoading || feedbackSent
+              ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+              : "bg-[#507dbc] text-white hover:bg-[#507dbc]/70 cursor-pointer"
+            }
+          `
+          }>
+            {feedbackLoading
+              ? "Sending..."
+              : feedbackSent
+                ? "Feedback Sent"
+                : "Send Feedback"}
+          </button>
+        )}
       </div>
 
       {
