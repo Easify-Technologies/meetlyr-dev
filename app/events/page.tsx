@@ -81,11 +81,13 @@ const Page = () => {
   const { data: matches, isPending: matchesPending } =
     useMatchedGroupUsers(eventStatus === "Matched" ? eventId : undefined);
 
-  const toFeedback = ({ eventId, cafeId }: { eventId: string, cafeId: string }) => {
+  const toFeedback = ({ eventId, cafeId, cafeName, cafeAddress }: { eventId: string, cafeId: string, cafeName: string, cafeAddress: string; }) => {
     router.push("/feedback");
 
     localStorage.setItem("eventId", eventId);
     localStorage.setItem("cafeId", cafeId);
+    localStorage.setItem("cafeName", cafeName);
+    localStorage.setItem("cafeAddress", cafeAddress);
   }
 
   if (isLoading || isPending) return <Loader />
@@ -429,6 +431,8 @@ const Page = () => {
                                 toFeedback({
                                   eventId: past.eventId,
                                   cafeId: past.event.cafe.id,
+                                  cafeName: past.event.cafe.name,
+                                  cafeAddress: past.event.cafe.address,
                                 })
                               }
                               type="button"

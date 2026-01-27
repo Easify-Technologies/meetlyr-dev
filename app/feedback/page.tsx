@@ -32,8 +32,14 @@ const Page = () => {
   const userId = session?.user?.id ?? "";
 
   const [currentStep, setCurrentStep] = useState(1);
-  const [eventId, setEventId] = useState("");
-  const [cafeId, setCafeId] = useState("");
+  const [eventData, setEventData] = useState({
+    eventId: "",
+    cafeId: "",
+    cafeName: "",
+    cafeAddress: ""
+  });
+
+  const { eventId, cafeId, cafeName, cafeAddress } = eventData;
 
   const [rating, setRating] = useState({
     overall: "",
@@ -47,8 +53,13 @@ const Page = () => {
   const { mutate, isPending } = useSendFeedback();
 
   useEffect(() => {
-    setEventId(localStorage.getItem("eventId") ?? "");
-    setCafeId(localStorage.getItem("cafeId") ?? "");
+    setEventData(prev => ({
+      ...prev,
+      eventId: localStorage.getItem("eventId") ?? "",
+      cafeId: localStorage.getItem("cafeId") ?? "",
+      cafeName: localStorage.getItem("cafeName") ?? "",
+      cafeAddress: localStorage.getItem("cafeAddress") ?? ""
+    }));
   }, []);
 
   const handleNext = () => {
@@ -115,7 +126,7 @@ const Page = () => {
                 ))}
               </div>
               <h4 className="text-neutral-600 text-start text-base font-semibold mb-1">Café</h4>
-              <h4 className="text-[#2f1107] text-start font-semibold">Café de la Paix</h4>
+              <h4 className="text-[#2f1107] text-start font-semibold">{cafeName}</h4>
             </div>
             <StarRatingComponent
               value={rating.overall}
@@ -150,11 +161,11 @@ const Page = () => {
             <div className="bg-white shadow-sm rounded-lg py-3 px-4 mb-3.5 w-full">
               <div className="flex flex-col items-start justify-start gap-1.5 mb-2">
                 <h4 className="text-neutral-600 text-start text-base font-semibold">Café</h4>
-                <span className="text-sm font-semibold text-[#2f1107]">Café de la Paix</span>
+                <span className="text-sm font-semibold text-[#2f1107]">{cafeName}</span>
               </div>
               <div className="flex flex-col items-start justify-start gap-1.5 mb-2">
                 <h4 className="text-neutral-600 text-start text-base font-semibold mt-3.5">Address</h4>
-                <span className="text-sm font-semibold text-[#2f1107]">5 Place de l'Opéra, 75002 Paris, France</span>
+                <span className="text-sm font-semibold text-[#2f1107]">{cafeAddress}</span>
               </div>
             </div>
             <StarRatingComponent

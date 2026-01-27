@@ -46,6 +46,7 @@ const AdminEventCard = ({ event }: any) => {
   const [selectedParticipants, setSelectedParticipants] = useState<string[]>([]);
   const [showGroupInput, setShowGroupInput] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [feedbackLoading, setFeedbackLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [selectedCafe, setSelectedCafe] = useState("");
   const [cafes, setCafes] = useState([]);
@@ -195,6 +196,53 @@ const AdminEventCard = ({ event }: any) => {
     }
     finally {
       setLoading(false);
+    }
+  }
+
+  const handleSendFeedbackEmail = async () => {
+    setFeedbackLoading(true);
+    try {
+      for (const group of existingGroups) {
+        const matchedMembers = group.members
+          .map((participantId: string) =>
+            event.participants.find((p: any) => p.id === participantId)
+          )
+          .filter(Boolean);
+
+        const to = matchedMembers
+          .map((member: any) => member.user?.email)
+          .filter(Boolean);
+
+        if (!to.length) continue;
+
+        const groupNames = matchedMembers
+          .map((member: any) => member.user?.name || "Guest")
+          .join(", ");
+
+        const date = event?.date || new Date().toISOString();
+
+        const res = await axios.post("/api/event/feedback", {
+          to,
+          groupNames,
+          eventId: event.id,
+          cafe: group.cafe,
+          date,
+        });
+
+        if (res.data.message === "Feedback email sent successfully!") {
+          toast.success("Feedback email sent successfully!");
+        }
+        else {
+          toast.error("Failed to send feedback email");
+        }
+
+        return res.data;
+      }
+    } catch (error) {
+      console.log(error);
+    }
+    finally {
+      setFeedbackLoading(false);
     }
   }
 
@@ -485,7 +533,7 @@ const AdminEventCard = ({ event }: any) => {
         )}
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 mt-5">
         {
           existingGroups && existingGroups.length > 0 && (
             event?.status !== "Matched" ? (
@@ -493,7 +541,7 @@ const AdminEventCard = ({ event }: any) => {
                 onClick={handleSendConfirmation}
                 disabled={loading}
                 type="button"
-                className="bg-[#2f1107] text-[#ffd100] mt-4 rounded-md p-3 cursor-pointer transition-colors duration-300 hover:bg-[#ffd100] font-semibold hover:text-[#2f1107]"
+                className="bg-[#2f1107] text-[#ffd100] rounded-md p-3 cursor-pointer transition-colors duration-300 hover:bg-[#ffd100] font-semibold hover:text-[#2f1107]"
               >
                 {loading ? "Sending..." : "Send Confirmation"}
               </button>
@@ -501,7 +549,7 @@ const AdminEventCard = ({ event }: any) => {
               <button
                 type="button"
                 disabled
-                className="bg-neutral-300 text-neutral-600 mt-4 rounded-md p-3 cursor-not-allowed font-semibold"
+                className="bg-neutral-300 text-neutral-600 rounded-md p-3 cursor-not-allowed font-semibold"
               >
                 Confirmed
               </button>
@@ -513,12 +561,12 @@ const AdminEventCard = ({ event }: any) => {
             type="button"
             disabled={loading || reminderStatus}
             onClick={handleSendReminder}
-            className={`mt-4 rounded-md p-3 font-semibold transition-colors duration-300
-      ${loading || reminderStatus
+            className={`rounded-md p-3 font-semibold transition-colors duration-300
+          ${loading || reminderStatus
                 ? "bg-gray-300 text-gray-600 cursor-not-allowed"
                 : "bg-[#ffd100] text-[#2f1107] hover:bg-[#2f1107] hover:text-[#ffd100] cursor-pointer"
               }
-    `}
+          `}
           >
             {loading
               ? "Sending..."
@@ -527,7 +575,9 @@ const AdminEventCard = ({ event }: any) => {
                 : "Send Reminder"}
           </button>
         )}
-
+        <button onClick={handleSendFeedbackEmail} disabled={feedbackLoading} type="button" className="bg-[#507dbc] text-white rounded-md p-3 font-semibold transition-colors duration-300 cursor-pointer hover:bg-[#507dbc]/70">
+          {feedbackLoading ? "Sending..." : "Send Feedback Email"}
+        </button>
       </div>
 
       {
