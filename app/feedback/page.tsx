@@ -156,7 +156,7 @@ const Page = () => {
         return (
           <>
             <h4 className="text-2xl text-[#2f1107] font-semibold mb-6">
-              What did you think of the restaurant?
+              What did you think of the Café?
             </h4>
             <div className="bg-white shadow-sm rounded-lg py-3 px-4 mb-3.5 w-full">
               <div className="flex flex-col items-start justify-start gap-1.5 mb-2">
