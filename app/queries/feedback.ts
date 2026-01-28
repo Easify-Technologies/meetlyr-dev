@@ -12,7 +12,10 @@ export async function sendFeedback(data: {
   eventId: string;
   cafeId: string;
   userId: string;
+  overallRating: number;
+  foodRating: number;
   cafeRating: number;
+  serviceRating: number;
   participantRating: number;
   atmosphereRating: number;
 }) {
@@ -25,18 +28,20 @@ export async function sendFeedback(data: {
     const axiosErr = error as AxiosError<ApiError>;
     const message = axiosErr.response?.data?.error || "Something went wrong";
 
-    toast.error(message); 
+    toast.error(message);
   }
 }
 
 export function useSendFeedback() {
-    return useMutation({
-        mutationFn: sendFeedback,
-        onSuccess: (data) => {
-            if(data.success) {
-                localStorage.removeItem("eventId");
-                localStorage.removeItem("cafeId");
-            }
-        }
-    });
+  return useMutation({
+    mutationFn: sendFeedback,
+    onSuccess: (data) => {
+      if (data.success) {
+        localStorage.removeItem("eventId");
+        localStorage.removeItem("cafeId");
+        localStorage.removeItem("cafeName");
+        localStorage.removeItem("cafeAddress");
+      }
+    },
+  });
 }

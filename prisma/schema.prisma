@@ -184,9 +184,12 @@ model Feedback {
   userId            String @db.ObjectId
   eventId           String @db.ObjectId
   cafeId            String @db.ObjectId
-  cafeRating        Int
+  overallRating     Int
   participantRating Int
+  cafeRating        Int
   atmosphereRating  Int
+  foodRating        Int
+  serviceRating     Int
 
   user  User  @relation(fields: [userId], references: [id])
   event Event @relation(fields: [eventId], references: [id])
