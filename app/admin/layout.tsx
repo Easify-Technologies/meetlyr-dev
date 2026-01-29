@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { MdMenu } from "react-icons/md";
+import { MdChevronLeft, MdChevronRight, MdMenu } from "react-icons/md";
 import Loader from "@/components/ui/loader";
 import { IoHomeOutline } from "react-icons/io5";
 import { LuCircleUserRound } from "react-icons/lu";
@@ -30,6 +30,7 @@ import {
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [isAuthChecked, setIsAuthChecked] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
 
@@ -60,13 +61,29 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     return <>{children}</>
   }
 
-  if(!isAuthChecked) return <Loader />
+  if (!isAuthChecked) return <Loader />
 
   return (
     <SidebarProvider className="max-w-full">
       <div className="flex">
         {/* Sidebar */}
-        <Sidebar collapsible="icon" className="transition-transform">
+        <Sidebar
+          collapsible="icon"
+          className={`transition-all duration-300 ${isSidebarCollapsed ? 'lg:w-20' : 'lg:w-64'} relative`}
+        >
+          {/* Toggle Button - Only visible on large screens */}
+          <button
+            onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+            className="hidden lg:flex absolute top-4 right-2 p-2 rounded-md hover:bg-[#2f1107]/10 transition-colors z-50 bg-white shadow-sm border border-gray-200"
+            aria-label="Toggle sidebar"
+          >
+            {isSidebarCollapsed ? (
+              <MdChevronRight size={24} />
+            ) : (
+              <MdChevronLeft size={24} />
+            )}
+          </button>
+
           <SidebarContent className="py-28 px-6 md:px-8">
             <SidebarGroup className="p-0">
               <SidebarGroupLabel className="hidden">Menu</SidebarGroupLabel>
@@ -85,10 +102,17 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                           className={`px-3 py-5 rounded-md flex items-center gap-3 ${pathname === item.path
                               ? "bg-[#2f1107] text-white"
                               : "hover:bg-[#2f1107]/90 hover:text-white"
-                            } transition-all duration-300 cursor-pointer`}
+                            } transition-all duration-300 cursor-pointer ${isSidebarCollapsed ? 'lg:justify-center' : ''
+                            }`}
+                          title={isSidebarCollapsed ? item.label : undefined}
                         >
-                          <item.icon className="shrink-0" />
-                          <span className="font-medium text-base">{item.label}</span>
+                          <item.icon className="shrink-0" size={20} />
+                          <span
+                            className={`font-medium text-base transition-all duration-300 ${isSidebarCollapsed ? 'lg:hidden lg:w-0 lg:opacity-0' : 'lg:block'
+                              }`}
+                          >
+                            {item.label}
+                          </span>
                         </SidebarMenuButton>
                       ) : (
                         <SidebarMenuButton
@@ -96,11 +120,21 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                           className={`px-3 py-5 rounded-md ${pathname === item.path
                               ? "bg-[#2f1107] text-white"
                               : "hover:bg-[#2f1107]/90 hover:text-white"
-                            } transition-all duration-300 cursor-pointer`}
+                            } transition-all duration-300 cursor-pointer ${isSidebarCollapsed ? 'lg:justify-center' : ''
+                            }`}
                         >
-                          <Link href={item.path} className="flex items-center gap-3">
-                            <item.icon className="shrink-0" />
-                            <span className="font-medium text-base">{item.label}</span>
+                          <Link
+                            href={item.path}
+                            className="flex items-center gap-3"
+                            title={isSidebarCollapsed ? item.label : undefined}
+                          >
+                            <item.icon className="shrink-0" size={20} />
+                            <span
+                              className={`font-medium text-base transition-all duration-300 ${isSidebarCollapsed ? 'lg:hidden lg:w-0 lg:opacity-0' : 'lg:block'
+                                }`}
+                            >
+                              {item.label}
+                            </span>
                           </Link>
                         </SidebarMenuButton>
                       )}

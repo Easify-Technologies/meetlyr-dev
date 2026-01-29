@@ -1,15 +1,23 @@
 import React from "react";
 
 interface KpiCardProps {
-    icon: React.ReactNode;
-    value: number;
-    label: string;
-    change: number;
-    trend: "up" | "down";
-    period: string;
+  icon: React.ReactNode;
+  value: string | number;
+  label: string;
+  change: number;
+  trend: "up" | "down";
+  period: string;
 }
 
-const KpiCard = ({ icon, value, label, change, trend, period }: KpiCardProps) => {
+const KpiCard = ({
+  icon,
+  value,
+  label,
+  change,
+  trend,
+  period,
+}: KpiCardProps) => {
+  
   const isUp = trend === "up";
 
   return (
@@ -20,18 +28,16 @@ const KpiCard = ({ icon, value, label, change, trend, period }: KpiCardProps) =>
 
       <div className="flex flex-col items-end gap-1 text-right">
         <span className="text-[#2f1107] text-3xl font-bold">
-          {value > 9 ? value : `${value}`}
+          {value}
         </span>
 
         <span className="text-[#202124] font-medium text-base">
           {label}
         </span>
 
-        {/* KPI delta */}
         <span
-          className={`text-sm font-medium ${
-            isUp ? "text-green-600" : "text-red-600"
-          }`}
+          className={`text-sm font-medium ${isUp ? "text-green-600" : "text-red-600"
+            }`}
         >
           {isUp ? "▲" : "▼"} {Math.abs(change)}% · {period}
         </span>
@@ -39,6 +45,5 @@ const KpiCard = ({ icon, value, label, change, trend, period }: KpiCardProps) =>
     </div>
   );
 };
-
 
 export default KpiCard;
