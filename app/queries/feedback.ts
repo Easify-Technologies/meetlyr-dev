@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import axios, { AxiosError } from "axios";
 import toast from "react-hot-toast";
 
@@ -33,15 +34,26 @@ export async function sendFeedback(data: {
 }
 
 export function useSendFeedback() {
+  const router = useRouter();
+
   return useMutation({
     mutationFn: sendFeedback,
     onSuccess: (data) => {
-      if (data.success) {
-        localStorage.removeItem("eventId");
-        localStorage.removeItem("cafeId");
-        localStorage.removeItem("cafeName");
-        localStorage.removeItem("cafeAddress");
+      if (!data?.success) return;
+
+      if (typeof window !== "undefined") {
+        [
+          "eventId",
+          "cafeId",
+          "cafeName",
+          "cafeAddress",
+          "matchGroupUsers",
+        ].forEach((key) => localStorage.removeItem(key));
       }
+
+      setTimeout(() => {
+        router.push("/events");
+      }, 1500);
     },
   });
 }

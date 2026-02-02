@@ -6,6 +6,12 @@ import Navbar from "@/components/ui/Navbar";
 import StarRatingComponent from "@/components/comp-171";
 import { useSendFeedback } from "../queries/feedback";
 
+interface MatchedUsers {
+  id: string;
+  name: string;
+  avatar: string;
+}
+
 const TOTAL_STEPS = 4;
 
 const RatingRow = ({
@@ -32,11 +38,12 @@ const Page = () => {
   const userId = session?.user?.id ?? "";
 
   const [currentStep, setCurrentStep] = useState(1);
+  const [matchGroupUsers, setMatchGroupUsers] = useState<MatchedUsers[]>([]);
   const [eventData, setEventData] = useState({
     eventId: "",
     cafeId: "",
     cafeName: "",
-    cafeAddress: ""
+    cafeAddress: "",
   });
 
   const { eventId, cafeId, cafeName, cafeAddress } = eventData;
@@ -60,6 +67,12 @@ const Page = () => {
       cafeName: localStorage.getItem("cafeName") ?? "",
       cafeAddress: localStorage.getItem("cafeAddress") ?? ""
     }));
+
+    const storedUsers = localStorage.getItem("matchGroupUsers");
+
+    if (storedUsers) {
+      setMatchGroupUsers(JSON.parse(storedUsers));
+    }
   }, []);
 
   const handleNext = () => {
@@ -103,14 +116,9 @@ const Page = () => {
             </p>
             <div className="bg-white shadow-sm rounded-lg py-3 px-4 mb-3.5 w-full">
               <div className="flex items-center mb-3">
-                {[
-                  "/avatars/man.png",
-                  "/avatars/woman.png",
-                  "/avatars/man-2.png",
-                  "/avatars/woman-2.png"
-                ].map((src, index) => (
+                {matchGroupUsers.map((user, index) => (
                   <div
-                    key={index}
+                    key={user.id}
                     className="w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-sm"
                     style={{
                       marginLeft: index === 0 ? 0 : -10,
@@ -118,8 +126,8 @@ const Page = () => {
                     }}
                   >
                     <img
-                      src={src}
-                      alt="avatar"
+                      src={user.avatar}
+                      alt={user.name}
                       className="w-full h-full object-cover"
                     />
                   </div>
@@ -143,6 +151,35 @@ const Page = () => {
             <h4 className="text-2xl text-[#2f1107] font-semibold mb-6">
               What did you think of the participant?
             </h4>
+            <div className="mb-4">
+              {/* Avatar stack */}
+              <div className="flex items-center justify-center mb-2">
+                {matchGroupUsers.map((user, index) => (
+                  <div
+                    key={user.id}
+                    className="w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow-sm bg-gray-200"
+                    style={{
+                      marginLeft: index === 0 ? 0 : -10,
+                      zIndex: 10 - index,
+                    }}
+                  >
+                    <img
+                      src={user.avatar}
+                      alt={user.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                ))}
+              </div>
+
+              {/* Names */}
+              <p className="text-base font-semibold text-gray-700 mt-2">
+                You were matched with{" "}
+                <span className="font-bold">
+                  {matchGroupUsers.map((u) => u.name).join(", ")}
+                </span>
+              </p>
+            </div>
             <StarRatingComponent
               value={rating.participant}
               onChange={(val: any) =>

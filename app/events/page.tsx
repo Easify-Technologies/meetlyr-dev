@@ -71,7 +71,7 @@ const Page = () => {
     const eventDate = parseISO(item.event.date);
     return eventDate >= new Date();
   });
-  
+
   const eventStatus = upcomingParticipant?.event?.status;
   const eventId = upcomingParticipant?.eventId;
 
@@ -86,6 +86,19 @@ const Page = () => {
     localStorage.setItem("cafeName", cafeName);
     localStorage.setItem("cafeAddress", cafeAddress);
   }
+
+  useEffect(() => {
+    if (!pastEvents?.length) return;
+
+    const matchedUsers = pastEvents[0]?.event?.matchGroups?.[0]?.users ?? [];
+
+    if (matchedUsers?.length) {
+      localStorage.setItem(
+        "matchGroupUsers",
+        JSON.stringify(matchedUsers)
+      );
+    }
+  }, [pastEvents]);
 
   useEffect(() => {
     if (!participant?.length) return;
