@@ -14,6 +14,14 @@ export async function POST(req: NextRequest) {
       where: { userId }
     });
 
+    await prisma.feedback.deleteMany({
+      where: { userId }
+    });
+
+    await prisma.suggestions.deleteMany({
+      where: { userId }
+    });
+
     const deleteAccount = await prisma.user.delete({
       where: { id: userId }
     });
