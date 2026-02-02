@@ -83,7 +83,7 @@ export async function POST(req: NextRequest) {
       });
 
       return NextResponse.json(
-        { feedback, message: "Feedback submitted successfully" },
+        { success: true, feedback, message: "Feedback submitted successfully" },
         { status: 200 },
       );
     }

@@ -38,9 +38,7 @@ export function useSendFeedback() {
 
   return useMutation({
     mutationFn: sendFeedback,
-    onSuccess: (data) => {
-      if (!data?.success) return;
-
+    onSuccess: () => {
       if (typeof window !== "undefined") {
         [
           "eventId",
@@ -51,9 +49,7 @@ export function useSendFeedback() {
         ].forEach((key) => localStorage.removeItem(key));
       }
 
-      setTimeout(() => {
-        router.push("/events");
-      }, 1500);
+      router.push("/events");
     },
   });
 }
