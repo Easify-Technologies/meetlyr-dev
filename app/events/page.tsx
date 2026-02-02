@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useProfileDetails } from "../queries/profile";
@@ -59,22 +60,18 @@ const Page = () => {
   const router = useRouter();
   const userEmail = session?.user?.email ?? "";
 
+  const [showGroupSection, setShowGroupSection] = useState(false);
+
   const { data: profile, isLoading } = useProfileDetails(userEmail);
   const { data: participant, isPending } = useEventParticipant(profile?.id);
-  const { mutate, isPending: cancelEventPending } = useCancelMyEvent();
   const { data: pastEvents } = useGetPastEvents(profile?.id);
-
-  const hasUpcomingEvent = participant?.some((item: any) => 
-    { 
-      const eventDate = parseISO(item.event.date); 
-      return eventDate >= new Date(); 
-    }) ?? false;
+  const { mutate, isPending: cancelEventPending } = useCancelMyEvent();
 
   const upcomingParticipant = participant?.find((item: any) => {
     const eventDate = parseISO(item.event.date);
     return eventDate >= new Date();
   });
-
+  
   const eventStatus = upcomingParticipant?.event?.status;
   const eventId = upcomingParticipant?.eventId;
 
@@ -89,6 +86,38 @@ const Page = () => {
     localStorage.setItem("cafeName", cafeName);
     localStorage.setItem("cafeAddress", cafeAddress);
   }
+
+  useEffect(() => {
+    if (!participant?.length) return;
+
+    let timeoutId: NodeJS.Timeout | null = null;
+
+    const now = Date.now();
+
+    const shouldShow = participant.some((item: any) => {
+      const eventTime = parseISO(item.event.date).getTime();
+      const expiryTime = eventTime + 4 * 60 * 60 * 1000;
+
+      if (now < expiryTime) {
+        const remainingTime = expiryTime - now;
+
+        // Schedule auto-removal
+        timeoutId = setTimeout(() => {
+          setShowGroupSection(false);
+        }, remainingTime);
+
+        return true;
+      }
+
+      return false;
+    });
+
+    setShowGroupSection(shouldShow);
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [participant]);
 
   if (isLoading || isPending) return <Loader />
 
@@ -295,7 +324,7 @@ const Page = () => {
                 );
               })}
               {/* CARD 3 - Group */}
-              {eventStatus === "Matched" && hasUpcomingEvent && (
+              {eventStatus === "Matched" && showGroupSection && (
                 <>
                   {matchesPending ? (
                     <div className="text-center py-6">
@@ -382,7 +411,7 @@ const Page = () => {
                 </>
               )}
               {/* CARD 4 - Past Events */}
-              {pastEvents && (
+              {pastEvents && pastEvents.length > 0 && (
                 <div className="bg-white border border-gray-100 mt-5 shadow-sm rounded-3xl p-5 sm:p-6 hover:scale-[1.02] transition-transform cursor-pointer duration-500">
                   <div className="flex items-center gap-3 mb-3">
                     <span className="bg-orange-100 text-orange-600 p-2.5 rounded-full text-xl">

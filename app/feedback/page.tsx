@@ -141,7 +141,7 @@ const Page = () => {
         return (
           <>
             <h4 className="text-2xl text-[#2f1107] font-semibold mb-6">
-              What did you think of your participant?
+              What did you think of the participant?
             </h4>
             <StarRatingComponent
               value={rating.participant}
