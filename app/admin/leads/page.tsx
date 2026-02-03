@@ -122,24 +122,15 @@ const page = () => {
                                 />
                             </PaginationItem>
 
-                            {/* Page numbers */}
-                            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                                <PaginationItem key={page}>
-                                    <PaginationLink
-                                        isActive={page === currentPage}
-                                        onClick={() => setCurrentPage(page)}
-                                    >
-                                        {page}
-                                    </PaginationLink>
-                                </PaginationItem>
-                            ))}
+                            {/* Optional: Page indicator */}
+                            <span className="px-4 text-sm text-muted-foreground">
+                                Page {currentPage} of {totalPages}
+                            </span>
 
                             {/* Next */}
                             <PaginationItem>
                                 <PaginationNext
-                                    onClick={() =>
-                                        setCurrentPage((p) => Math.min(p + 1, totalPages))
-                                    }
+                                    onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
                                     className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""}
                                 />
                             </PaginationItem>

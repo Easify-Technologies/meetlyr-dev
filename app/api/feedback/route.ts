@@ -64,9 +64,12 @@ export async function POST(req: NextRequest) {
 
     if (feedback) {
       const html = `
-        <p style="font-size: 16px; margin-top: 0;"> Hey ${user?.name} 👋 </p> 
-        <p style="font-size: 16px;"> Thanks a ton for sharing your feedback — we really appreciate you taking the time 💛 </p> 
+        <p style="font-size: 16px; margin-top: 0;"> Hey ${user?.name} 👋 </p>
+        <br />
+        <p style="font-size: 16px;"> Thanks a ton for sharing your feedback — we really appreciate you taking the time 💛 </p>
+        <br />
         <p style="font-size: 16px;"> Your thoughts help us make our meetups better, smoother, and more fun. We actually read every response (promise 👀). </p> 
+        <br />
         <p style="font-size: 16px;"> If you’re up for it, we’d love to have you join us again and meet some new faces ☕✨ </p> 
         <div style="text-align: center; margin: 32px 0;"> 
           <a href="${process.env.NEXTAUTH_URL}/bookings" target="_blank" style=" display: inline-block; padding: 14px 30px; background-color: #2F1107; color: #ffffff; border-radius: 999px; text-decoration: none; font-size: 16px; font-weight: 600; " > Book Your Next Event 🚀 </a> 
