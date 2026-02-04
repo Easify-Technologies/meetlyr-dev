@@ -25,6 +25,8 @@ const PaymentClient = () => {
   const email = session?.user?.email ?? "";
 
   const [payment, setPayment] = useState("");
+  const [paymentDesc, setPaymentDesc] = useState("");
+  const [showPaymentDesc, setShowPaymentDesc] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const userId = params.get("userId");
@@ -124,6 +126,14 @@ const PaymentClient = () => {
     }
   }
 
+  const calculateDiscountPrice = (originalPrice: number, discountedPrice: number) => {
+    const discountPercent = Math.round(
+      ((originalPrice - discountedPrice) / originalPrice) * 100
+    );
+
+    return discountPercent;
+  }
+
   if (isPending) return <Loader />
 
   if (hasPaidForThisEvent) return <Loader />
@@ -169,7 +179,10 @@ const PaymentClient = () => {
                     ? "bg-green-700 border-green-700 text-white scale-[1.02]"
                     : "bg-white border-green-600 hover:bg-green-50 text-green-700"
                     }`}
-                  onClick={() => setPayment("free")}
+                  onClick={() => {
+                    setPayment("free");
+                    setPaymentDesc("Free Pass (One-Time Only)");
+                  }}
                 >
                   <span className="absolute -top-3 right-3 bg-green-600 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-sm">
                     FREE · First Event
@@ -187,7 +200,7 @@ const PaymentClient = () => {
                         Free Pass
                       </span>
                       <span className={`text-base md:text-lg font-bold ${payment === "free" ? "text-white" : "text-inherit"}`}>
-                        €0.00
+                        HUF 0.00
                       </span>
                     </div>
 
@@ -205,7 +218,11 @@ const PaymentClient = () => {
                     ? "bg-[#2F1107] border-[#2F1107] text-white scale-[1.02]"
                     : "bg-white border-gray-300 hover:bg-[#2F1107]/10 text-[#2F1107]"
                     }`}
-                  onClick={() => setPayment("oneTime")}
+                  onClick={() => {
+                    setPayment("oneTime");
+                    setPaymentDesc("HUF 10.00 for one month");
+                    setShowPaymentDesc(true);
+                  }}
                 >
                   <RadioGroupItem
                     value="oneTime"
@@ -229,7 +246,7 @@ const PaymentClient = () => {
                           : "text-[#2F1107]"
                           }`}
                       >
-                        €10.00
+                        HUF 10.00
                       </span>
                     </div>
                     <span
@@ -252,12 +269,13 @@ const PaymentClient = () => {
                   }`}
                 onClick={() => {
                   setPayment("monthly");
+                  setPaymentDesc("HUF 15.00 every month");
+                  setShowPaymentDesc(true);
                 }}
               >
                 {/* Discount Badge */}
                 <span className="absolute -top-3 right-3 bg-[#FFD100] text-[#2F1107] text-xs font-semibold px-3 py-1 rounded-full shadow-sm flex items-center gap-1">
-                  <span className="line-through opacity-70">€20</span>
-                  <span className="font-bold">€15</span>
+                  <span className="">Save {calculateDiscountPrice(20, 15)}%</span>
                 </span>
 
                 <RadioGroupItem value="monthly" id="monthly" className="mt-1" />
@@ -273,7 +291,7 @@ const PaymentClient = () => {
                       className={`text-base md:text-lg font-bold ${payment === "monthly" ? "text-[#FFD100]" : "text-[#2F1107]"
                         }`}
                     >
-                      €15.00
+                      HUF 15.00
                     </span>
                   </div>
                   <span
@@ -293,12 +311,13 @@ const PaymentClient = () => {
                   }`}
                 onClick={() => {
                   setPayment("3months");
+                  setPaymentDesc("HUF 35.00 every 3 months");
+                  setShowPaymentDesc(true);
                 }}
               >
                 {/* Discount Badge */}
                 <span className="absolute -top-3 right-3 bg-[#FFD100] text-[#2F1107] text-xs font-semibold px-3 py-1 rounded-full shadow-sm flex items-center gap-1">
-                  <span className="line-through opacity-70">€60</span>
-                  <span className="font-bold">€35</span>
+                  <span className="">Save {calculateDiscountPrice(60, 35)}%</span>
                 </span>
 
                 <RadioGroupItem value="3months" id="3months" className="mt-1" />
@@ -314,7 +333,7 @@ const PaymentClient = () => {
                       className={`text-base md:text-lg font-bold ${payment === "3months" ? "text-[#FFD100]" : "text-[#2F1107]"
                         }`}
                     >
-                      €35.00
+                      HUF 35.00
                     </span>
                   </div>
                   <span
@@ -334,12 +353,13 @@ const PaymentClient = () => {
                   }`}
                 onClick={() => {
                   setPayment("6months");
+                  setPaymentDesc("HUF 60.00 every 6 months");
+                  setShowPaymentDesc(true);
                 }}
               >
                 {/* Discount Badge */}
                 <span className="absolute -top-3 right-3 bg-[#FFD100] text-[#2F1107] text-xs font-semibold px-3 py-1 rounded-full shadow-sm flex items-center gap-1">
-                  <span className="line-through opacity-70">€120</span>
-                  <span className="font-bold">€60</span>
+                  <span className="">Save {calculateDiscountPrice(120, 60)}%</span>
                 </span>
 
                 <RadioGroupItem value="6months" id="6months" className="mt-1" />
@@ -355,7 +375,7 @@ const PaymentClient = () => {
                       className={`text-base md:text-lg font-bold ${payment === "6months" ? "text-[#FFD100]" : "text-[#2F1107]"
                         }`}
                     >
-                      €60.00
+                      HUF 60.00
                     </span>
                   </div>
                   <span
@@ -413,7 +433,7 @@ const PaymentClient = () => {
                     <MdPayments className="bg-[#00bb7c] rounded-full text-white p-2 flex items-center justify-center" size={30} />
                     <h3 className="text-xl font-bold text-[#2f1107]">Total freedom</h3>
                   </div>
-                  <p className="text-lg tracking-wide leading-7 font-medium pl-[38px]">Cancel anytime. Switch plans or get a refund within 14 days. Zero pressure, zero strings.</p>
+                  <p className="text-lg tracking-wide leading-7 font-medium pl-[38px]">You may cancel your booking up to 24 hours before the event. Cancellations made within 24 hours are not permitted, and no refunds will be issued.</p>
                 </div>
                 <div className="flex flex-col gap-1.5">
                   <div className="flex items-center gap-2">
@@ -430,6 +450,11 @@ const PaymentClient = () => {
             </Link>
 
             <div className="fixed bottom-0 left-0 right-0 z-50 bg-[#FFFFF5] py-4 px-4">
+              {showPaymentDesc && (
+                <div className="bg-[#507dbc] w-72 mx-auto text-center rounded-lg px-4 py-3 mb-5 text-white font-semibold text-base">
+                  {paymentDesc}
+                </div>
+              )}
               {hasPaidForThisEvent ? (
                 <button
                   type="button"
