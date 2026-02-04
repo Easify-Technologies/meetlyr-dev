@@ -64,96 +64,176 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   if (!isAuthChecked) return <Loader />
 
   return (
-    <SidebarProvider className="max-w-full">
-      <div className="flex">
-        {/* Sidebar */}
-        <Sidebar
-          collapsible="icon"
-          className={`transition-all duration-300 ${isSidebarCollapsed ? 'lg:w-20' : 'lg:w-64'} relative`}
-        >
-          {/* Toggle Button - Only visible on large screens */}
-          <button
-            onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-            className="hidden lg:flex absolute top-4 right-2 p-2 rounded-md hover:bg-[#2f1107]/10 transition-colors z-50 bg-white shadow-sm border border-gray-200"
-            aria-label="Toggle sidebar"
-          >
-            {isSidebarCollapsed ? (
-              <MdChevronRight size={24} />
+    <div className="flex min-h-screen">
+      {/* Desktop Sidebar - Collapsible */}
+      <aside
+        className={`hidden lg:block fixed left-0 top-0 h-screen bg-white border-r border-gray-200 transition-all duration-300 ease-in-out z-40 ${isSidebarCollapsed ? 'w-24' : 'w-64'
+          }`}
+      >
+        {/* Sidebar Content */}
+        <div className="flex flex-col h-full py-8">
+          {/* Logo */}
+          <div className="mb-8 transition-all duration-300 text-center mx-auto">
+            {!isSidebarCollapsed ? (
+              <Image
+                src="/Mocha-e1760632297719.webp"
+                alt="meetlyr"
+                width={140}
+                height={100}
+                priority
+                quality={100}
+                className="cursor-pointer"
+                onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+              />
             ) : (
-              <MdChevronLeft size={24} />
+              <button onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)} className="w-12 h-12 mr-3 bg-[#2f1107] rounded-lg flex items-center justify-center text-white font-bold text-xl cursor-pointer">
+                M
+              </button>
             )}
-          </button>
+          </div>
 
-          <SidebarContent className="py-28 px-6 md:px-8">
-            <SidebarGroup className="p-0">
-              <SidebarGroupLabel className="hidden">Menu</SidebarGroupLabel>
-              <SidebarGroupContent>
-                <SidebarMenu className="space-y-3">
-                  {items.map((item, idx) => (
-                    <SidebarMenuItem key={idx}>
-                      {item.path === "/admin/login" ? (
-                        <SidebarMenuButton
-                          onClick={() => {
-                            localStorage.removeItem("admin_token");
-                            setTimeout(() => {
-                              router.push("/admin/login");
-                            }, 1000);
-                          }}
-                          className={`px-3 py-5 rounded-md flex items-center gap-3 ${pathname === item.path
+          {/* Navigation Menu */}
+          <nav className={`flex-1 overflow-y-auto px-3 ${isSidebarCollapsed ? 'px-2' : 'px-3'}`}>
+            <ul className="space-y-2">
+              {items.map((item, idx) => (
+                <li key={idx}>
+                  {item.path === "/admin/login" ? (
+                    <button
+                      onClick={() => {
+                        localStorage.removeItem("admin_token");
+                        setTimeout(() => {
+                          router.push("/admin/login");
+                        }, 1000);
+                      }}
+                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${pathname === item.path
+                        ? "bg-[#2f1107] text-white"
+                        : "text-gray-800 hover:bg-[#2f1107]/10 hover:text-[#2f1107]"
+                        } ${isSidebarCollapsed ? 'justify-center px-2' : ''}`}
+                      title={isSidebarCollapsed ? item.label : undefined}
+                    >
+                      <item.icon className="shrink-0" size={22} />
+                      {!isSidebarCollapsed && (
+                        <span className="font-semibold text-sm whitespace-nowrap">
+                          {item.label}
+                        </span>
+                      )}
+                    </button>
+                  ) : (
+                    <Link
+                      href={item.path}
+                      className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${pathname === item.path
+                        ? "bg-[#2f1107] text-white"
+                        : "text-gray-800 hover:bg-[#2f1107]/10 hover:text-[#2f1107]"
+                        } ${isSidebarCollapsed ? 'justify-center px-2' : ''}`}
+                      title={isSidebarCollapsed ? item.label : undefined}
+                    >
+                      <item.icon className="shrink-0" size={22} />
+                      {!isSidebarCollapsed && (
+                        <span className="font-semibold text-sm whitespace-nowrap">
+                          {item.label}
+                        </span>
+                      )}
+                    </Link>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </div>
+      </aside>
+
+      {/* Mobile Sidebar - Using SidebarProvider (unchanged) */}
+      <div className="lg:hidden">
+        <SidebarProvider>
+          <Sidebar collapsible="offcanvas">
+            <SidebarContent className="py-24 px-6">
+              <SidebarGroup className="p-0">
+                <SidebarGroupLabel className="hidden">Menu</SidebarGroupLabel>
+                <SidebarGroupContent>
+                  <SidebarMenu className="space-y-3">
+                    {items.map((item, idx) => (
+                      <SidebarMenuItem key={idx}>
+                        {item.path === "/admin/login" ? (
+                          <SidebarMenuButton
+                            onClick={() => {
+                              localStorage.removeItem("admin_token");
+                              setTimeout(() => {
+                                router.push("/admin/login");
+                              }, 1000);
+                            }}
+                            className={`px-3 py-5 rounded-md flex items-center gap-3 ${pathname === item.path
                               ? "bg-[#2f1107] text-white"
                               : "hover:bg-[#2f1107]/90 hover:text-white"
-                            } transition-all duration-300 cursor-pointer ${isSidebarCollapsed ? 'lg:justify-center' : ''
-                            }`}
-                          title={isSidebarCollapsed ? item.label : undefined}
-                        >
-                          <item.icon className="shrink-0" size={20} />
-                          <span
-                            className={`font-medium text-base transition-all duration-300 ${isSidebarCollapsed ? 'lg:hidden lg:w-0 lg:opacity-0' : 'lg:block'
-                              }`}
-                          >
-                            {item.label}
-                          </span>
-                        </SidebarMenuButton>
-                      ) : (
-                        <SidebarMenuButton
-                          asChild
-                          className={`px-3 py-5 rounded-md ${pathname === item.path
-                              ? "bg-[#2f1107] text-white"
-                              : "hover:bg-[#2f1107]/90 hover:text-white"
-                            } transition-all duration-300 cursor-pointer ${isSidebarCollapsed ? 'lg:justify-center' : ''
-                            }`}
-                        >
-                          <Link
-                            href={item.path}
-                            className="flex items-center gap-3"
-                            title={isSidebarCollapsed ? item.label : undefined}
+                              } transition-all duration-300 cursor-pointer`}
                           >
                             <item.icon className="shrink-0" size={20} />
-                            <span
-                              className={`font-medium text-base transition-all duration-300 ${isSidebarCollapsed ? 'lg:hidden lg:w-0 lg:opacity-0' : 'lg:block'
-                                }`}
-                            >
-                              {item.label}
-                            </span>
-                          </Link>
-                        </SidebarMenuButton>
-                      )}
-                    </SidebarMenuItem>
-                  ))}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
-          </SidebarContent>
-        </Sidebar>
+                            <span className="font-medium text-base">{item.label}</span>
+                          </SidebarMenuButton>
+                        ) : (
+                          <SidebarMenuButton
+                            asChild
+                            className={`px-3 py-5 rounded-md ${pathname === item.path
+                              ? "bg-[#2f1107] text-white"
+                              : "hover:bg-[#2f1107]/90 hover:text-white"
+                              } transition-all duration-300 cursor-pointer`}
+                          >
+                            <Link href={item.path} className="flex items-center gap-3">
+                              <item.icon className="shrink-0" size={20} />
+                              <span className="font-medium text-base">{item.label}</span>
+                            </Link>
+                          </SidebarMenuButton>
+                        )}
+                      </SidebarMenuItem>
+                    ))}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+            </SidebarContent>
+          </Sidebar>
 
-        {/* Main Content */}
-        <div className="flex flex-col w-full">
-          {/* Header */}
-          <header className="w-full fixed bg-white shadow-md border-b border-[#ecedf2] top-0 left-0 z-[99] h-16 md:h-20">
-            <div className="flex items-center justify-between h-full px-6 md:px-[45px]">
+          {/* Main Content Wrapper for Mobile */}
+          <div className="w-full">
+            {/* Header */}
+            <header className="w-full fixed bg-white shadow-md border-b border-[#ecedf2] top-0 left-0 z-[99] h-16 md:h-20">
+              <div className="flex items-center justify-between h-full px-6 md:px-[45px]">
+                <Link href="/admin/dashboard" className="flex items-center gap-2">
+                  <Image
+                    className="object-cover"
+                    src="/Mocha-e1760632297719.webp"
+                    alt="meetlyr"
+                    width={70}
+                    height={70}
+                    priority
+                    quality={100}
+                  />
+                </Link>
+                <SidebarTrigger>
+                  <MdMenu size={35} />
+                </SidebarTrigger>
+              </div>
+            </header>
+
+            {/* Page Content */}
+            <main className="w-full pt-[80px]">{children}</main>
+          </div>
+        </SidebarProvider>
+      </div>
+
+      {/* Desktop Main Content */}
+      <div className={`hidden lg:block flex-1 transition-all duration-300 ${isSidebarCollapsed ? 'ml-20' : 'ml-64'
+        }`}>
+        {/* Header */}
+        <header className="w-full fixed bg-white shadow-md border-b border-[#ecedf2] top-0 right-0 z-30 h-20"
+          style={{
+            left: isSidebarCollapsed ? '80px' : '256px',
+            width: isSidebarCollapsed ? 'calc(100% - 80px)' : 'calc(100% - 256px)',
+            transition: 'left 0.3s ease-in-out, width 0.3s ease-in-out'
+          }}
+        >
+          {isSidebarCollapsed && (
+            <div className="flex items-center justify-between h-full px-[45px]">
               <Link href="/admin/dashboard" className="flex items-center gap-2">
                 <Image
-                  className="object-cover hidden md:block"
                   src="/Mocha-e1760632297719.webp"
                   alt="meetlyr"
                   width={140}
@@ -161,26 +241,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   priority
                   quality={100}
                 />
-                <Image
-                  className="object-cover md:hidden block"
-                  src="/Mocha-e1760632297719.webp"
-                  alt="meetlyr"
-                  width={70}
-                  height={70}
-                  priority
-                  quality={100}
-                />
               </Link>
-              <SidebarTrigger className="md:hidden block">
-                <MdMenu size={35} />
-              </SidebarTrigger>
             </div>
-          </header>
+          )}
+        </header>
 
-          {/* Page Content */}
-          <main className="w-full pt-[80px]">{children}</main>
-        </div>
+        {/* Page Content */}
+        <main className="w-full pt-[80px] px-6">{children}</main>
       </div>
-    </SidebarProvider>
+    </div>
   )
 }
