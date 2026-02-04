@@ -47,7 +47,7 @@ const page = () => {
 
     return (
         <>
-            <section className='w-screen min-h-screen bg-[#FFFFF5] relative'>
+            <section className='w-screen md:w-full min-h-screen bg-[#FFFFF5] relative'>
                 <div className="w-full mx-auto py-8 md:px-8 px-4">
                     <div className="flex flex-row gap-2 items-center flex-nowrap justify-between">
                         <div className='flex items-center'>

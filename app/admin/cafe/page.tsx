@@ -73,7 +73,7 @@ const Page = () => {
 
   return (
     <>
-      <section className='w-screen min-h-screen bg-[#FFFFF5] relative'>
+      <section className='w-screen md:w-full min-h-screen bg-[#FFFFF5] relative'>
         <div className="w-full mx-auto py-8 md:px-8 px-4">
           {/* Header */}
           <div className="flex md:flex-row flex-col md:items-center items-start md:justify-between justify-start md:gap-0 gap-4">

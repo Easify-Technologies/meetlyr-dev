@@ -80,8 +80,8 @@ const Page = () => {
 
   return (
     <>
-      <section className='w-screen min-h-screen bg-[#FFFFF5] relative'>
-        <div className="w-full mx-auto py-8 px-4 md:px-8">
+      <section className='w-screen md:w-full min-h-screen bg-[#FFFFF5]'>
+        <div className="w-[inherit] mx-auto py-8 px-4 md:px-8">
           <h1 className="text-3xl md:text-4xl lg:text-5xl text-[#2f1107] font-semibold text-left mb-4">
             Dashboard
           </h1>

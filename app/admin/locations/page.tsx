@@ -55,7 +55,7 @@ const Page = () => {
 
   return (
     <>
-      <section className="w-screen min-h-screen bg-[#FFFFF5] relative">
+      <section className="w-screen md:w-full min-h-screen bg-[#FFFFF5] relative">
         <div className="w-full mx-auto py-8 px-4 md:px-8">
           {/* Header */}
           <div className="flex flex-row gap-2 items-center flex-nowrap justify-between">
