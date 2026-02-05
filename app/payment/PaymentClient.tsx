@@ -285,14 +285,18 @@ const PaymentClient = () => {
                       className={`text-lg md:text-xl font-semibold ${payment === "monthly" ? "text-white" : "text-[#2F1107]"
                         }`}
                     >
-                      Monthly Subscription
+                      1 Month
                     </span>
-                    <span
-                      className={`text-base md:text-lg font-bold ${payment === "monthly" ? "text-[#FFD100]" : "text-[#2F1107]"
-                        }`}
-                    >
-                      HUF 15.00
-                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <span className={`text-base line-through md:text-lg font-bold ${payment === "monthly" ? "text-white" : "text-gray-600"
+                        }`}>HUF 20.00</span>
+                      <span
+                        className={`text-base md:text-lg font-bold ${payment === "monthly" ? "text-[#FFD100]" : "text-[#2F1107]"
+                          }`}
+                      >
+                        HUF 15.00
+                      </span>
+                    </div>
                   </div>
                   <span
                     className={`text-sm ${payment === "monthly" ? "text-white/80" : "text-[#2F1107]/70"
@@ -327,14 +331,18 @@ const PaymentClient = () => {
                       className={`text-lg md:text-xl font-semibold ${payment === "3months" ? "text-white" : "text-[#2F1107]"
                         }`}
                     >
-                      3-Month Subscription
+                      3 Months
                     </span>
-                    <span
-                      className={`text-base md:text-lg font-bold ${payment === "3months" ? "text-[#FFD100]" : "text-[#2F1107]"
-                        }`}
-                    >
-                      HUF 35.00
-                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <span className={`text-base line-through md:text-lg font-bold ${payment === "3months" ? "text-white" : "text-gray-600"
+                        }`}>HUF 60.00</span>
+                      <span
+                        className={`text-base md:text-lg font-bold ${payment === "3months" ? "text-[#FFD100]" : "text-[#2F1107]"
+                          }`}
+                      >
+                        HUF 35.00
+                      </span>
+                    </div>
                   </div>
                   <span
                     className={`text-sm ${payment === "3months" ? "text-white/80" : "text-[#2F1107]/70"
@@ -369,14 +377,18 @@ const PaymentClient = () => {
                       className={`text-lg md:text-xl font-semibold ${payment === "6months" ? "text-white" : "text-[#2F1107]"
                         }`}
                     >
-                      6-Month Subscription
+                      6 Months
                     </span>
-                    <span
-                      className={`text-base md:text-lg font-bold ${payment === "6months" ? "text-[#FFD100]" : "text-[#2F1107]"
-                        }`}
-                    >
-                      HUF 60.00
-                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <span className={`text-base line-through md:text-lg font-bold ${payment === "6months" ? "text-white" : "text-gray-600"
+                        }`}>HUF 120.00</span>
+                      <span
+                        className={`text-base md:text-lg font-bold ${payment === "6months" ? "text-[#FFD100]" : "text-[#2F1107]"
+                          }`}
+                      >
+                        HUF 60.00
+                      </span>
+                    </div>
                   </div>
                   <span
                     className={`text-sm ${payment === "6months" ? "text-white/80" : "text-[#2F1107]/70"
@@ -431,7 +443,7 @@ const PaymentClient = () => {
                 <div className="flex flex-col gap-1.5">
                   <div className="flex items-center gap-2">
                     <MdPayments className="bg-[#00bb7c] rounded-full text-white p-2 flex items-center justify-center" size={30} />
-                    <h3 className="text-xl font-bold text-[#2f1107]">Total freedom</h3>
+                    <h3 className="text-xl font-bold text-[#2f1107]">Flexible Cancellation</h3>
                   </div>
                   <p className="text-lg tracking-wide leading-7 font-medium pl-[38px]">You may cancel your booking up to 24 hours before the event. Cancellations made within 24 hours are not permitted, and no refunds will be issued.</p>
                 </div>

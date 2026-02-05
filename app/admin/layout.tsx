@@ -5,12 +5,12 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { MdChevronLeft, MdChevronRight, MdMenu } from "react-icons/md";
+import { MdMenu } from "react-icons/md";
 import Loader from "@/components/ui/loader";
 import { IoHomeOutline } from "react-icons/io5";
 import { LuCircleUserRound } from "react-icons/lu";
 import { FaMapLocationDot } from "react-icons/fa6";
-import { MdEvent, MdCoffee, MdFeedback } from "react-icons/md";
+import { MdEvent, MdGroups2, MdCoffee, MdFeedback } from "react-icons/md";
 import { HiOutlineLightBulb } from "react-icons/hi";
 import { IoIosLogOut } from "react-icons/io";
 import { GiForkKnifeSpoon } from "react-icons/gi";
@@ -41,6 +41,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     { icon: MdEvent, label: "Events", path: "/admin/events" },
     { icon: MdCoffee, label: "Cafes", path: "/admin/cafe" },
     { icon: MdLeaderboard, label: "Leads", path: "/admin/leads" },
+    { icon: MdGroups2, label: "Participants", path: "/admin/participants" },
     { icon: GiForkKnifeSpoon, label: "Manual Matching", path: "/admin/match-event" },
     { icon: MdFeedback, label: "Feedback", path: "/admin/feedback" },
     { icon: HiOutlineLightBulb, label: "Suggestions", path: "/admin/suggestions" },

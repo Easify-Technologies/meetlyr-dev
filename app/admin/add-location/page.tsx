@@ -40,8 +40,8 @@ const Page = () => {
 
   return (
     <>
-      <section className="w-screen min-h-screen bg-[#FFFFF5] relative">
-        <div className="w-full mx-auto py-8 px-4 md:px-8 flex flex-col justify-center md:items-start items-center">
+      <section className="w-screen md:w-full min-h-screen bg-[#FFFFF5] relative">
+        <div className="w-[inherit] mx-auto py-8 px-4 md:px-8 flex flex-col justify-center md:items-start items-center">
           <form
             encType="multipart/form-data"
             className="flex flex-col w-full gap-4 max-w-md md:max-w-lg"
