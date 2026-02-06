@@ -10,7 +10,6 @@ import { useProfileDetails } from "../queries/profile";
 import Image from "next/image";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import Loader from "@/components/ui/loader";
-import axios from "axios";
 
 import { FaKey, FaArrowLeft } from "react-icons/fa";
 import { BsStars, BsChatDotsFill } from "react-icons/bs";
@@ -22,6 +21,7 @@ import Link from "next/link";
 const PaymentClient = () => {
   const params = useSearchParams();
   const { data: session } = useSession();
+  const router = useRouter();
   const email = session?.user?.email ?? "";
 
   const [payment, setPayment] = useState("");
@@ -40,63 +40,17 @@ const PaymentClient = () => {
       p.eventId === eventId
   );
 
-  const router = useRouter();
-
   useEffect(() => {
     if (hasPaidForThisEvent) {
       router.push("/events");
     }
   }, [hasPaidForThisEvent, router]);
 
-  const hasAttendedAnyEvent =
-    (profile?.events?.length ?? 0) > 0 ||
-    (profile?.eventParticipants?.length ?? 0) > 0;
-
-  // Free pass eligibility logic:
-  // 1. New users: freePass = true AND no events attended
-  // 2. Existing users (freePass = undefined): Give free pass if they haven't attended any events
-  // 3. Users who used free pass: freePass = false (not eligible anymore)
-  const isFreePassEligible =
-    !hasAttendedAnyEvent && (profile?.freePass === true || profile?.freePass === undefined);
-
-  // Show one-time payment only if user is not eligible for free pass
-  const showOneTimePayment = !isFreePassEligible;
-
-  useEffect(() => {
-    if (!isFreePassEligible && payment === "free") {
-      setPayment("");
-    }
-  }, [isFreePassEligible, payment]);
-
   async function handleCheckOut() {
     if (!payment) {
       alert("Please select a payment option");
       return;
     }
-
-    if (payment === "free" && !isFreePassEligible) {
-      alert("Free pass is not available for this account.");
-      return;
-    }
-
-    if (payment === "free") {
-      try {
-        const res = await axios.post("/api/event/free-pass", {
-          userId,
-          eventId
-        });
-
-        if (res.data.message === "Free pass applied successfully") {
-          setTimeout(() => {
-            router.push("/events");
-          }, 1500);
-        }
-        return res.data;
-      } catch (error) {
-        console.error("Error processing free pass:", error);
-      }
-    }
-
     setLoading(true);
 
     try {
@@ -172,94 +126,53 @@ const PaymentClient = () => {
               value={payment}
               onValueChange={(value) => setPayment(value)}
             >
-              {/* Free Pass Option */}
-              {isFreePassEligible && (
-                <div
-                  className={`relative flex w-full items-start gap-3 border p-4 rounded-lg shadow-sm transition-all duration-300 cursor-pointer ${payment === "free"
-                    ? "bg-green-700 border-green-700 text-white scale-[1.02]"
-                    : "bg-white border-green-600 hover:bg-green-50 text-green-700"
-                    }`}
-                  onClick={() => {
-                    setPayment("free");
-                    setPaymentDesc("Free Pass (One-Time Only)");
-                  }}
-                >
-                  <span className="absolute -top-3 right-3 bg-green-600 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-sm">
-                    FREE · First Event
-                  </span>
-
-                  <RadioGroupItem
-                    value="free"
-                    id="free"
-                    className="mt-1 data-[state=checked]:bg-white data-[state=checked]:border-white"
-                  />
-
-                  <Label htmlFor="free" className="flex flex-col gap-1 cursor-pointer w-full">
-                    <div className="flex justify-between items-center">
-                      <span className={`text-lg md:text-xl font-semibold ${payment === "free" ? "text-white" : "text-inherit"}`}>
-                        Free Pass
-                      </span>
-                      <span className={`text-base md:text-lg font-bold ${payment === "free" ? "text-white" : "text-inherit"}`}>
-                        HUF 0.00
-                      </span>
-                    </div>
-
-                    <span className={`text-sm opacity-90 ${payment === "free" ? "text-white" : "text-inherit"}`}>
-                      Your first event is on us. One-time only.
-                    </span>
-                  </Label>
-                </div>
-              )}
-
               {/* One-time Payment Option */}
-              {showOneTimePayment && (
-                <div
-                  className={`relative flex w-full items-start gap-3 border p-4 rounded-lg shadow-sm transition-all duration-300 cursor-pointer ${payment === "oneTime"
-                    ? "bg-[#2F1107] border-[#2F1107] text-white scale-[1.02]"
-                    : "bg-white border-gray-300 hover:bg-[#2F1107]/10 text-[#2F1107]"
-                    }`}
-                  onClick={() => {
-                    setPayment("oneTime");
-                    setPaymentDesc("HUF 10.00 for one month");
-                    setShowPaymentDesc(true);
-                  }}
+              <div
+                className={`relative flex w-full items-start gap-3 border p-4 rounded-lg shadow-sm transition-all duration-300 cursor-pointer ${payment === "oneTime"
+                  ? "bg-[#2F1107] border-[#2F1107] text-white scale-[1.02]"
+                  : "bg-white border-gray-300 hover:bg-[#2F1107]/10 text-[#2F1107]"
+                  }`}
+                onClick={() => {
+                  setPayment("oneTime");
+                  setPaymentDesc("€4.99 for one month");
+                  setShowPaymentDesc(true);
+                }}
+              >
+                <RadioGroupItem
+                  value="oneTime"
+                  id="one-time"
+                  className="mt-1 text-[#2F1107] data-[state=checked]:bg-white data-[state=checked]:border-white"
+                />
+                <Label
+                  htmlFor="one-time"
+                  className="flex flex-col gap-1 cursor-pointer w-full"
                 >
-                  <RadioGroupItem
-                    value="oneTime"
-                    id="one-time"
-                    className="mt-1 text-[#2F1107] data-[state=checked]:bg-white data-[state=checked]:border-white"
-                  />
-                  <Label
-                    htmlFor="one-time"
-                    className="flex flex-col gap-1 cursor-pointer w-full"
-                  >
-                    <div className="flex justify-between items-center">
-                      <span
-                        className={`text-lg md:text-xl font-semibold ${payment === "oneTime" ? "text-white" : "text-[#2F1107]"
-                          }`}
-                      >
-                        One Time
-                      </span>
-                      <span
-                        className={`text-base md:text-lg font-bold ${payment === "oneTime"
-                          ? "text-[#FFD100]"
-                          : "text-[#2F1107]"
-                          }`}
-                      >
-                        HUF 10.00
-                      </span>
-                    </div>
+                  <div className="flex justify-between items-center">
                     <span
-                      className={`text-sm ${payment === "oneTime"
-                        ? "text-white/80"
-                        : "text-[#2F1107]/70"
+                      className={`text-lg md:text-xl font-semibold ${payment === "oneTime" ? "text-white" : "text-[#2F1107]"
                         }`}
                     >
-                      Single ticket for casual one-offs and see who you'll click with!
+                      Single Event
                     </span>
-                  </Label>
-                </div>
-              )}
+                    <span
+                      className={`text-base md:text-lg font-bold ${payment === "oneTime"
+                        ? "text-[#FFD100]"
+                        : "text-[#2F1107]"
+                        }`}
+                    >
+                      €4.99
+                    </span>
+                  </div>
+                  <span
+                    className={`text-base font-semibold ${payment === "oneTime"
+                      ? "text-white/80"
+                      : "text-[#2F1107]/70"
+                      }`}
+                  >
+                    50% OFF FLASH Deal
+                  </span>
+                </Label>
+              </div>
 
               {/* --- Monthly Subscription --- */}
               <div
@@ -269,14 +182,16 @@ const PaymentClient = () => {
                   }`}
                 onClick={() => {
                   setPayment("monthly");
-                  setPaymentDesc("HUF 15.00 every month");
+                  setPaymentDesc("€8.99 every month");
                   setShowPaymentDesc(true);
                 }}
               >
                 {/* Discount Badge */}
-                <span className="absolute -top-3 right-3 bg-[#FFD100] text-[#2F1107] text-xs font-semibold px-3 py-1 rounded-full shadow-sm flex items-center gap-1">
-                  <span className="">Save {calculateDiscountPrice(20, 15)}%</span>
-                </span>
+                {calculateDiscountPrice(8.99, 8.99) > 0 && (
+                  <span className="absolute -top-3 right-3 bg-[#FFD100] text-[#2F1107] text-xs font-semibold px-3 py-1 rounded-full shadow-sm">
+                    Save {calculateDiscountPrice(8.99, 8.99)}%
+                  </span>
+                )}
 
                 <RadioGroupItem value="monthly" id="monthly" className="mt-1" />
                 <Label htmlFor="monthly" className="flex flex-col gap-1 w-full cursor-pointer">
@@ -288,21 +203,19 @@ const PaymentClient = () => {
                       1 Month
                     </span>
                     <div className="flex items-center gap-1.5">
-                      <span className={`text-base line-through md:text-lg font-bold ${payment === "monthly" ? "text-white" : "text-gray-600"
-                        }`}>HUF 20.00</span>
                       <span
                         className={`text-base md:text-lg font-bold ${payment === "monthly" ? "text-[#FFD100]" : "text-[#2F1107]"
                           }`}
                       >
-                        HUF 15.00
+                        €2.07/week
                       </span>
                     </div>
                   </div>
                   <span
-                    className={`text-sm ${payment === "monthly" ? "text-white/80" : "text-[#2F1107]/70"
+                    className={`text-base font-semibold ${payment === "monthly" ? "text-white/80" : "text-[#2F1107]/70"
                       }`}
                   >
-                    Pay monthly and cancel anytime.
+                    €8.99
                   </span>
                 </Label>
               </div>
@@ -315,13 +228,13 @@ const PaymentClient = () => {
                   }`}
                 onClick={() => {
                   setPayment("3months");
-                  setPaymentDesc("HUF 35.00 every 3 months");
+                  setPaymentDesc("€17.99 every 3 months");
                   setShowPaymentDesc(true);
                 }}
               >
                 {/* Discount Badge */}
-                <span className="absolute -top-3 right-3 bg-[#FFD100] text-[#2F1107] text-xs font-semibold px-3 py-1 rounded-full shadow-sm flex items-center gap-1">
-                  <span className="">Save {calculateDiscountPrice(60, 35)}%</span>
+                <span className="absolute -top-3 right-3 bg-[#FFD100] text-[#2F1107] text-xs font-semibold px-3 py-1 rounded-full shadow-sm">
+                  Save {calculateDiscountPrice(26.97, 17.99)}%
                 </span>
 
                 <RadioGroupItem value="3months" id="3months" className="mt-1" />
@@ -334,21 +247,19 @@ const PaymentClient = () => {
                       3 Months
                     </span>
                     <div className="flex items-center gap-1.5">
-                      <span className={`text-base line-through md:text-lg font-bold ${payment === "3months" ? "text-white" : "text-gray-600"
-                        }`}>HUF 60.00</span>
                       <span
                         className={`text-base md:text-lg font-bold ${payment === "3months" ? "text-[#FFD100]" : "text-[#2F1107]"
                           }`}
                       >
-                        HUF 35.00
+                        €1.38/week
                       </span>
                     </div>
                   </div>
                   <span
-                    className={`text-sm ${payment === "3months" ? "text-white/80" : "text-[#2F1107]/70"
+                    className={`text-base font-semibold ${payment === "3months" ? "text-white/80" : "text-[#2F1107]/70"
                       }`}
                   >
-                    Save more with a 3-month plan.
+                    €17.99
                   </span>
                 </Label>
               </div>
@@ -361,13 +272,13 @@ const PaymentClient = () => {
                   }`}
                 onClick={() => {
                   setPayment("6months");
-                  setPaymentDesc("HUF 60.00 every 6 months");
+                  setPaymentDesc("€23.99 every 6 months");
                   setShowPaymentDesc(true);
                 }}
               >
                 {/* Discount Badge */}
-                <span className="absolute -top-3 right-3 bg-[#FFD100] text-[#2F1107] text-xs font-semibold px-3 py-1 rounded-full shadow-sm flex items-center gap-1">
-                  <span className="">Save {calculateDiscountPrice(120, 60)}%</span>
+                <span className="absolute -top-3 right-3 bg-[#FFD100] text-[#2F1107] text-xs font-semibold px-3 py-1 rounded-full shadow-sm">
+                  Save {calculateDiscountPrice(53.94, 23.99)}%
                 </span>
 
                 <RadioGroupItem value="6months" id="6months" className="mt-1" />
@@ -380,21 +291,19 @@ const PaymentClient = () => {
                       6 Months
                     </span>
                     <div className="flex items-center gap-1.5">
-                      <span className={`text-base line-through md:text-lg font-bold ${payment === "6months" ? "text-white" : "text-gray-600"
-                        }`}>HUF 120.00</span>
                       <span
                         className={`text-base md:text-lg font-bold ${payment === "6months" ? "text-[#FFD100]" : "text-[#2F1107]"
                           }`}
                       >
-                        HUF 60.00
+                        €0.92/week
                       </span>
                     </div>
                   </div>
                   <span
-                    className={`text-sm ${payment === "6months" ? "text-white/80" : "text-[#2F1107]/70"
+                    className={`text-base font-semibold ${payment === "6months" ? "text-white/80" : "text-[#2F1107]/70"
                       }`}
                   >
-                    Best long-term value.
+                    €23.99
                   </span>
                 </Label>
               </div>
