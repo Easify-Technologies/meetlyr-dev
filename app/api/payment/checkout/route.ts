@@ -41,9 +41,9 @@ export async function POST(req: NextRequest) {
     }
 
     const subscriptionPrices: Record<string, string> = {
-      monthly: "price_1Sb3hIQsNj6wfpgAekW8zIyP",
-      "3months": "price_1Sb3i4QsNj6wfpgAC0TNaOPb",
-      "6months": "price_1Sb3j2QsNj6wfpgAyYqbOmbD",
+      monthly: process.env.MONTHLY_EVENT_PRICE_ID!,
+      "3months": process.env.THREE_MONTHS_EVENT_PRICE_ID!,
+      "6months": process.env.SIX_MONTHS_EVENT_PRICE_ID!,
     };
 
     let lineItems;
@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
       // One-time ticket €10
       lineItems = [
         {
-          price: "price_1SZzxgQsNj6wfpgAt47z7jY0",
+          price: process.env.SINGLE_EVENT_PRICE_ID!,
           quantity: 1,
         },
       ];
