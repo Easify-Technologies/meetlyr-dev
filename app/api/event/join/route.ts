@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
     if (diffHrs < 48 || (event.bookingClose && now > event.bookingClose)) {
       return NextResponse.json(
         { message: "Booking closed for this event" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
     if (existing) {
       return NextResponse.json(
         { message: "User already joined this event" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
     if (!user.subscriptionActive || user.subscriptionCredits <= 0) {
       return NextResponse.json(
         { message: "No active subscription or credits. Please pay." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -90,8 +90,8 @@ export async function POST(request: NextRequest) {
       timeZone: "Europe/Paris",
     });
 
-    // Send joining email
     if (participant.user) {
+      // Send joining email
       const html = `
         <div style="font-family: Arial, sans-serif; padding: 20px; line-height: 1.6;">
           <p>Hello ${user?.name} 👋</p>
@@ -136,12 +136,59 @@ export async function POST(request: NextRequest) {
         </div>
       `;
 
+      const adminReminderHtml = `
+      <div style="font-family: Arial, sans-serif; padding: 20px; line-height: 1.6; color: #222;">
+        <p>Hello Admin 👋</p>
+        <p>
+          This is a quick reminder that a user has successfully joined an event.
+        </p>
+
+        <div style="background-color: #f7f7f7; padding: 15px; border-radius: 6px; margin: 16px 0;">
+          <p style="margin: 0 0 6px 0;">
+            <strong>User:</strong> ${user?.name} (${user?.email})
+          </p>
+          <p style="margin: 0 0 6px 0;">
+            <strong>Event Date:</strong> ${formattedDate}
+          </p>
+        </div>
+
+        <p>
+          The participant’s spot has been confirmed and the event capacity has been updated accordingly.
+        </p>
+
+        <p style="font-size: 14px; color: #555;">
+          You can review participant details, manage capacity, or take any required action directly from the admin dashboard.
+        </p>
+
+        <p>
+          —<br />
+          <strong>Meetlyr System Notification</strong>
+        </p>
+      </div>
+    `;
+
       await transporter.sendMail({
         from: `"Meetlyr" <${process.env.SMTP_USER}>`,
         to: user?.email,
         subject: "Welcome Aboard — Your Meetup Spot Is Reserved ☕",
         html,
       });
+
+      const adminEmails = [
+        process.env.ADMIN_EMAIL,
+        process.env.ADMIN_SECONDARY_EMAIL,
+      ].filter(Boolean);
+
+      await Promise.all(
+        adminEmails.map((email) =>
+          transporter.sendMail({
+            from: `"Meetlyr" <${process.env.SMTP_USER}>`,
+            to: email,
+            subject: "New User Joined Event ☕",
+            html: adminReminderHtml,
+          }),
+        ),
+      );
     }
 
     return NextResponse.json({
