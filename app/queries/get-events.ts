@@ -13,6 +13,7 @@ type Event = {
   createdAt: string;
   isClosed: boolean;
   createdBy: string;
+  tagline: string;
   participants?: {
     userId: string;
     eventId: string;

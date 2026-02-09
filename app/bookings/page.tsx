@@ -324,6 +324,11 @@ const Page = () => {
                                           ${isBlocked ? "opacity-50 cursor-not-allowed" : ""}
                                           p-4 rounded-full shadow-xs outline-none hover:bg-[#2F1107]/10`}
                                         >
+                                          {event?.tagline && event.tagline.trim() !== "" && (
+                                            <span className="absolute -top-2.5 right-4 z-10 rounded-full bg-[#d90368] px-2.5 py-1.5 text-xs font-semibold text-white leading-none">
+                                              {event.tagline}
+                                            </span>
+                                          )}
                                           <>
                                             <RadioGroupItem
                                               value={event?.id}
