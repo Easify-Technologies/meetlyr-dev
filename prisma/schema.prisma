@@ -107,6 +107,7 @@ model Event {
   city      String
   country   String
   cafeId    String?  @db.ObjectId
+  tagline   String?
   cafe      Cafe?    @relation(fields: [cafeId], references: [id])
   createdAt DateTime @default(now())
   isClosed  Boolean  @default(false)

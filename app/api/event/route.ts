@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Expect frontend to send: city, country, locationId, date (ISO), optional time
-    const { city, country, locationId, date } = await request.json();
+    const { city, country, locationId, date, tagline } = await request.json();
 
     if (!city || !country || !locationId || !date) {
       return NextResponse.json(
@@ -60,6 +60,7 @@ export async function POST(request: NextRequest) {
         city,
         country,
         locationId,
+        tagline,
         createdBy: auth.adminId,
         bookingOpen,
         bookingClose,
@@ -81,7 +82,6 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-
 
 export async function GET(request: NextRequest) {
   try {

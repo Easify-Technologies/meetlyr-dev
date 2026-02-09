@@ -9,19 +9,13 @@ export async function addEvents(data: {
   city: string;
   country: string;
   locationId: string;
+  tagline: string;
 }) {
   try {
     const token = localStorage.getItem("admin_token");
     if (!token) throw new Error("No admin token found");
 
-    const res = await axios.post(
-      "/api/event",
-      {
-        date: data.date,
-        country: data.country,
-        city: data.city,
-        locationId: data.locationId,
-      },
+    const res = await axios.post("/api/event", data,
       {
         headers: { Authorization: `Bearer ${token}` },
       }

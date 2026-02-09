@@ -23,7 +23,6 @@ import {
 import {
     Dialog,
     DialogContent,
-    DialogDescription,
     DialogHeader,
     DialogTitle,
     DialogTrigger,
@@ -33,7 +32,6 @@ import {
     Pagination,
     PaginationContent,
     PaginationItem,
-    PaginationLink,
     PaginationNext,
     PaginationPrevious,
 } from "@/components/ui/pagination";
@@ -122,7 +120,7 @@ const Page = () => {
 
     return (
         <>
-            <section className="w-full min-h-screen bg-[#FFFFF5] relative">
+            <section className="w-full min-h-screen bg-[#FFFFF5] relative overflow-x-hidden">
                 <div className="w-full mx-auto py-8 px-4 md:px-8">
                     {/* Header */}
                     <div className="flex md:flex-row flex-col md:items-center items-start md:justify-between justify-start md:gap-0 gap-3.5">
@@ -149,7 +147,7 @@ const Page = () => {
                             </Link>
                             <h3 className="text-2xl md:text-3xl font-bold">All Users</h3>
                         </div>
-                        <div className='flex items-center gap-2.5'>
+                        <div className='flex flex-col md:flex-row md:items-center items-start gap-3.5'>
                             <input className='file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground border-input flex h-12 min-w-0 rounded-full border bg-muted px-4 py-2 text-base transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium md:text-sm' type="text" name='name' value={name} onChange={handleInputChange} placeholder='Seacrh by name' />
                             <select className='file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground border-input flex h-12 min-w-0 rounded-full border bg-muted px-4 py-2 text-base transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium md:text-sm' name="country" value={country} onChange={handleInputChange}>
                                 <option value="">Select Country</option>
@@ -171,131 +169,133 @@ const Page = () => {
                     </div>
 
                     {/* Table (desktop) */}
-                    <div className="hidden md:block w-full mt-10 overflow-x-auto">
-                        <div className="[&>div]:max-h-[70vh]">
-                            <Table className="min-w-full border-separate border-spacing-0 [&_td]:border-border [&_tfoot_td]:border-t [&_th]:border-b [&_th]:border-border [&_tr]:border-none [&_tr:not(:last-child)_td]:border-b">
-                                <TableHeader className="sticky top-0 bg-[#ffd100] backdrop-blur-xs">
-                                    <TableRow className="border-none">
-                                        {[
-                                            "S. No",
-                                            "Name",
-                                            "Email",
-                                            "Phone Number",
-                                            "Gender",
-                                            "Date Of Birth",
-                                            "City",
-                                            "Country",
-                                            "Connection Style",
-                                            "Communication Style",
-                                            "Family",
-                                            "Humor",
-                                            "Health & Fitness",
-                                            "Politics",
-                                            "Kind of People",
-                                            "Payment Mode",
-                                            "Payment Status",
-                                            "Image",
-                                            "Action"
-                                        ].map((heading, i) => (
-                                            <TableHead key={i} className="text-[#2f1107] whitespace-nowrap">
-                                                {heading}
-                                            </TableHead>
-                                        ))}
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {paginatedUsers?.map((user: UserProps, idx: number) => (
-                                        <TableRow
-                                            key={user.id}
-                                            className="even:bg-[#2f1107] hover:bg-[#2f1107]/30 border-none even:text-white"
-                                        >
-                                            <TableCell className="font-medium">{startIndex + idx + 1}</TableCell>
-                                            <TableCell>{user?.name}</TableCell>
-                                            <TableCell>{user?.email}</TableCell>
-                                            <TableCell>{user?.phoneNumber}</TableCell>
-                                            <TableCell className='capitalize'>{user?.gender}</TableCell>
-                                            <TableCell>{user?.dateOfBirth}</TableCell>
-                                            <TableCell>{user?.city}</TableCell>
-                                            <TableCell>{user?.country}</TableCell>
-                                            <TableCell>{user?.connectionStyles}</TableCell>
-                                            <TableCell>{user?.communicationStyles}</TableCell>
-                                            <TableCell>{user?.family} / 10</TableCell>
-                                            <TableCell>{user?.incorrectHumor} / 10</TableCell>
-                                            <TableCell>{user?.healthAndFitness}</TableCell>
-                                            <TableCell>{user?.politicalNews} / 10</TableCell>
-                                            <TableCell className="whitespace-nowrap">
-                                                {user?.kindOfPeople?.join(", ")}
-                                            </TableCell>
-                                            <TableCell className='capitalize'>{user?.payment?.[0]?.mode ?? "---"}</TableCell>
-                                            <TableCell className='capitalize'>{user?.payment?.[0]?.status ?? "unpaid"}</TableCell>
-                                            <TableCell>
-                                                <Image
-                                                    className='w-[50px] h-[50px] object-cover'
-                                                    src={user?.avatar}
-                                                    alt={user?.name}
-                                                    width={50}
-                                                    height={50}
-                                                    quality={100}
-                                                    priority
-                                                />
-                                            </TableCell>
-                                            <TableCell>
-                                                {(user?.payment?.[0]?.mode === "subscription" && user?.payment?.[0]?.status === "paid") ? (
-                                                    <Dialog>
-                                                        <DialogTrigger className='bg-green-600 rounded-md text-white cursor-pointer flex items-center justify-center p-2 transition-colors duration-300 hover:bg-green-700'>
-                                                            <HiPencilSquare size={18} />
-                                                        </DialogTrigger>
-                                                        <DialogContent>
-                                                            <DialogHeader>
-                                                                <DialogTitle>Edit Subscription</DialogTitle>
-                                                                <div className="flex flex-col gap-2 mt-3">
-                                                                    <Label className="text-sm font-semibold text-[#2f1107]">
-                                                                        Credits
-                                                                    </Label>
-
-                                                                    <input
-                                                                        className="bg-muted px-5 py-2 outline-none border-0 rounded-lg w-full h-12 text-[#2F1107] font-medium text-base"
-                                                                        type="number"
-                                                                        name="credits"
-                                                                        id="credits"
-                                                                        value={credits}
-                                                                        min={1}
-                                                                        max={10}
-                                                                        onChange={(e) => setCredits(Number(e.target.value))}
-                                                                    />
-                                                                </div>
-                                                                {isError && (
-                                                                    <p
-                                                                        data-slot="form-message"
-                                                                        className="text-destructive text-sm"
-                                                                    >
-                                                                        {(error as Error).message}
-                                                                    </p>
-                                                                )}
-                                                                {isSuccess && data?.message && (
-                                                                    <p data-slot="form-message" className="text-green-500 text-sm">
-                                                                        {data.message}
-                                                                    </p>
-                                                                )}
-                                                                <button disabled={creditsPending} onClick={() => {
-                                                                    mutate({
-                                                                        credits,
-                                                                        userId: user.id
-                                                                    })
-                                                                }} type="button" className='bg-[#ffd100] text-[#2f1107] mt-1 rounded-md text-sm font-semibold p-2 cursor-pointer transition-colors duration-300 hover:bg-[#2f1107] hover:text-[#ffd100]'>
-                                                                    {creditsPending ? "Updating..." : "Update"}
-                                                                </button>
-                                                            </DialogHeader>
-                                                        </DialogContent>
-                                                    </Dialog>
-                                                ) : (
-                                                    "---"
-                                                )}
-                                            </TableCell>
+                    <div className="hidden md:block w-full mt-10">
+                        <div className='overflow-x-auto max-h-[70vh]'>
+                            <div className="[&>div]:max-h-[70vh]">
+                                <Table className="min-w-full border-separate border-spacing-0 [&_td]:border-border [&_tfoot_td]:border-t [&_th]:border-b [&_th]:border-border [&_tr]:border-none [&_tr:not(:last-child)_td]:border-b">
+                                    <TableHeader className="sticky top-0 bg-[#ffd100] backdrop-blur-xs z-10">
+                                        <TableRow className="border-none">
+                                            {[
+                                                "S. No",
+                                                "Name",
+                                                "Email",
+                                                "Phone Number",
+                                                "Gender",
+                                                "Date Of Birth",
+                                                "City",
+                                                "Country",
+                                                "Connection Style",
+                                                "Communication Style",
+                                                "Family",
+                                                "Humor",
+                                                "Health & Fitness",
+                                                "Politics",
+                                                "Kind of People",
+                                                "Payment Mode",
+                                                "Payment Status",
+                                                "Image",
+                                                "Action"
+                                            ].map((heading, i) => (
+                                                <TableHead key={i} className="text-[#2f1107] whitespace-nowrap">
+                                                    {heading}
+                                                </TableHead>
+                                            ))}
                                         </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {paginatedUsers?.map((user: UserProps, idx: number) => (
+                                            <TableRow
+                                                key={user.id}
+                                                className="even:bg-[#2f1107] hover:bg-[#2f1107]/30 border-none even:text-white"
+                                            >
+                                                <TableCell className="font-medium">{startIndex + idx + 1}</TableCell>
+                                                <TableCell>{user?.name}</TableCell>
+                                                <TableCell>{user?.email}</TableCell>
+                                                <TableCell>{user?.phoneNumber}</TableCell>
+                                                <TableCell className='capitalize'>{user?.gender}</TableCell>
+                                                <TableCell>{user?.dateOfBirth}</TableCell>
+                                                <TableCell>{user?.city}</TableCell>
+                                                <TableCell>{user?.country}</TableCell>
+                                                <TableCell>{user?.connectionStyles}</TableCell>
+                                                <TableCell>{user?.communicationStyles}</TableCell>
+                                                <TableCell>{user?.family} / 10</TableCell>
+                                                <TableCell>{user?.incorrectHumor} / 10</TableCell>
+                                                <TableCell>{user?.healthAndFitness}</TableCell>
+                                                <TableCell>{user?.politicalNews} / 10</TableCell>
+                                                <TableCell className="whitespace-nowrap">
+                                                    {user?.kindOfPeople?.join(", ")}
+                                                </TableCell>
+                                                <TableCell className='capitalize'>{user?.payment?.[0]?.mode ?? "---"}</TableCell>
+                                                <TableCell className='capitalize'>{user?.payment?.[0]?.status ?? "unpaid"}</TableCell>
+                                                <TableCell>
+                                                    <Image
+                                                        className='w-[50px] h-[50px] object-cover'
+                                                        src={user?.avatar}
+                                                        alt={user?.name}
+                                                        width={50}
+                                                        height={50}
+                                                        quality={100}
+                                                        priority
+                                                    />
+                                                </TableCell>
+                                                <TableCell>
+                                                    {(user?.payment?.[0]?.mode === "subscription" && user?.payment?.[0]?.status === "paid") ? (
+                                                        <Dialog>
+                                                            <DialogTrigger className='bg-green-600 rounded-md text-white cursor-pointer flex items-center justify-center p-2 transition-colors duration-300 hover:bg-green-700'>
+                                                                <HiPencilSquare size={18} />
+                                                            </DialogTrigger>
+                                                            <DialogContent>
+                                                                <DialogHeader>
+                                                                    <DialogTitle>Edit Subscription</DialogTitle>
+                                                                    <div className="flex flex-col gap-2 mt-3">
+                                                                        <Label className="text-sm font-semibold text-[#2f1107]">
+                                                                            Credits
+                                                                        </Label>
+
+                                                                        <input
+                                                                            className="bg-muted px-5 py-2 outline-none border-0 rounded-lg w-full h-12 text-[#2F1107] font-medium text-base"
+                                                                            type="number"
+                                                                            name="credits"
+                                                                            id="credits"
+                                                                            value={credits}
+                                                                            min={1}
+                                                                            max={10}
+                                                                            onChange={(e) => setCredits(Number(e.target.value))}
+                                                                        />
+                                                                    </div>
+                                                                    {isError && (
+                                                                        <p
+                                                                            data-slot="form-message"
+                                                                            className="text-destructive text-sm"
+                                                                        >
+                                                                            {(error as Error).message}
+                                                                        </p>
+                                                                    )}
+                                                                    {isSuccess && data?.message && (
+                                                                        <p data-slot="form-message" className="text-green-500 text-sm">
+                                                                            {data.message}
+                                                                        </p>
+                                                                    )}
+                                                                    <button disabled={creditsPending} onClick={() => {
+                                                                        mutate({
+                                                                            credits,
+                                                                            userId: user.id
+                                                                        })
+                                                                    }} type="button" className='bg-[#ffd100] text-[#2f1107] mt-1 rounded-md text-sm font-semibold p-2 cursor-pointer transition-colors duration-300 hover:bg-[#2f1107] hover:text-[#ffd100]'>
+                                                                        {creditsPending ? "Updating..." : "Update"}
+                                                                    </button>
+                                                                </DialogHeader>
+                                                            </DialogContent>
+                                                        </Dialog>
+                                                    ) : (
+                                                        "---"
+                                                    )}
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </div>
                         </div>
                     </div>
 
@@ -394,7 +394,7 @@ const Page = () => {
                         ))}
                     </div>
                     {/* Pagination */}
-                    <Pagination className="mt-6 mx-auto">
+                    <Pagination className="mt-6">
                         <PaginationContent>
 
                             {/* Previous */}

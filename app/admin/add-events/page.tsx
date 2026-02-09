@@ -21,6 +21,7 @@ interface EventsProps {
   time: string;
   city: string;
   locationId: string;
+  tagline: string;
 }
 
 const Page = () => {
@@ -32,6 +33,7 @@ const Page = () => {
     time: "",
     country: "",
     locationId: "",
+    tagline: ""
   });
 
   const { data: cafes, isFetching } = useFetchAllCafes();
@@ -87,6 +89,7 @@ const Page = () => {
       country: formData.country,
       city: formData.city,
       locationId: formData.locationId,
+      tagline: formData.tagline
     });
   };
 
@@ -94,7 +97,7 @@ const Page = () => {
 
   return (
     <>
-      <section className="w-screen min-h-screen bg-[#FFFFF5] relative">
+      <section className="md:w-full w-screen min-h-screen bg-[#FFFFF5] relative">
         <div className="w-full mx-auto py-8 px-4 md:px-8 flex flex-col justify-center md:items-start items-center">
           <form
             encType="multipart/form-data"
@@ -205,6 +208,14 @@ const Page = () => {
                     </option>
                   ))}
                 </select>
+                <input
+                  className="file:text-foreground mb-5 placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground border-input flex h-16 w-full rounded-full border bg-muted px-5 py-2"
+                  type="text" 
+                  name="tagline"
+                  onChange={handleInputChange}
+                  value={formData.tagline || ""}
+                  placeholder="Write a Tagline..."
+                />
               </div>
               {isError && (
                 <p
