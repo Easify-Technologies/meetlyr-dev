@@ -9,27 +9,31 @@ type ApiError = {
   error: string;
 };
 
+type ParticipantFeedback = {
+  participantId: string;
+  rating: number;
+  present: boolean;
+};
+
 export async function sendFeedback(data: {
   eventId: string;
   cafeId: string;
   userId: string;
   overallRating: number;
-  foodRating: number;
   cafeRating: number;
+  foodRating: number;
   serviceRating: number;
-  participantRating: number;
   atmosphereRating: number;
+  participantFeedback: ParticipantFeedback[];
 }) {
   try {
     const res = await axios.post("/api/feedback", data);
     toast.success(res.data.message);
-
     return res.data;
   } catch (error) {
     const axiosErr = error as AxiosError<ApiError>;
-    const message = axiosErr.response?.data?.error || "Something went wrong";
-
-    toast.error(message);
+    toast.error(axiosErr.response?.data?.error || "Something went wrong");
+    throw error;
   }
 }
 

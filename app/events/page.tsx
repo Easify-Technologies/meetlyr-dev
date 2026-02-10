@@ -478,9 +478,10 @@ const Page = () => {
                                 })
                               }
                               type="button"
-                              className="mt-3 inline-flex items-center justify-center gap-2 rounded-xl bg-[#FFD100] px-4 py-3 text-base font-semibold text-[#2F1107] cursor-pointer shadow-sm transition-all duration-300 hover:bg-[#2F1107] hover:text-[#FFD100] hover:shadow-md"
+                              disabled={past.hasSubmittedFeedback}
+                              className={`mt-3 inline-flex items-center justify-center gap-2 rounded-xl ${past.hasSubmittedFeedback ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "bg-[#FFD100] text-[#2F1107] cursor-pointer hover:bg-[#2F1107] hover:text-[#FFD100] hover:shadow-md"} px-4 py-3 text-base font-semibold shadow-sm transition-all duration-300`}
                             >
-                              Send Feedback
+                              {past.hasSubmittedFeedback ? "Feedback Submitted" : "Send Feedback"}
                             </button>
                           </div>
                         </AccordionContent>

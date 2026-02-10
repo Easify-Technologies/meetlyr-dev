@@ -18,7 +18,6 @@ import {
   Pagination,
   PaginationContent,
   PaginationItem,
-  PaginationLink,
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
@@ -37,6 +36,16 @@ const Page = () => {
   const endIndex = startIndex + ITEMS_PER_PAGE;
 
   const paginatedFeedbacks = feedbacks?.slice(startIndex, endIndex);
+
+  const getParticipantAverage = (participants = []) => {
+    const present = participants.filter((p: { present: boolean; }) => p.present);
+
+    if (!present.length) return "-";
+
+    const total = present.reduce((sum, p: { rating: number; }) => sum + p.rating, 0);
+    return (total / present.length).toFixed(1);
+  };
+
 
   useEffect(() => {
     setCurrentPage(1);
@@ -89,21 +98,33 @@ const Page = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {feedbacks && paginatedFeedbacks.map((feedback: any, index: number) => {
+                  {paginatedFeedbacks.map((feedback: any, index: number) => {
                     const isoEventDate = feedback?.event?.date;
-                    const formattedEventDate = format(parseISO(isoEventDate), "EEEE, MMM do h:mm a");
+                    const presentCount = feedback.participantFeedback.filter((p: { present: boolean; }) => p.present).length;
+                    const formattedEventDate = format(
+                      parseISO(isoEventDate),
+                      "EEEE, MMM do h:mm a"
+                    );
 
                     return (
-                      <TableRow className="even:bg-[#2f1107] hover:bg-[#2f1107]/30 border-none even:text-white" key={feedback.id}>
+                      <TableRow
+                        key={feedback.id}
+                        className="even:bg-[#2f1107] even:text-white hover:bg-[#2f1107]/30"
+                      >
                         <TableCell>{startIndex + index + 1}</TableCell>
-                        <TableCell>{feedback?.user?.name}</TableCell>
+                        <TableCell>{feedback.user?.name}</TableCell>
                         <TableCell>{formattedEventDate}</TableCell>
-                        <TableCell>{feedback?.cafe?.name}</TableCell>
-                        <TableCell>{feedback?.cafeRating} / 10</TableCell>
-                        <TableCell>{feedback?.participantRating} / 10</TableCell>
-                        <TableCell>{feedback?.atmosphereRating} / 10</TableCell>
+                        <TableCell>{feedback.cafe?.name}</TableCell>
+                        <TableCell>{feedback.cafeRating} / 5</TableCell>
+                        <TableCell>
+                          {getParticipantAverage(feedback.participantFeedback)} / 5
+                          <span className="block text-xs opacity-80">
+                            ({presentCount} present)
+                          </span>
+                        </TableCell>
+                        <TableCell>{feedback.atmosphereRating} / 5</TableCell>
                       </TableRow>
-                    )
+                    );
                   })}
                 </TableBody>
               </Table>

@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import Navbar from "@/components/ui/Navbar";
+
+import { EmojiRating } from "@/components/EmojiRating";
 import StarRatingComponent from "@/components/comp-171";
 import { useSendFeedback } from "../queries/feedback";
 
@@ -11,6 +13,12 @@ interface MatchedUsers {
   name: string;
   avatar: string;
 }
+
+type ParticipantFeedback = {
+  participantId: string;
+  rating: number;
+  present: boolean;
+};
 
 const TOTAL_STEPS = 4;
 
@@ -22,22 +30,22 @@ const RatingRow = ({
   label: string;
   value: string;
   onChange: (val: any) => void;
-}) => {
-  return (
-    <div className="flex flex-col gap-2 text-center">
-      <p className="font-medium">{label}</p>
-      <div className="flex justify-center">
-        <StarRatingComponent value={value} onChange={onChange} />
-      </div>
+}) => (
+  <div className="flex flex-col gap-2 text-center">
+    <p className="font-medium">{label}</p>
+    <div className="flex justify-center">
+      <StarRatingComponent value={value} onChange={onChange} />
     </div>
-  );
-};
+  </div>
+);
 
 const Page = () => {
   const { data: session } = useSession();
   const userId = session?.user?.id ?? "";
 
   const [currentStep, setCurrentStep] = useState(1);
+  const [participantIndex, setParticipantIndex] = useState(0);
+  const [participantFeedback, setParticipantFeedback] = useState<ParticipantFeedback[]>([]);
   const [matchGroupUsers, setMatchGroupUsers] = useState<MatchedUsers[]>([]);
   const [eventData, setEventData] = useState({
     eventId: "",
@@ -75,7 +83,18 @@ const Page = () => {
     }
   }, []);
 
+  useEffect(() => {
+    if (currentStep !== 2) {
+      setParticipantIndex(0);
+    }
+  }, [currentStep]);
+
   const handleNext = () => {
+    if (currentStep === 2 && participantIndex < matchGroupUsers.length - 1) {
+      setParticipantIndex(prev => prev + 1);
+      return;
+    }
+
     if (currentStep < TOTAL_STEPS) {
       setCurrentStep(prev => prev + 1);
     } else {
@@ -84,6 +103,11 @@ const Page = () => {
   };
 
   const handleBack = () => {
+    if (currentStep === 2 && participantIndex > 0) {
+      setParticipantIndex(prev => prev - 1);
+      return;
+    }
+
     if (currentStep > 1) {
       setCurrentStep(prev => prev - 1);
     }
@@ -95,11 +119,11 @@ const Page = () => {
       cafeId,
       userId,
       overallRating: Number(rating.overall),
-      participantRating: Number(rating.participant),
       cafeRating: Number(rating.cafe),
       atmosphereRating: Number(rating.atmosphere),
       foodRating: Number(rating.food),
-      serviceRating: Number(rating.service)
+      serviceRating: Number(rating.service),
+      participantFeedback
     });
   };
 
@@ -108,49 +132,9 @@ const Page = () => {
       case 1:
         return (
           <>
-            <h4 className="text-2xl text-[#2f1107] font-semibold mb-1">
-              How was your event?
-            </h4>
-            <p className="text-neutral-600 mb-3.5">
-              Rate your overall experience
-            </p>
-            <div className="bg-white shadow-sm rounded-lg py-3 px-4 mb-3.5 w-full">
-              <div className="flex items-center mb-3">
-                {matchGroupUsers.map((user, index) => (
-                  <div
-                    key={user.id}
-                    className="w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-sm"
-                    style={{
-                      marginLeft: index === 0 ? 0 : -10,
-                      zIndex: 10 - index
-                    }}
-                  >
-                    <img
-                      src={user.avatar}
-                      alt={user.name}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                ))}
-              </div>
-              <h4 className="text-neutral-600 text-start text-base font-semibold mb-1">Café</h4>
-              <h4 className="text-[#2f1107] text-start font-semibold">{cafeName}</h4>
-            </div>
-            <StarRatingComponent
-              value={rating.overall}
-              onChange={(val: any) =>
-                setRating(prev => ({ ...prev, overall: val }))
-              }
-            />
-          </>
-        );
+            <h4 className="text-2xl font-semibold mb-1">How was your event?</h4>
+            <p className="text-neutral-600 mb-4">Rate your overall experience</p>
 
-      case 2:
-        return (
-          <>
-            <h4 className="text-2xl text-[#2f1107] font-semibold mb-6">
-              What did you think of the participant?
-            </h4>
             <div className="mb-4">
               {/* Avatar stack */}
               <div className="flex items-center justify-center mb-2">
@@ -180,21 +164,57 @@ const Page = () => {
                 </span>
               </p>
             </div>
+
             <StarRatingComponent
-              value={rating.participant}
+              value={rating.overall}
               onChange={(val: any) =>
-                setRating(prev => ({ ...prev, participant: val }))
+                setRating(prev => ({ ...prev, overall: val }))
               }
             />
           </>
         );
 
+      case 2: {
+        if (!matchGroupUsers.length) return null;
+
+        const user = matchGroupUsers[participantIndex];
+        const existing = participantFeedback.find(
+          p => p.participantId === user.id
+        );
+
+        return (
+          <>
+            <h4 className="text-2xl font-semibold mb-6">
+              What did you think of {user.name}?
+            </h4>
+
+            <div className="w-24 h-24 rounded-full overflow-hidden mb-4">
+              <img src={user.avatar} alt={user.name} />
+            </div>
+
+            <EmojiRating
+              value={existing?.rating}
+              onSelect={(rating) =>
+                setParticipantFeedback(prev => {
+                  const filtered = prev.filter(p => p.participantId !== user.id);
+                  return [
+                    ...filtered,
+                    { participantId: user.id, rating, present: true }
+                  ];
+                })
+              }
+            />
+          </>
+        );
+      }
+
       case 3:
         return (
           <>
-            <h4 className="text-2xl text-[#2f1107] font-semibold mb-6">
+            <h4 className="text-2xl font-semibold mb-6">
               What did you think of the Café?
             </h4>
+
             <div className="bg-white shadow-sm rounded-lg py-3 px-4 mb-3.5 w-full">
               <div className="flex flex-col items-start justify-start gap-1.5 mb-2">
                 <h4 className="text-neutral-600 text-start text-base font-semibold">Café</h4>
@@ -205,6 +225,7 @@ const Page = () => {
                 <span className="text-sm font-semibold text-[#2f1107]">{cafeAddress}</span>
               </div>
             </div>
+
             <StarRatingComponent
               value={rating.cafe}
               onChange={(val: any) =>
@@ -217,7 +238,7 @@ const Page = () => {
       case 4:
         return (
           <>
-            <h4 className="text-2xl text-[#2f1107] font-semibold mb-6">
+            <h4 className="text-2xl font-semibold mb-6">
               Can you give us more details?
             </h4>
 
@@ -258,20 +279,12 @@ const Page = () => {
     switch (currentStep) {
       case 1:
         return Boolean(rating.overall);
-
       case 2:
-        return Boolean(rating.participant);
-
+        return participantFeedback.length === matchGroupUsers.length;
       case 3:
         return Boolean(rating.cafe);
-
       case 4:
-        return (
-          Boolean(rating.atmosphere) &&
-          Boolean(rating.food) &&
-          Boolean(rating.service)
-        );
-
+        return Boolean(rating.atmosphere && rating.food && rating.service);
       default:
         return false;
     }

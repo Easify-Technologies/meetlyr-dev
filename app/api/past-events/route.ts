@@ -9,14 +9,13 @@ export async function POST(req: NextRequest) {
       where: {
         userId,
         event: {
-          date: {
-            lt: new Date(),
-          },
+          date: { lt: new Date() },
         },
       },
       include: {
         event: {
           select: {
+            id: true,
             date: true,
             cafe: {
               select: {
@@ -39,8 +38,15 @@ export async function POST(req: NextRequest) {
       take: 3,
     });
 
-    const participantIds = pastEvents.flatMap((p) =>
-      p.event.matchGroups.flatMap((g) => g.members),
+    const feedbacks = await prisma.feedback.findMany({
+      where: { userId },
+      select: { eventId: true },
+    });
+
+    const feedbackEventIds = new Set(feedbacks.map(f => f.eventId));
+
+    const participantIds = pastEvents.flatMap(p =>
+      p.event.matchGroups.flatMap(g => g.members),
     );
 
     const uniqueParticipantIds = [...new Set(participantIds)];
@@ -62,23 +68,19 @@ export async function POST(req: NextRequest) {
     });
 
     const participantUserMap = new Map(
-      participantsWithUsers.map((p) => [p.id, p.user]),
+      participantsWithUsers.map(p => [p.id, p.user]),
     );
 
-    const enrichedPastEvents = pastEvents.map((p) => ({
+    const enrichedPastEvents = pastEvents.map(p => ({
       ...p,
+      hasSubmittedFeedback: feedbackEventIds.has(p.event.id),
       event: {
         ...p.event,
-        matchGroups: p.event.matchGroups.map((g) => {
-          const { members, ...restGroup } = g;
-
-          return {
-            ...restGroup,
-            users: members
-              .map((id) => participantUserMap.get(id))
-              .filter((u) => u && u.id !== userId),
-          };
-        }),
+        matchGroups: p.event.matchGroups.map(g => ({
+          users: g.members
+            .map(id => participantUserMap.get(id))
+            .filter(u => u && u.id !== userId),
+        })),
       },
     }));
 
