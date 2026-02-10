@@ -22,10 +22,21 @@ import {
   Pagination,
   PaginationContent,
   PaginationItem,
-  PaginationLink,
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Button } from '@/components/ui/button';
 
 interface EventProps {
   id: string;
@@ -193,11 +204,26 @@ const Page = () => {
                         <TableCell>{event?.isClosed ? "True" : "False"}</TableCell>
                         <TableCell>{event?.admin?.email}</TableCell>
                         <TableCell>
-                          <button onClick={() => {
-                            mutate({ eventId: event?.id })
-                          }} type="button" className='bg-red-500 rounded-md p-2 transition-colors duration-300 cursor-pointer text-white hover:bg-red-600'>
-                            <FaTrashCan size={16} />
-                          </button>
+                          <Dialog>
+                            <DialogTrigger className='bg-red-500 rounded-md p-2 transition-colors duration-300 cursor-pointer text-white hover:bg-red-600'>
+                              <FaTrashCan size={16} />
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <DialogTitle>Confirm Event Deletion</DialogTitle>
+                                <DialogDescription>
+                                  Deleting this event is permanent. All event details, registrations,
+                                  and related records will be removed from the system.
+                                </DialogDescription>
+                              </DialogHeader>
+                              <DialogFooter className="sm:justify-start">
+                                <DialogClose asChild>
+                                  <Button type="button" className='cursor-pointer'>Close</Button>
+                                </DialogClose>
+                                <Button onClick={() => mutate({ eventId: event?.id })} type="button" className='bg-red-600 rounded-md p-2 transition-colors duration-300 cursor-pointer text-white hover:bg-red-800'>Confirm</Button>
+                              </DialogFooter>
+                            </DialogContent>
+                          </Dialog>
                         </TableCell>
                       </TableRow>
                     )

@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
 
     <div style="text-align: center; margin: 32px 0;">
       <a
-        href="${process.env.NEXTAUTH_URL}/event"
+        href="${process.env.NEXTAUTH_URL}/events"
         target="_blank"
         style="
           display: inline-block;
