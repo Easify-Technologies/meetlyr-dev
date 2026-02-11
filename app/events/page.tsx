@@ -200,7 +200,7 @@ const Page = () => {
                           <span className="text-gray-700 font-semibold text-base">Event scheduled for {formattedEventDate}</span>
                         </div>
                         {eventStatus !== "Matched" && (
-                          <h4 className="text-[#2f1107] font-semibold md:text-xl text-base mt-3">Further Details will be available 48 hours before the event</h4>
+                          <h4 className="text-[#2f1107] font-semibold md:text-xl text-base mt-3">Further Details will be available 24 hours before the event</h4>
                         )}
                         {item?.user?.payment[0]?.mode === "subscription" && (
                           <AlertDialog>

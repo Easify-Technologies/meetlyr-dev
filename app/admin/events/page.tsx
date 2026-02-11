@@ -62,7 +62,7 @@ interface LocationProps {
 const Page = () => {
   const { data: events, isPending } = useFetchEvents();
   const { data: locations } = useFetchAllLocations();
-  const { mutate } = useRemoveEvent();
+  const { mutate, isPending: removeLoading } = useRemoveEvent();
 
   const [searchTerm, setSearchTerm] = useState({
     country: "",
@@ -220,7 +220,9 @@ const Page = () => {
                                 <DialogClose asChild>
                                   <Button type="button" className='cursor-pointer'>Close</Button>
                                 </DialogClose>
-                                <Button onClick={() => mutate({ eventId: event?.id })} type="button" className='bg-red-600 rounded-md p-2 transition-colors duration-300 cursor-pointer text-white hover:bg-red-800'>Confirm</Button>
+                                <Button disabled={removeLoading} onClick={() => mutate({ eventId: event?.id })} type="button" className='bg-red-600 rounded-md p-2 transition-colors duration-300 cursor-pointer text-white hover:bg-red-800'>
+                                  {removeLoading ? "Confirming..." : "Confirm"}
+                                </Button>
                               </DialogFooter>
                             </DialogContent>
                           </Dialog>
