@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
+import { useState, useEffect } from "react";
+import Link from "next/link";
 import {
   Table,
   TableBody,
@@ -11,8 +11,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { parseISO, format } from "date-fns";
-import { useGetFeedbacks } from '@/app/queries/admin/get-feedbacks';
-import Loader from '@/components/ui/loader';
+import { useGetFeedbacks } from "@/app/queries/admin/get-feedbacks";
+import Loader from "@/components/ui/loader";
 
 import {
   Pagination,
@@ -35,17 +35,20 @@ const Page = () => {
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
 
-  const paginatedFeedbacks = feedbacks?.slice(startIndex, endIndex);
+  const safeFeedbacks = Array.isArray(feedbacks) ? feedbacks : [];
+  const paginatedFeedbacks = safeFeedbacks.slice(startIndex, endIndex);
 
   const getParticipantAverage = (participants = []) => {
-    const present = participants.filter((p: { present: boolean; }) => p.present);
+    const present = participants.filter((p: { present: boolean }) => p.present);
 
     if (!present.length) return "-";
 
-    const total = present.reduce((sum, p: { rating: number; }) => sum + p.rating, 0);
+    const total = present.reduce(
+      (sum, p: { rating: number }) => sum + p.rating,
+      0,
+    );
     return (total / present.length).toFixed(1);
   };
-
 
   useEffect(() => {
     setCurrentPage(1);
@@ -53,12 +56,20 @@ const Page = () => {
 
   if (isPending) return <Loader />;
 
+  if (!feedbacks || feedbacks.length === 0) {
+    return (
+      <div className="w-full min-h-screen flex items-center justify-center">
+        No feedback available
+      </div>
+    );
+  }
+
   return (
     <>
-      <section className='w-screen md:w-full min-h-screen bg-[#FFFFF5] relative'>
+      <section className="w-screen md:w-full min-h-screen bg-[#FFFFF5] relative">
         <div className="w-full mx-auto py-8 md:px-8 px-4">
           <div className="flex flex-row gap-2 items-center flex-nowrap justify-between">
-            <div className='flex items-center'>
+            <div className="flex items-center">
               <Link
                 href="/admin/dashboard"
                 className="rounded-full hover:bg-[#2f1107] hover:text-white flex items-center justify-center p-2 transition-colors duration-300"
@@ -83,27 +94,35 @@ const Page = () => {
               <h3 className="text-2xl md:text-3xl font-bold">All Feedbacks</h3>
             </div>
           </div>
-          <div className='w-full mt-10'>
+          <div className="w-full mt-10">
             <div className="[&>div]:max-h-96">
               <Table className="border-separate border-spacing-0 [&_td]:border-border [&_tfoot_td]:border-t [&_th]:border-b [&_th]:border-border [&_tr]:border-none [&_tr:not(:last-child)_td]:border-b">
                 <TableHeader className="sticky top-0 bg-[#ffd100] backdrop-blur-xs">
                   <TableRow className="border-none">
-                    <TableHead className='text-[#2f1107]'>S. No</TableHead>
-                    <TableHead className='text-[#2f1107]'>User</TableHead>
-                    <TableHead className='text-[#2f1107]'>Event</TableHead>
-                    <TableHead className='text-[#2f1107]'>Cafe</TableHead>
-                    <TableHead className='text-[#2f1107]'>Cafe Rating</TableHead>
-                    <TableHead className='text-[#2f1107]'>Participant Rating</TableHead>
-                    <TableHead className='text-[#2f1107]'>Atmosphere Rating</TableHead>
+                    <TableHead className="text-[#2f1107]">S. No</TableHead>
+                    <TableHead className="text-[#2f1107]">User</TableHead>
+                    <TableHead className="text-[#2f1107]">Event</TableHead>
+                    <TableHead className="text-[#2f1107]">Cafe</TableHead>
+                    <TableHead className="text-[#2f1107]">
+                      Cafe Rating
+                    </TableHead>
+                    <TableHead className="text-[#2f1107]">
+                      Participant Rating
+                    </TableHead>
+                    <TableHead className="text-[#2f1107]">
+                      Atmosphere Rating
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {paginatedFeedbacks.map((feedback: any, index: number) => {
+                  {paginatedFeedbacks?.map((feedback: any, index: number) => {
                     const isoEventDate = feedback?.event?.date;
-                    const presentCount = feedback.participantFeedback.filter((p: { present: boolean; }) => p.present).length;
+                    const presentCount = feedback.participantFeedback.filter(
+                      (p: { present: boolean }) => p.present,
+                    ).length;
                     const formattedEventDate = format(
                       parseISO(isoEventDate),
-                      "EEEE, MMM do h:mm a"
+                      "EEEE, MMM do h:mm a",
                     );
 
                     return (
@@ -117,7 +136,8 @@ const Page = () => {
                         <TableCell>{feedback.cafe?.name}</TableCell>
                         <TableCell>{feedback.cafeRating} / 5</TableCell>
                         <TableCell>
-                          {getParticipantAverage(feedback.participantFeedback)} / 5
+                          {getParticipantAverage(feedback.participantFeedback)}{" "}
+                          / 5
                           <span className="block text-xs opacity-80">
                             ({presentCount} present)
                           </span>
@@ -133,12 +153,13 @@ const Page = () => {
           {/* Pagination */}
           <Pagination className="mt-6 mx-auto">
             <PaginationContent>
-
               {/* Previous */}
               <PaginationItem>
                 <PaginationPrevious
                   onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-                  className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
+                  className={
+                    currentPage === 1 ? "pointer-events-none opacity-50" : ""
+                  }
                 />
               </PaginationItem>
 
@@ -150,17 +171,22 @@ const Page = () => {
               {/* Next */}
               <PaginationItem>
                 <PaginationNext
-                  onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-                  className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""}
+                  onClick={() =>
+                    setCurrentPage((p) => Math.min(p + 1, totalPages))
+                  }
+                  className={
+                    currentPage === totalPages
+                      ? "pointer-events-none opacity-50"
+                      : ""
+                  }
                 />
               </PaginationItem>
-
             </PaginationContent>
           </Pagination>
         </div>
       </section>
     </>
-  )
-}
+  );
+};
 
-export default Page
+export default Page;

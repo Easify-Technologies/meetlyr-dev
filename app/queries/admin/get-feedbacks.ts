@@ -8,7 +8,8 @@ const getFeedbacks = async () => {
     const res = await axios.get("/api/admin/feedback");
     return res.data.feedback;
   } catch (error) {
-    console.log(error);
+    console.error("Error fetching feedbacks:", error);
+    throw error;
   }
 };
 
