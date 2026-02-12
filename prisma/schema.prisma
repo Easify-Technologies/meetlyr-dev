@@ -186,7 +186,7 @@ model Feedback {
   eventId          String @db.ObjectId
   cafeId           String @db.ObjectId
 
-  overallRating    Int
+  overallRating    Int?
   cafeRating       Int
   atmosphereRating Int
   foodRating       Int
