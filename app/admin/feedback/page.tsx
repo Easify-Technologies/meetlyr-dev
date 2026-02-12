@@ -110,7 +110,7 @@ const Page = () => {
           <div className="w-full mt-10">
             <div className="[&>div]:max-h-96">
               <Table className="border-separate border-spacing-0 [&_td]:border-border [&_tfoot_td]:border-t [&_th]:border-b [&_th]:border-border [&_tr]:border-none [&_tr:not(:last-child)_td]:border-b">
-                <TableHeader className="sticky top-0 bg-[#ffd100] backdrop-blur-xs">
+                <TableHeader className="sticky top-0 bg-[#ffd100] backdrop-blur-xs z-50">
                   <TableRow className="border-none">
                     <TableHead className="text-[#2f1107]">S. No</TableHead>
                     <TableHead className="text-[#2f1107]">User</TableHead>
@@ -139,7 +139,7 @@ const Page = () => {
                     return (
                       <TableRow
                         key={feedback.id}
-                        className="even:bg-[#2f1107] even:text-white hover:bg-[#2f1107]/30"
+                        className="even:bg-[#2f1107] relative z-0 even:text-white hover:bg-[#2f1107]/30"
                       >
                         <TableCell>{startIndex + index + 1}</TableCell>
                         <TableCell>{feedback.user?.name}</TableCell>

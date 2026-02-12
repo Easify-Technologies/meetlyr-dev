@@ -203,96 +203,109 @@ const Page = () => {
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {paginatedUsers?.map((user: UserProps, idx: number) => (
-                                            <TableRow
-                                                key={user.id}
-                                                className="even:bg-[#2f1107] hover:bg-[#2f1107]/30 border-none even:text-white"
-                                            >
-                                                <TableCell className="font-medium">{startIndex + idx + 1}</TableCell>
-                                                <TableCell>{user?.name}</TableCell>
-                                                <TableCell>{user?.email}</TableCell>
-                                                <TableCell>{user?.phoneNumber}</TableCell>
-                                                <TableCell className='capitalize'>{user?.gender}</TableCell>
-                                                <TableCell>{user?.dateOfBirth}</TableCell>
-                                                <TableCell>{user?.city}</TableCell>
-                                                <TableCell>{user?.country}</TableCell>
-                                                <TableCell>{user?.connectionStyles}</TableCell>
-                                                <TableCell>{user?.communicationStyles}</TableCell>
-                                                <TableCell>{user?.family} / 10</TableCell>
-                                                <TableCell>{user?.incorrectHumor} / 10</TableCell>
-                                                <TableCell>{user?.healthAndFitness}</TableCell>
-                                                <TableCell>{user?.politicalNews} / 10</TableCell>
-                                                <TableCell className="whitespace-nowrap">
-                                                    {user?.kindOfPeople?.join(", ")}
-                                                </TableCell>
-                                                <TableCell className='capitalize'>{user?.payment?.[0]?.mode ?? "---"}</TableCell>
-                                                <TableCell className='capitalize'>{user?.payment?.[0]?.status ?? "unpaid"}</TableCell>
-                                                <TableCell>
-                                                    <Image
-                                                        className='w-[50px] h-[50px] object-cover'
-                                                        src={user?.avatar}
-                                                        alt={user?.name}
-                                                        width={50}
-                                                        height={50}
-                                                        quality={100}
-                                                        priority
-                                                    />
-                                                </TableCell>
-                                                <TableCell>
-                                                    {(user?.payment?.[0]?.mode === "subscription" && user?.payment?.[0]?.status === "paid") ? (
-                                                        <Dialog>
-                                                            <DialogTrigger className='bg-green-600 rounded-md text-white cursor-pointer flex items-center justify-center p-2 transition-colors duration-300 hover:bg-green-700'>
-                                                                <HiPencilSquare size={18} />
-                                                            </DialogTrigger>
-                                                            <DialogContent>
-                                                                <DialogHeader>
-                                                                    <DialogTitle>Edit Subscription</DialogTitle>
-                                                                    <div className="flex flex-col gap-2 mt-3">
-                                                                        <Label className="text-sm font-semibold text-[#2f1107]">
-                                                                            Credits
-                                                                        </Label>
+                                        {paginatedUsers?.map((user: UserProps, idx: number) => {
+                                            const isSpecial = user?.payment?.[0]?.mode === "special";
 
-                                                                        <input
-                                                                            className="bg-muted px-5 py-2 outline-none border-0 rounded-lg w-full h-12 text-[#2F1107] font-medium text-base"
-                                                                            type="number"
-                                                                            name="credits"
-                                                                            id="credits"
-                                                                            value={credits}
-                                                                            min={1}
-                                                                            max={10}
-                                                                            onChange={(e) => setCredits(Number(e.target.value))}
-                                                                        />
-                                                                    </div>
-                                                                    {isError && (
-                                                                        <p
-                                                                            data-slot="form-message"
-                                                                            className="text-destructive text-sm"
-                                                                        >
-                                                                            {(error as Error).message}
-                                                                        </p>
-                                                                    )}
-                                                                    {isSuccess && data?.message && (
-                                                                        <p data-slot="form-message" className="text-green-500 text-sm">
-                                                                            {data.message}
-                                                                        </p>
-                                                                    )}
-                                                                    <button disabled={creditsPending} onClick={() => {
-                                                                        mutate({
-                                                                            credits,
-                                                                            userId: user.id
-                                                                        })
-                                                                    }} type="button" className='bg-[#ffd100] text-[#2f1107] mt-1 rounded-md text-sm font-semibold p-2 cursor-pointer transition-colors duration-300 hover:bg-[#2f1107] hover:text-[#ffd100]'>
-                                                                        {creditsPending ? "Updating..." : "Update"}
-                                                                    </button>
-                                                                </DialogHeader>
-                                                            </DialogContent>
-                                                        </Dialog>
-                                                    ) : (
-                                                        "---"
-                                                    )}
-                                                </TableCell>
-                                            </TableRow>
-                                        ))}
+                                            return (
+                                                <TableRow
+                                                    key={user.id}
+                                                    className={`even:bg-[#2f1107] hover:bg-[#2f1107]/30 border-none even:text-white ${isSpecial ? "ring-2 ring-yellow-400" : ""
+                                                        }`}
+                                                >
+                                                    <TableCell className="font-medium">{startIndex + idx + 1}</TableCell>
+                                                    <TableCell>{user?.name}</TableCell>
+                                                    <TableCell>{user?.email}</TableCell>
+                                                    <TableCell>{user?.phoneNumber}</TableCell>
+                                                    <TableCell className='capitalize'>{user?.gender}</TableCell>
+                                                    <TableCell>{user?.dateOfBirth}</TableCell>
+                                                    <TableCell>{user?.city}</TableCell>
+                                                    <TableCell>{user?.country}</TableCell>
+                                                    <TableCell>{user?.connectionStyles}</TableCell>
+                                                    <TableCell>{user?.communicationStyles}</TableCell>
+                                                    <TableCell>{user?.family} / 10</TableCell>
+                                                    <TableCell>{user?.incorrectHumor} / 10</TableCell>
+                                                    <TableCell>{user?.healthAndFitness}</TableCell>
+                                                    <TableCell>{user?.politicalNews} / 10</TableCell>
+                                                    <TableCell className="whitespace-nowrap">
+                                                        {user?.kindOfPeople?.join(", ")}
+                                                    </TableCell>
+                                                    <TableCell className="capitalize">
+                                                        {isSpecial ? (
+                                                            <span className="bg-[#00916E] text-white text-xs font-semibold px-2 py-1 rounded-md">
+                                                                Special
+                                                            </span>
+                                                        ) : (
+                                                            user?.payment?.[0]?.mode ?? "---"
+                                                        )}
+                                                    </TableCell>
+                                                    <TableCell className='capitalize'>{user?.payment?.[0]?.status ?? "---"}</TableCell>
+                                                    <TableCell>
+                                                        <Image
+                                                            className='w-[50px] h-[50px] object-cover'
+                                                            src={user?.avatar}
+                                                            alt={user?.name}
+                                                            width={50}
+                                                            height={50}
+                                                            quality={100}
+                                                            priority
+                                                        />
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        {(user?.payment?.[0]?.mode === "subscription" && user?.payment?.[0]?.status === "paid") ? (
+                                                            <Dialog>
+                                                                <DialogTrigger className='bg-green-600 rounded-md text-white cursor-pointer flex items-center justify-center p-2 transition-colors duration-300 hover:bg-green-700'>
+                                                                    <HiPencilSquare size={18} />
+                                                                </DialogTrigger>
+                                                                <DialogContent>
+                                                                    <DialogHeader>
+                                                                        <DialogTitle>Edit Subscription</DialogTitle>
+                                                                        <div className="flex flex-col gap-2 mt-3">
+                                                                            <Label className="text-sm font-semibold text-[#2f1107]">
+                                                                                Credits
+                                                                            </Label>
+
+                                                                            <input
+                                                                                className="bg-muted px-5 py-2 outline-none border-0 rounded-lg w-full h-12 text-[#2F1107] font-medium text-base"
+                                                                                type="number"
+                                                                                name="credits"
+                                                                                id="credits"
+                                                                                value={credits}
+                                                                                min={1}
+                                                                                max={10}
+                                                                                onChange={(e) => setCredits(Number(e.target.value))}
+                                                                            />
+                                                                        </div>
+                                                                        {isError && (
+                                                                            <p
+                                                                                data-slot="form-message"
+                                                                                className="text-destructive text-sm"
+                                                                            >
+                                                                                {(error as Error).message}
+                                                                            </p>
+                                                                        )}
+                                                                        {isSuccess && data?.message && (
+                                                                            <p data-slot="form-message" className="text-green-500 text-sm">
+                                                                                {data.message}
+                                                                            </p>
+                                                                        )}
+                                                                        <button disabled={creditsPending} onClick={() => {
+                                                                            mutate({
+                                                                                credits,
+                                                                                userId: user.id
+                                                                            })
+                                                                        }} type="button" className='bg-[#ffd100] text-[#2f1107] mt-1 rounded-md text-sm font-semibold p-2 cursor-pointer transition-colors duration-300 hover:bg-[#2f1107] hover:text-[#ffd100]'>
+                                                                            {creditsPending ? "Updating..." : "Update"}
+                                                                        </button>
+                                                                    </DialogHeader>
+                                                                </DialogContent>
+                                                            </Dialog>
+                                                        ) : (
+                                                            "---"
+                                                        )}
+                                                    </TableCell>
+                                                </TableRow>
+                                            )
+                                        })}
                                     </TableBody>
                                 </Table>
                             </div>
@@ -301,97 +314,109 @@ const Page = () => {
 
                     {/* Card layout (mobile) */}
                     <div className="md:hidden mt-8 space-y-4">
-                        {paginatedUsers?.map((user: UserProps, idx: number) => (
-                            <div
-                                key={user.id}
-                                className="bg-white border border-gray-200 rounded-xl shadow-sm p-4 flex flex-col gap-2"
-                            >
-                                <div className="flex justify-between items-center border-b pb-2">
-                                    <h4 className="font-bold text-lg text-[#2f1107]">{user?.name}</h4>
-                                    <span className="text-sm text-gray-500">#{startIndex + idx + 1}</span>
-                                </div>
-                                <Image
-                                    className='w-[60px] h-[60px] object-cover'
-                                    src={user?.avatar}
-                                    alt={user?.name}
-                                    width={60}
-                                    height={60}
-                                    quality={100}
-                                    priority
-                                />
-                                <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm text-gray-700">
-                                    <p><span className="font-semibold">Email:</span> {user?.email}</p>
-                                    <p><span className="font-semibold">Phone:</span> {user?.phoneNumber}</p>
-                                    <p className='capitalize'><span className="font-semibold">Gender:</span> {user?.gender}</p>
-                                    <p><span className="font-semibold">DOB:</span> {user?.dateOfBirth}</p>
-                                    <p><span className="font-semibold">City:</span> {user?.city}</p>
-                                    <p><span className="font-semibold">Country:</span> {user?.country}</p>
-                                    <p><span className="font-semibold">Connection:</span> {user?.connectionStyles}</p>
-                                    <p><span className="font-semibold">Communication:</span> {user?.communicationStyles}</p>
-                                    <p><span className="font-semibold">Family:</span> {user?.family} / 10</p>
-                                    <p><span className="font-semibold">Humor:</span> {user?.incorrectHumor} / 10</p>
-                                    <p><span className="font-semibold">Health & Fitness:</span> {user?.healthAndFitness}</p>
-                                    <p><span className="font-semibold">Politics:</span> {user?.politicalNews} / 10</p>
-                                    <p className="col-span-2">
-                                        <span className="font-semibold">Kind of People: </span>
-                                        {user?.kindOfPeople?.join(", ")}
-                                    </p>
-                                    <p className='capitalize'><span className="font-semibold">Payment Mode:</span> {user?.payment?.[0]?.mode ?? "---"}</p>
-                                    <p className='capitalize'><span className="font-semibold">Payment Status:</span> {user?.payment?.[0]?.status ?? "unpaid"}</p>
-                                    {(user?.payment?.[0]?.mode === "subscription" && user?.payment?.[0]?.status === "paid") ? (
-                                        <Dialog>
-                                            <DialogTrigger className='bg-green-600 rounded-md text-white cursor-pointer mt-1.5 flex items-center justify-center p-2 transition-colors duration-300 hover:bg-green-700'>
-                                                <HiPencilSquare size={18} />
-                                            </DialogTrigger>
-                                            <DialogContent>
-                                                <DialogHeader>
-                                                    <DialogTitle>Edit Subscription</DialogTitle>
-                                                    <div className="flex flex-col gap-2 mt-3">
-                                                        <Label className="text-sm font-semibold text-[#2f1107]">
-                                                            Credits
-                                                        </Label>
+                        {paginatedUsers?.map((user: UserProps, idx: number) => {
+                            const isSpecial = user?.payment?.[0]?.mode === "special";
 
-                                                        <input
-                                                            className="bg-muted px-5 py-2 outline-none border-0 rounded-lg w-full h-12 text-[#2F1107] font-medium text-base"
-                                                            type="number"
-                                                            name="credits"
-                                                            id="credits"
-                                                            value={credits}
-                                                            min={1}
-                                                            max={10}
-                                                            onChange={(e) => setCredits(Number(e.target.value))}
-                                                        />
-                                                    </div>
-                                                    {isError && (
-                                                        <p
-                                                            data-slot="form-message"
-                                                            className="text-destructive text-sm"
-                                                        >
-                                                            {(error as Error).message}
-                                                        </p>
-                                                    )}
-                                                    {isSuccess && data?.message && (
-                                                        <p data-slot="form-message" className="text-green-500 text-sm">
-                                                            {data.message}
-                                                        </p>
-                                                    )}
-                                                    <button disabled={creditsPending} onClick={() => {
-                                                        mutate({
-                                                            credits,
-                                                            userId: user.id
-                                                        })
-                                                    }} type="button" className='bg-[#ffd100] text-[#2f1107] mt-1 rounded-md text-sm font-semibold p-2 cursor-pointer transition-colors duration-300 hover:bg-[#2f1107] hover:text-[#ffd100]'>
-                                                        {creditsPending ? "Updating..." : "Update"}
-                                                    </button>
-                                                </DialogHeader>
-                                            </DialogContent>
-                                        </Dialog>
-                                    ) : (
-                                        null
-                                    )}
+                            return (
+                                <div
+                                    key={user.id}
+                                    className="bg-white border border-gray-200 rounded-xl shadow-sm p-4 flex flex-col gap-2"
+                                >
+                                    <div className="flex justify-between items-center border-b pb-2">
+                                        <h4 className="font-bold text-lg text-[#2f1107]">{user?.name}</h4>
+                                        <span className="text-sm text-gray-500">#{startIndex + idx + 1}</span>
+                                    </div>
+                                    <Image
+                                        className='w-[60px] h-[60px] object-cover'
+                                        src={user?.avatar}
+                                        alt={user?.name}
+                                        width={60}
+                                        height={60}
+                                        quality={100}
+                                        priority
+                                    />
+                                    <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm text-gray-700">
+                                        <p><span className="font-semibold">Email:</span> {user?.email}</p>
+                                        <p><span className="font-semibold">Phone:</span> {user?.phoneNumber}</p>
+                                        <p className='capitalize'><span className="font-semibold">Gender:</span> {user?.gender}</p>
+                                        <p><span className="font-semibold">DOB:</span> {user?.dateOfBirth}</p>
+                                        <p><span className="font-semibold">City:</span> {user?.city}</p>
+                                        <p><span className="font-semibold">Country:</span> {user?.country}</p>
+                                        <p><span className="font-semibold">Connection:</span> {user?.connectionStyles}</p>
+                                        <p><span className="font-semibold">Communication:</span> {user?.communicationStyles}</p>
+                                        <p><span className="font-semibold">Family:</span> {user?.family} / 10</p>
+                                        <p><span className="font-semibold">Humor:</span> {user?.incorrectHumor} / 10</p>
+                                        <p><span className="font-semibold">Health & Fitness:</span> {user?.healthAndFitness}</p>
+                                        <p><span className="font-semibold">Politics:</span> {user?.politicalNews} / 10</p>
+                                        <p className="col-span-2">
+                                            <span className="font-semibold">Kind of People: </span>
+                                            {user?.kindOfPeople?.join(", ")}
+                                        </p>
+                                        <p className='capitalize'><span className="font-semibold">Payment Mode: </span>
+                                            {isSpecial ? (
+                                                <span className="bg-[#00916E] text-white text-xs font-semibold px-2 py-1 rounded-md">
+                                                    Special
+                                                </span>
+                                            ) : (
+                                                user?.payment?.[0]?.mode ?? "---"
+                                            )}
+                                        </p>
+                                        <p className='capitalize'><span className="font-semibold">Payment Status:</span> {user?.payment?.[0]?.status ?? "---"}</p>
+                                        {(user?.payment?.[0]?.mode === "subscription" && user?.payment?.[0]?.status === "paid") ? (
+                                            <Dialog>
+                                                <DialogTrigger className='bg-green-600 rounded-md text-white cursor-pointer mt-1.5 flex items-center justify-center p-2 transition-colors duration-300 hover:bg-green-700'>
+                                                    <HiPencilSquare size={18} />
+                                                </DialogTrigger>
+                                                <DialogContent>
+                                                    <DialogHeader>
+                                                        <DialogTitle>Edit Subscription</DialogTitle>
+                                                        <div className="flex flex-col gap-2 mt-3">
+                                                            <Label className="text-sm font-semibold text-[#2f1107]">
+                                                                Credits
+                                                            </Label>
+
+                                                            <input
+                                                                className="bg-muted px-5 py-2 outline-none border-0 rounded-lg w-full h-12 text-[#2F1107] font-medium text-base"
+                                                                type="number"
+                                                                name="credits"
+                                                                id="credits"
+                                                                value={credits}
+                                                                min={1}
+                                                                max={10}
+                                                                onChange={(e) => setCredits(Number(e.target.value))}
+                                                            />
+                                                        </div>
+                                                        {isError && (
+                                                            <p
+                                                                data-slot="form-message"
+                                                                className="text-destructive text-sm"
+                                                            >
+                                                                {(error as Error).message}
+                                                            </p>
+                                                        )}
+                                                        {isSuccess && data?.message && (
+                                                            <p data-slot="form-message" className="text-green-500 text-sm">
+                                                                {data.message}
+                                                            </p>
+                                                        )}
+                                                        <button disabled={creditsPending} onClick={() => {
+                                                            mutate({
+                                                                credits,
+                                                                userId: user.id
+                                                            })
+                                                        }} type="button" className='bg-[#ffd100] text-[#2f1107] mt-1 rounded-md text-sm font-semibold p-2 cursor-pointer transition-colors duration-300 hover:bg-[#2f1107] hover:text-[#ffd100]'>
+                                                            {creditsPending ? "Updating..." : "Update"}
+                                                        </button>
+                                                    </DialogHeader>
+                                                </DialogContent>
+                                            </Dialog>
+                                        ) : (
+                                            null
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            )
+                        })}
                     </div>
                     {/* Pagination */}
                     <Pagination className="mt-6">

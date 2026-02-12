@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
     ) {
       return NextResponse.json(
         { error: "All fields are required", isLoggedIn: false },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -91,14 +91,14 @@ export async function POST(request: NextRequest) {
     if (existingUser) {
       return NextResponse.json(
         { error: "User already exists" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (finalAge < 18) {
       return NextResponse.json(
         { error: "You must be at least 18 years old to register." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -141,7 +141,7 @@ export async function POST(request: NextRequest) {
     const token = jwt.sign(
       { userId: user.id, email: user.email },
       process.env.NEXTAUTH_SECRET!,
-      { expiresIn: "7d" }
+      { expiresIn: "7d" },
     );
 
     const otp = generateOTP();
@@ -156,7 +156,7 @@ export async function POST(request: NextRequest) {
         maxAge: 10 * 60,
         sameSite: "strict",
         path: "/",
-      }
+      },
     );
 
     const html = `
@@ -190,7 +190,57 @@ export async function POST(request: NextRequest) {
       data: { status: "completed" },
     });
 
+    const formattedDate = new Date(user.createdAt).toLocaleString("en-US", {
+      weekday: "long",
+      hour: "2-digit",
+      minute: "2-digit",
+      month: "short",
+      day: "numeric",
+      timeZone: "Europe/Paris",
+    });
+
     if (verification) {
+      const html = `
+  <div style="font-family: Arial, sans-serif; padding: 20px; line-height: 1.6; color: #222;">
+    <p>Hello Admin 👋</p>
+
+    <p>
+      This is to inform you that a new user has successfully registered on the platform.
+    </p>
+
+    <div style="background-color: #f7f7f7; padding: 15px; border-radius: 6px; margin: 16px 0;">
+      <p style="margin: 0 0 6px 0;">
+        <strong>Name:</strong> ${user?.name}
+      </p>
+      <p style="margin: 0 0 6px 0;">
+        <strong>Email:</strong> ${user?.email}
+      </p>
+      <p style="margin: 0;">
+        <strong>Registered On:</strong> ${formattedDate}
+      </p>
+    </div>
+
+    <p>
+      The account has been created successfully and is now active in the system.
+    </p>
+
+    <p style="font-size: 14px; color: #555;">
+      You may review the user's profile, manage permissions, or take any necessary action from the admin dashboard.
+    </p>
+
+    <p>
+      —<br />
+      <strong>Meetlyr System Notification</strong>
+    </p>
+  </div>
+`;
+      transporter.sendMail({
+        from: `"Meetlyr" <${process.env.SMTP_USER}>`,
+        to: process.env.ADMIN_SECONDARY_EMAIL,
+        subject: "New User Joined Event ☕",
+        html,
+      });
+
       return NextResponse.json(
         {
           success: true,
@@ -199,19 +249,19 @@ export async function POST(request: NextRequest) {
           token,
           isLoggedIn: true,
         },
-        { status: 201 }
+        { status: 201 },
       );
     } else {
       return NextResponse.json(
         { error: "Email could not be sent" },
-        { status: 500 }
+        { status: 500 },
       );
     }
   } catch (error) {
     console.error("Register API error:", error);
     return NextResponse.json(
       { error: "Something went wrong!" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
