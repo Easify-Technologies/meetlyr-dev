@@ -70,7 +70,6 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    /* ---------------- EMAIL ---------------- */
     if (user?.email) {
       const html = `
         <p style="font-size:16px;">Hey ${user.name} 👋</p>

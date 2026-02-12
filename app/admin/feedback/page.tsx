@@ -38,16 +38,29 @@ const Page = () => {
   const safeFeedbacks = Array.isArray(feedbacks) ? feedbacks : [];
   const paginatedFeedbacks = safeFeedbacks.slice(startIndex, endIndex);
 
-  const getParticipantAverage = (participants = []) => {
-    const present = participants.filter((p: { present: boolean }) => p.present);
+  const getParticipantStats = (participants = []) => {
+    if (!participants.length) {
+      return {
+        avg: "-",
+        present: 0,
+        total: 0
+      };
+    }
 
-    if (!present.length) return "-";
-
-    const total = present.reduce(
+    const totalRating = participants.reduce(
       (sum, p: { rating: number }) => sum + p.rating,
-      0,
+      0
     );
-    return (total / present.length).toFixed(1);
+
+    const presentCount = participants.filter(
+      (p: { present: boolean }) => p.present
+    ).length;
+
+    return {
+      avg: (totalRating / participants.length).toFixed(1),
+      present: presentCount,
+      total: participants.length
+    };
   };
 
   useEffect(() => {
@@ -117,13 +130,11 @@ const Page = () => {
                 <TableBody>
                   {paginatedFeedbacks?.map((feedback: any, index: number) => {
                     const isoEventDate = feedback?.event?.date;
-                    const presentCount = feedback.participantFeedback.filter(
-                      (p: { present: boolean }) => p.present,
-                    ).length;
                     const formattedEventDate = format(
                       parseISO(isoEventDate),
                       "EEEE, MMM do h:mm a",
                     );
+                    const stats = getParticipantStats(feedback.participantFeedback);
 
                     return (
                       <TableRow
@@ -136,10 +147,9 @@ const Page = () => {
                         <TableCell>{feedback.cafe?.name}</TableCell>
                         <TableCell>{feedback.cafeRating} / 5</TableCell>
                         <TableCell>
-                          {getParticipantAverage(feedback.participantFeedback)}{" "}
-                          / 5
+                          {stats.avg} / 5
                           <span className="block text-xs opacity-80">
-                            ({presentCount} present)
+                            ({stats.present} / {stats.total} present)
                           </span>
                         </TableCell>
                         <TableCell>{feedback.atmosphereRating} / 5</TableCell>

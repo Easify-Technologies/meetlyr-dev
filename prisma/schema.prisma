@@ -187,10 +187,10 @@ model Feedback {
   cafeId           String @db.ObjectId
 
   overallRating    Int?
-  cafeRating       Int
-  atmosphereRating Int
-  foodRating       Int
-  serviceRating    Int
+  cafeRating       Int?
+  atmosphereRating Int?
+  foodRating       Int?
+  serviceRating    Int?
 
   participantFeedback ParticipantFeedback[]
 

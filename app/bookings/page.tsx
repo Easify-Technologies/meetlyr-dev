@@ -15,6 +15,7 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { useJoinEvent } from "../queries/useJoinEvents";
 import { useAddSuggestions } from "../queries/admin/add-suggestions";
+import { useSpecialEventPass } from "../queries/special-event";
 import { BiSolidCoffee } from "react-icons/bi";
 
 import {
@@ -22,7 +23,7 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion"
+} from "@/components/ui/accordion";
 
 const Page = () => {
   const { data: session } = useSession();
@@ -34,6 +35,7 @@ const Page = () => {
     day: "",
     time: "",
   });
+
   const storageKey = session?.user?.id
     ? `suggestionSubmitted_${session.user.id}`
     : null;
@@ -54,6 +56,7 @@ const Page = () => {
   const events = data?.events ?? [];
 
   const { mutate: joinEvent, isPending } = useJoinEvent();
+  const { mutate: joinSpecialEvent } = useSpecialEventPass();
 
   const { mutate: addSuggestion, isPending: suggestionPending, isSuccess, isError, data: suggestionRes, error } = useAddSuggestions();
 
@@ -76,6 +79,33 @@ const Page = () => {
   const handleBooking = () => {
     if (!booking) {
       toast.error("Please select an event first");
+      return;
+    }
+
+    const selectedEvent = events.find((e) => e.id === booking);
+
+    if (!selectedEvent) {
+      toast.error("Invalid event selected");
+      return;
+    }
+
+    if (selectedEvent.tagline && selectedEvent.tagline.trim() !== "") {
+      joinSpecialEvent(
+        {
+          userId: profile.id,
+          eventId: selectedEvent.id,
+        },
+        {
+          onSuccess: () => {
+            toast.success("Special event booked successfully!");
+            router.push("/events");
+          },
+          onError: () => {
+            toast.error("Failed to book special event");
+          },
+        }
+      );
+
       return;
     }
 
