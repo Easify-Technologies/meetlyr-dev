@@ -11,6 +11,17 @@ export async function POST(req: NextRequest) {
                 eventId
             }
         });
+
+        await prisma.payment.create({
+            data: {
+                userId,
+                eventId,
+                stripeSessionId: `special-pass-${userId}-${eventId}`,
+                mode: "special",
+                status: "paid"
+            }
+        });
+
         return NextResponse.json({ success: true, specialParticipant, message: "Successfully joined the event!" });
     } catch (error) {
         console.error(error);
