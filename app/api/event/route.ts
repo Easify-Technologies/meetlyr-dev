@@ -90,7 +90,7 @@ export async function GET(request: NextRequest) {
     const filterDays = searchParams.get("filterDays");
 
     const now = new Date();
-    const expiredDate = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+    const expiredDate = new Date(now.getTime() + 12 * 60 * 60 * 1000);
 
     const where: any = {
       date: {

@@ -238,7 +238,9 @@ const Page = () => {
                                                             user?.payment?.[0]?.mode ?? "---"
                                                         )}
                                                     </TableCell>
-                                                    <TableCell className='capitalize'>{user?.payment?.[0]?.status ?? "---"}</TableCell>
+                                                    <TableCell className='capitalize'>
+                                                        {(user?.payment?.[0]?.mode === "payment" || user?.payment?.[0]?.mode === "subscription") ? user?.payment?.[0]?.status : "---"}
+                                                    </TableCell>
                                                     <TableCell>
                                                         <Image
                                                             className='w-[50px] h-[50px] object-cover'
@@ -361,7 +363,8 @@ const Page = () => {
                                                 user?.payment?.[0]?.mode ?? "---"
                                             )}
                                         </p>
-                                        <p className='capitalize'><span className="font-semibold">Payment Status:</span> {user?.payment?.[0]?.status ?? "---"}</p>
+                                        <p className='capitalize'><span className="font-semibold">Payment Status: </span>
+                                            {(user?.payment?.[0]?.mode === "payment" || user?.payment?.[0]?.mode === "subscription") ? user?.payment?.[0]?.status : "---"}</p>
                                         {(user?.payment?.[0]?.mode === "subscription" && user?.payment?.[0]?.status === "paid") ? (
                                             <Dialog>
                                                 <DialogTrigger className='bg-green-600 rounded-md text-white cursor-pointer mt-1.5 flex items-center justify-center p-2 transition-colors duration-300 hover:bg-green-700'>
