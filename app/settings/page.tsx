@@ -256,7 +256,7 @@ const Page = () => {
                                                     width={600}
                                                     height={600}
                                                     quality={100}
-                                                    priority
+                                                    loading="lazy"
                                                     className="w-full h-auto"
                                                 />
                                             </div>
@@ -288,7 +288,7 @@ const Page = () => {
                                                                                     width={100}
                                                                                     height={100}
                                                                                     quality={100}
-                                                                                    priority
+                                                                                    loading="lazy"
                                                                                     className='w-full h-full object-cover'
                                                                                 />
                                                                             </span>
@@ -337,6 +337,7 @@ const Page = () => {
                                                                                                 src={avatarPreview}
                                                                                                 alt={avatarPreview || "Avatar Preview"}
                                                                                                 fill
+                                                                                                loading="lazy"
                                                                                                 className="object-cover"
                                                                                             />
 
@@ -377,8 +378,8 @@ const Page = () => {
                                                                             }} disabled={avatarPending || !avatarFile} className='bg-[#ffd100] text-[#2f1107] text-sm mb-1 font-semibold transition-colors duration-300 hover:bg-[#2f1107] hover:text-[#ffd100] cursor-pointer'>
                                                                                 {avatarPending ? "Uploading..." : "Upload"}
                                                                             </Button>
-                                                                            <DrawerClose>
-                                                                                <Button className='w-full cursor-pointer' variant="outline">Cancel</Button>
+                                                                            <DrawerClose className='w-full cursor-pointer bg-[#507dbc] py-2 h-9 text-sm font-semibold text-white rounded-md transition-colors duration-300 hover:bg-[#507dbc]/80'>
+                                                                                Cancel
                                                                             </DrawerClose>
                                                                             <p className='text-muted-foreground text-sm text-center mt-3'>Help us keep our community safe! Please upload a clear, solo profile photo to help us verify your account. This step is required to avoid account interruption.</p>
                                                                         </DrawerFooter>
@@ -851,7 +852,7 @@ const Page = () => {
                             width={600}
                             height={600}
                             quality={100}
-                            priority
+                            loading="lazy"
                             className="w-full h-auto"
                         />
                     </div>

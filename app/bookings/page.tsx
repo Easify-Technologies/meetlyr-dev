@@ -200,7 +200,8 @@ const Page = () => {
                     <Image
                       alt="meetlyr-booking"
                       className="absolute inset-0 w-full h-full object-cover opacity-90"
-                      src="/meetlyr-bookings.png"
+                      src="/10254.webp"
+                      loading="lazy"
                       width={100}
                       height={100}
                       quality={100}
@@ -531,10 +532,10 @@ const Page = () => {
         <div className="hidden lg:flex lg:w-1/2 relative items-center justify-center overflow-hidden bg-muted" >
           <Image
             alt="bookings"
-            src="/meetlyr-bookings.png"
+            src="/10254.webp"
+            loading="lazy"
             fill
             quality={100}
-            priority
             className="object-cover"
           />
         </div >
