@@ -181,10 +181,10 @@ model Payment {
 }
 
 model Feedback {
-  id               String @id @default(auto()) @map("_id") @db.ObjectId
-  userId           String @db.ObjectId
-  eventId          String @db.ObjectId
-  cafeId           String @db.ObjectId
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  userId  String @db.ObjectId
+  eventId String @db.ObjectId
+  cafeId  String @db.ObjectId
 
   overallRating    Int?
   cafeRating       Int?
@@ -201,14 +201,22 @@ model Feedback {
   createdAt DateTime @default(now())
 }
 
+model PromoCode {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  code      String   @unique
+  discount  Int
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
 model ParticipantFeedback {
-  id            String @id @default(auto()) @map("_id") @db.ObjectId
+  id String @id @default(auto()) @map("_id") @db.ObjectId
 
   feedbackId    String @db.ObjectId
   participantId String @db.ObjectId
 
-  rating        Int     
-  present       Boolean  
+  rating  Int
+  present Boolean
 
   feedback Feedback @relation(fields: [feedbackId], references: [id])
 
