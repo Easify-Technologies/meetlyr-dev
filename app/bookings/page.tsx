@@ -526,7 +526,7 @@ const Page = () => {
               </div>
             </div>
           </div>
-        </div >
+        </div>
 
         {/* RIGHT SIDE IMAGE */}
         <div className="hidden lg:flex lg:w-1/2 relative items-center justify-center overflow-hidden bg-muted" >
@@ -538,7 +538,7 @@ const Page = () => {
             quality={100}
             className="object-cover"
           />
-        </div >
+        </div>
       </div >
     </>
   );
