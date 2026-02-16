@@ -15,6 +15,7 @@ import { HiOutlineLightBulb } from "react-icons/hi";
 import { IoIosLogOut } from "react-icons/io";
 import { GiForkKnifeSpoon } from "react-icons/gi";
 import { MdLeaderboard } from "react-icons/md";
+import { FaGifts } from "react-icons/fa";
 import {
   SidebarProvider,
   SidebarTrigger,
@@ -40,6 +41,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     { icon: FaMapLocationDot, label: "Locations", path: "/admin/locations" },
     { icon: MdEvent, label: "Events", path: "/admin/events" },
     { icon: MdCoffee, label: "Cafes", path: "/admin/cafe" },
+    { icon: FaGifts, label: "Promo Code", path: "/admin/promo-code" },
     { icon: MdLeaderboard, label: "Leads", path: "/admin/leads" },
     { icon: MdGroups2, label: "Participants", path: "/admin/participants" },
     { icon: GiForkKnifeSpoon, label: "Manual Matching", path: "/admin/match-event" },
