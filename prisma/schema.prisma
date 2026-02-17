@@ -205,7 +205,6 @@ model PromoCode {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   code      String   @unique
   discount  Int
-  expiresAt DateTime
   createdAt DateTime @default(now())
 }
 

@@ -1,11 +1,14 @@
 import { NextResponse, NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
+import Stripe from "stripe";
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 export async function POST(req: NextRequest) {
   try {
-    const { code, discount, expiresAt } = await req.json();
+    const { code, discount } = await req.json();
 
-    if (!code || discount == null || !expiresAt) {
+    if (!code || discount == null) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 },
@@ -19,33 +22,21 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const expiryDate = new Date(expiresAt);
-    const now = new Date();
-
-    if (isNaN(expiryDate.getTime())) {
-      return NextResponse.json(
-        { error: "Invalid expiry date format" },
-        { status: 400 },
-      );
-    }
-
-    if (expiryDate <= now) {
-      return NextResponse.json(
-        { error: "Expiry date must be in the future" },
-        { status: 400 },
-      );
-    }
-
     const promoCode = await prisma.promoCode.create({
       data: {
         code,
         discount,
-        expiresAt: expiryDate,
       },
     });
 
+    const coupon = await stripe.coupons.create({
+      name: code,
+      duration: "once",
+      percent_off: discount
+    });
+
     return NextResponse.json(
-      { message: "Promo code created successfully", promoCode },
+      { message: "Promo code created successfully", promoCode, coupon },
       { status: 200 },
     );
   } catch (error) {

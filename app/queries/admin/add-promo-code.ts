@@ -10,7 +10,6 @@ type ApiError = {
 const addPromoCode = async(data: {
     code: string;
     discount: number;
-    expiresAt: Date;
 }) => {
     try {
         const res = await axios.post("/api/admin/add-promo-code", data);

@@ -1,32 +1,18 @@
 "use client";
 
 import React, { useState, useCallback } from 'react';
-
-import { ChevronDownIcon } from 'lucide-react';
-import { Calendar } from "@/components/ui/calendar";
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger
-} from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
-
 import { useAddPromoCode } from '@/app/queries/admin/add-promo-code';
 
 interface PromoCode {
     code: string;
     discount: number;
-    expiresAt: Date;
 }
 
 const page = () => {
-    const [open, setOpen] = useState(false);
-    const [date, setDate] = useState<Date | undefined>(undefined);
     const { mutate, isSuccess, isPending, data, error, isError } = useAddPromoCode();
     const [formData, setFormData] = useState<PromoCode>({
         code: "",
         discount: 0,
-        expiresAt: new Date()
     });
     const { code, discount } = formData;
 
@@ -67,36 +53,6 @@ const page = () => {
                                 value={discount}
                                 onChange={handleInputChange}
                             />
-                            <Popover open={open} onOpenChange={setOpen}>
-                                <PopoverTrigger asChild>
-                                    <Button
-                                        variant="outline"
-                                        id="date"
-                                        className="file:text-foreground mb-5 placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground border-input flex h-16 w-full min-w-0 rounded-full border bg-muted px-5 py-2 text-base transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium md:text-sm justify-between"
-                                    >
-                                        {date ? date.toLocaleDateString() : "Select Expiry Date"}
-                                        <ChevronDownIcon />
-                                    </Button>
-                                </PopoverTrigger>
-                                <PopoverContent
-                                    className="w-auto overflow-hidden"
-                                    align="start"
-                                >
-                                    <Calendar
-                                        mode="single"
-                                        selected={date}
-                                        captionLayout="dropdown"
-                                        onSelect={(newDate) => {
-                                            setDate(newDate);
-                                            setFormData((prev) => ({
-                                                ...prev,
-                                                expiresAt: newDate ?? new Date(),
-                                            }));
-                                            setOpen(false);
-                                        }}
-                                    />
-                                </PopoverContent>
-                            </Popover>
                         </div>
                         {isError && (
                             <p className="text-destructive text-sm mt-2">
