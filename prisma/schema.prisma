@@ -202,10 +202,11 @@ model Feedback {
 }
 
 model PromoCode {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  code      String   @unique
-  discount  Int
-  createdAt DateTime @default(now())
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  code           String   @unique
+  discount       Int
+  stripeCouponId String   @unique
+  createdAt      DateTime @default(now())
 }
 
 model ParticipantFeedback {

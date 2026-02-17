@@ -22,17 +22,18 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const promoCode = await prisma.promoCode.create({
-      data: {
-        code,
-        discount,
-      },
-    });
-
     const coupon = await stripe.coupons.create({
-      name: code,
+      name: code.toUpperCase(),
       duration: "once",
       percent_off: discount
+    });
+
+    const promoCode = await prisma.promoCode.create({
+      data: {
+        code: code.toUpperCase(),
+        discount,
+        stripeCouponId: coupon.id
+      },
     });
 
     return NextResponse.json(
