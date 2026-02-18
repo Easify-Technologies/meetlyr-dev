@@ -17,7 +17,6 @@ import { useFetchAllLocations } from "../queries/fetch-locations";
 import { useUpdateUserLocation } from '../queries/update-location';
 import { useDeleteUser } from '../queries/delete-user';
 import { useUpdateAvatar } from '../queries/update-avatar';
-import { useOpenCustomerPortal } from '../queries/stripe-customer-portal';
 import { useManageSubscription } from '../queries/manage-subscription';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
@@ -348,7 +347,7 @@ const Page = () => {
                                                                                                         setAvatarFile(null);
                                                                                                         setAvatarPreview(null);
 
-                                                                                                        if(fileInputRef.current) {
+                                                                                                        if (fileInputRef.current) {
                                                                                                             fileInputRef.current.value = "";
                                                                                                         }
                                                                                                     }}
@@ -822,8 +821,9 @@ const Page = () => {
                                                                         <AlertDialogHeader>
                                                                             <AlertDialogTitle className='text-[#2f1107] text-xl'>Are you absolutely sure you want to delete this account?</AlertDialogTitle>
                                                                             <AlertDialogDescription className='text-[#2f1107]'>
-                                                                                We’re sad to see you go, but we truly appreciate the time you spent with us.
-                                                                                If you ever decide to return, we’ll welcome you back with open arms. ❤️
+                                                                                We’re sorry to see you go and appreciate the time you spent with us.
+                                                                                Deleting your account will immediately cancel your active Stripe subscription and terminate all associated benefits. This action cannot be undone.
+                                                                                You’re always welcome to join us again in the future.❤️
                                                                             </AlertDialogDescription>
                                                                         </AlertDialogHeader>
                                                                         <AlertDialogFooter>
