@@ -1,22 +1,35 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Navbar from "@/components/ui/Navbar";
 import { Label } from "@/components/ui/label";
 import { useSession } from "next-auth/react";
 import { useProfileDetails } from "../queries/profile";
+import { useFetchPromoCodes } from "../queries/admin/fetch-promo-codes";
 
 import Image from "next/image";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import Loader from "@/components/ui/loader";
 
 import { FaKey, FaArrowLeft } from "react-icons/fa";
+import { RiCoupon4Fill } from "react-icons/ri";
 import { BsStars, BsChatDotsFill } from "react-icons/bs";
 import { MdPayments } from "react-icons/md";
 import { IoStopwatch } from "react-icons/io5";
 import { GiRoundStar } from "react-icons/gi";
-import Link from "next/link";
+
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
 
 const PaymentClient = () => {
   const params = useSearchParams();
@@ -29,16 +42,25 @@ const PaymentClient = () => {
   const [showPaymentDesc, setShowPaymentDesc] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const [selectedPromo, setSelectedPromo] = useState<string | null>(null);
+  const [appliedPromo, setAppliedPromo] = useState<any>(null);
+
   const userId = params.get("userId");
   const eventId = params.get("eventId");
 
   const { data: profile, isPending } = useProfileDetails(email);
+  const { data: promoCodes } = useFetchPromoCodes();
 
   const hasPaidForThisEvent = profile?.payment?.some(
     (p: any) =>
       p.status === "paid" &&
       p.eventId === eventId
   );
+
+  const handleAppliedPromo = () => {
+    const promo = promoCodes?.find((code: any) => code.id === selectedPromo);
+    setAppliedPromo(promo);
+  }
 
   useEffect(() => {
     if (hasPaidForThisEvent) {
@@ -308,6 +330,79 @@ const PaymentClient = () => {
                 </Label>
               </div>
             </RadioGroup>
+
+            {/* Promo Code */}
+            <div className="bg-white shadow-sm rounded-lg px-4 py-3">
+              <h4 className="text-center text-xl text-[#2f1107] font-semibold">Got a Promo Code?</h4>
+              <div className="flex items-center justify-center gap-1.5 mt-2">
+                <RiCoupon4Fill size={24} />
+                <Drawer>
+                  <DrawerTrigger className="text-[#2f1107] font-semibold text-base underline cursor-pointer">
+                    Enter Code
+                  </DrawerTrigger>
+                  <DrawerContent>
+                    <DrawerHeader>
+                      <DrawerTitle className="text-2xl font-bold">Enter Your Promo Code</DrawerTitle>
+                      <DrawerDescription>This action cannot be undone.</DrawerDescription>
+                    </DrawerHeader>
+                    {promoCodes && promoCodes.length > 0 ? (
+                      <div className="w-full flex flex-col items-center justify-center px-4 gap-4">
+                        {promoCodes.map((code: any) => {
+                          const isSelected = selectedPromo === code.id;
+
+                          return (
+                            <div
+                              key={code.id}
+                              onClick={() => setSelectedPromo(code.id)}
+                              className={`relative w-full rounded-xl border-2 cursor-pointer transition-all duration-300 p-4 
+                                ${isSelected
+                                  ? "border-[#2f1107] bg-[#2f1107] text-white scale-[1.02]"
+                                  : "border-gray-300 bg-white hover:border-[#ffd100] hover:shadow-md"
+                                }`}
+                            >
+                              {/* Discount Badge */}
+                              <div className="absolute -top-3 right-4 bg-[#ffd100] text-[#2f1107] text-xs font-bold px-3 py-1 rounded-full shadow">
+                                {code.discount}% OFF
+                              </div>
+
+                              {/* Coupon Header */}
+                              <div className="flex items-center justify-between">
+                                <h3 className={`text-lg font-bold tracking-wide ${isSelected ? "text-[#ffd100]" : "text-[#2f1107]"}`}>
+                                  {code.code}
+                                </h3>
+
+                                {isSelected && (
+                                  <span className="text-sm font-semibold">
+                                    Applied ✓
+                                  </span>
+                                )}
+                              </div>
+
+                              {/* Description */}
+                              <p className={`mt-2 text-sm font-medium ${isSelected ? "text-white/80" : "text-gray-600"}`}>
+                                {code.description || "Limited time promotional offer"}
+                              </p>
+                            </div>
+                          );
+                        })}
+                        <button onClick={handleAppliedPromo} disabled={!selectedPromo} type="button" className="w-full bg-[#ffd100] text-[#2f1107] py-2 px-4 cursor-pointer rounded-md font-semibold hover:bg-[#ffd100]/70 transition-colors duration-300">
+                          Apply
+                        </button>
+                      </div>
+                    ) : (
+                      <h3 className="text-center text-xl font-semibold">
+                        No Promo Codes Available
+                      </h3>
+                    )}
+                    <DrawerFooter>
+                      <DrawerClose className="w-full cursor-pointer bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded-md transition-colors duration-300 hover:bg-gray-400 hover:text-gray-900">
+                        Cancel
+                      </DrawerClose>
+                    </DrawerFooter>
+                  </DrawerContent>
+                </Drawer>
+              </div>
+            </div>
 
             <div className="flex md:flex-row flex-col items-center justify-center w-full mt-4 gap-4">
               <div className="bg-white shadow-sm rounded-lg px-4 py-3">
