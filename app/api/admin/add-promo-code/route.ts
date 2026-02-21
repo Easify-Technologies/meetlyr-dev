@@ -28,16 +28,23 @@ export async function POST(req: NextRequest) {
       percent_off: discount
     });
 
-    const promoCode = await prisma.promoCode.create({
+    const promoCode = await stripe.promotionCodes.create({
+      promotion: {
+        type: "coupon",
+        coupon: coupon.id,      
+      }
+    });
+
+    const newPromoCode = await prisma.promoCode.create({
       data: {
         code: code.toUpperCase(),
         discount,
-        stripeCouponId: coupon.id
-      },
+        stripeCouponId: promoCode.id
+      }
     });
 
     return NextResponse.json(
-      { message: "Promo code created successfully", promoCode, coupon },
+      { message: "Promo code created successfully", newPromoCode, coupon },
       { status: 200 },
     );
   } catch (error) {

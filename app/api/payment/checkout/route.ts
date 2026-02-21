@@ -6,12 +6,12 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 export async function POST(req: NextRequest) {
   try {
-    const { mode, plan, userId, eventId } = await req.json();
+    const { mode, plan, userId, eventId, promoCode } = await req.json();
 
     if (!userId || !eventId) {
       return NextResponse.json(
         { error: "Missing userId or eventId" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
     if (mode === "subscription" && user?.subscriptionActive) {
       return NextResponse.json(
         { error: "User already has an active subscription" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
     if (mode === "payment" && existingPayment) {
       return NextResponse.json(
         { error: "You already purchased this event" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
       if (mode === "subscription" && (!plan || !subscriptionPrices[plan])) {
         return NextResponse.json(
           { error: "Invalid subscription plan" },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -93,11 +93,38 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    let discounts: Stripe.Checkout.SessionCreateParams.Discount[] = [];
+
+    if (promoCode) {
+      try {
+        // Validate the promotion code ID directly
+        const promo = await stripe.promotionCodes.retrieve(promoCode);
+
+        if (!promo.active) {
+          return NextResponse.json(
+            { error: "Promo code is inactive" },
+            { status: 400 },
+          );
+        }
+
+        discounts = [
+          {
+            promotion_code: promo.id,
+          },
+        ];
+      } catch (error) {
+        return NextResponse.json(
+          { error: "Invalid promo code" },
+          { status: 400 },
+        );
+      }
+    }
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       mode,
       line_items: lineItems,
-      allow_promotion_codes: true,
+      discounts,
       success_url: `${req.headers.get("origin")}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${req.headers.get("origin")}/payment/failure`,
       metadata: {
@@ -105,6 +132,7 @@ export async function POST(req: NextRequest) {
         eventId,
         mode,
         plan: plan || "",
+        promoCode: promoCode || "",
       },
     });
 

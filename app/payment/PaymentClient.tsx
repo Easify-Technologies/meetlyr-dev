@@ -24,12 +24,12 @@ import {
   Drawer,
   DrawerClose,
   DrawerContent,
-  DrawerDescription,
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
+import toast from "react-hot-toast";
 
 const PaymentClient = () => {
   const params = useSearchParams();
@@ -41,9 +41,8 @@ const PaymentClient = () => {
   const [paymentDesc, setPaymentDesc] = useState("");
   const [showPaymentDesc, setShowPaymentDesc] = useState(false);
   const [loading, setLoading] = useState(false);
-
   const [selectedPromo, setSelectedPromo] = useState<string | null>(null);
-  const [appliedPromo, setAppliedPromo] = useState<any>(null);
+  const [appliedPromo, setAppliedPromo] = useState<any | null>(null);
 
   const userId = params.get("userId");
   const eventId = params.get("eventId");
@@ -57,9 +56,23 @@ const PaymentClient = () => {
       p.eventId === eventId
   );
 
-  const handleAppliedPromo = () => {
-    const promo = promoCodes?.find((code: any) => code.id === selectedPromo);
-    setAppliedPromo(promo);
+  const applyPromoCode = () => {
+    if (!selectedPromo) return;
+
+    const selected = promoCodes?.find((code: any) => code.id === selectedPromo);
+    if (selected) {
+      setSelectedPromo(selected.stripeCouponId);
+      setAppliedPromo(selected);
+
+      toast.success(`Promo code ${selected.code} applied!`);
+    }
+  }
+
+  const removePromoCode = () => {
+    setSelectedPromo(null);
+    setAppliedPromo(null);
+
+    toast.success("Promo code removed!");
   }
 
   useEffect(() => {
@@ -67,6 +80,12 @@ const PaymentClient = () => {
       router.push("/events");
     }
   }, [hasPaidForThisEvent, router]);
+
+  useEffect(() => {
+    if (appliedPromo) {
+      setSelectedPromo(appliedPromo.id);
+    }
+  }, [appliedPromo]);
 
   async function handleCheckOut() {
     if (!payment) {
@@ -84,6 +103,7 @@ const PaymentClient = () => {
           plan: payment === "oneTime" ? null : payment,
           userId,
           eventId,
+          promoCode: appliedPromo?.stripeCouponId ?? null,
         }),
       });
 
@@ -333,69 +353,85 @@ const PaymentClient = () => {
 
             {/* Promo Code */}
             <div className="bg-white shadow-sm rounded-lg px-4 py-3">
-              <h4 className="text-center text-xl text-[#2f1107] font-semibold">Got a Promo Code?</h4>
+              <h4 className="text-center text-xl text-[#2f1107] font-semibold">
+                {appliedPromo ? `Applied Promo: ${appliedPromo.code} - ${appliedPromo.discount}% OFF` : "Have a promo code?"}
+              </h4>
               <div className="flex items-center justify-center gap-1.5 mt-2">
                 <RiCoupon4Fill size={24} />
                 <Drawer>
                   <DrawerTrigger className="text-[#2f1107] font-semibold text-base underline cursor-pointer">
-                    Enter Code
+                    Enter here
                   </DrawerTrigger>
+
                   <DrawerContent>
                     <DrawerHeader>
-                      <DrawerTitle className="text-2xl font-bold">Enter Your Promo Code</DrawerTitle>
-                      <DrawerDescription>This action cannot be undone.</DrawerDescription>
+                      <DrawerTitle className="text-2xl font-bold">
+                        Select Promo Code
+                      </DrawerTitle>
                     </DrawerHeader>
+
                     {promoCodes && promoCodes.length > 0 ? (
-                      <div className="w-full flex flex-col items-center justify-center px-4 gap-4">
+                      <RadioGroup
+                        value={selectedPromo ?? ""}
+                        onValueChange={(value) => setSelectedPromo(value)}
+                        className="px-4 flex flex-col gap-4"
+                      >
                         {promoCodes.map((code: any) => {
                           const isSelected = selectedPromo === code.id;
 
                           return (
-                            <div
+                            <Label
                               key={code.id}
-                              onClick={() => setSelectedPromo(code.id)}
-                              className={`relative w-full rounded-xl border-2 cursor-pointer transition-all duration-300 p-4 
+                              htmlFor={`promo-${code.id}`}
+                              className={`relative w-full rounded-xl border-2 cursor-pointer transition-all duration-300 p-4 flex gap-3 items-start
                                 ${isSelected
                                   ? "border-[#2f1107] bg-[#2f1107] text-white scale-[1.02]"
                                   : "border-gray-300 bg-white hover:border-[#ffd100] hover:shadow-md"
                                 }`}
                             >
-                              {/* Discount Badge */}
-                              <div className="absolute -top-3 right-4 bg-[#ffd100] text-[#2f1107] text-xs font-bold px-3 py-1 rounded-full shadow">
-                                {code.discount}% OFF
+                              {/* Radio Button */}
+                              <RadioGroupItem
+                                value={code.id}
+                                id={`promo-${code.id}`}
+                                className="mt-1"
+                              />
+
+                              <div className="flex-1">
+                                {/* Discount Badge */}
+                                <div className="absolute -top-3 right-4 bg-[#ffd100] text-[#2f1107] text-xs font-bold px-3 py-1 rounded-full shadow">
+                                  {code.discount}% OFF
+                                </div>
+
+                                {/* Header */}
+                                <div className="flex items-center justify-between">
+                                  <h3
+                                    className={`text-lg font-bold tracking-wide ${isSelected ? "text-[#ffd100]" : "text-[#2f1107]"
+                                      }`}
+                                  >
+                                    {code.code}
+                                  </h3>
+                                </div>
                               </div>
-
-                              {/* Coupon Header */}
-                              <div className="flex items-center justify-between">
-                                <h3 className={`text-lg font-bold tracking-wide ${isSelected ? "text-[#ffd100]" : "text-[#2f1107]"}`}>
-                                  {code.code}
-                                </h3>
-
-                                {isSelected && (
-                                  <span className="text-sm font-semibold">
-                                    Applied ✓
-                                  </span>
-                                )}
-                              </div>
-
-                              {/* Description */}
-                              <p className={`mt-2 text-sm font-medium ${isSelected ? "text-white/80" : "text-gray-600"}`}>
-                                {code.description || "Limited time promotional offer"}
-                              </p>
-                            </div>
+                            </Label>
                           );
                         })}
-                        <button onClick={handleAppliedPromo} disabled={!selectedPromo} type="button" className="w-full bg-[#ffd100] text-[#2f1107] py-2 px-4 cursor-pointer rounded-md font-semibold hover:bg-[#ffd100]/70 transition-colors duration-300">
-                          Apply
-                        </button>
-                      </div>
+                      </RadioGroup>
                     ) : (
-                      <h3 className="text-center text-xl font-semibold">
+                      <h3 className="text-center text-xl font-semibold px-4">
                         No Promo Codes Available
                       </h3>
                     )}
+
                     <DrawerFooter>
-                      <DrawerClose className="w-full cursor-pointer bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded-md transition-colors duration-300 hover:bg-gray-400 hover:text-gray-900">
+                      <button
+                        type="button"
+                        onClick={appliedPromo ? removePromoCode : applyPromoCode}
+                        className="bg-[#ffd100] text-[#2f1107] font-semibold py-2 px-4 rounded-md transition-colors duration-300 cursor-pointer hover:bg-[#2f1107] hover:text-[#ffd100]"
+                      >
+                        {appliedPromo ? "Remove" : "Apply"}
+                      </button>
+
+                      <DrawerClose className="w-full mt-2 bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded-md transition-colors duration-300 cursor-pointer hover:bg-gray-400 hover:text-gray-900">
                         Cancel
                       </DrawerClose>
                     </DrawerFooter>
