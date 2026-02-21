@@ -1,13 +1,88 @@
 "use client";
 
-import React from 'react';
+import { useParams, useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import toast from "react-hot-toast";
+import Loader from "@/components/ui/loader";
+import { useGetEventByInviteToken } from "@/app/queries/invite-token";
+import { useJoinEvent } from "@/app/queries/useJoinEvents";
 
-const page = () => {
+export default function InvitePage() {
+  const { token } = useParams();
+  const router = useRouter();
+  const { data: session } = useSession();
+
+  const { data, isLoading, error } = useGetEventByInviteToken(token as string);
+
+  const { mutate: joinEvent, isPending } = useJoinEvent();
+
+  const event = data?.event;
+
+  const handleAcceptInvite = () => {
+    if (!session) {
+      toast.error("You need to be logged in to accept the invite.");
+      router.push("/login");
+      return;
+    }
+
+    joinEvent(
+      { eventId: event.id,
+        userId: session?.user?.id as string,
+        token: session.user.accessToken as string
+      },
+      {
+        onSuccess: () => {
+          toast.success("Successfully joined 🎉");
+          router.push("/events");
+        },
+        onError: (err: any) => {
+          toast.error(err?.response?.data?.error || "Failed to join event");
+        },
+      }
+    );
+  };
+
+  if (isLoading) return <Loader />;
+
+  if (error || !event) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <h2 className="text-xl text-[#2f1107] font-semibold">
+          Invalid or expired invite link.
+        </h2>
+      </div>
+    );
+  }
+
   return (
-    <>
-        
-    </>
-  )
-}
+    <section className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-b from-amber-50 to-white">
+      <div className="max-w-xl w-full bg-white shadow-md rounded-3xl p-8">
+        <h1 className="text-2xl font-bold mb-4">
+          You're invited! 🎉
+        </h1>
 
-export default page
+        <div className="space-y-2">
+          <p className="text-lg font-semibold">
+            {event.cafe?.name}
+          </p>
+
+          <p className="text-sm text-gray-600 font-semibold">
+            {new Date(event.date).toLocaleString()}
+          </p>
+
+          <p className="text-sm text-gray-600">
+            {event.cafe?.address}
+          </p>
+        </div>
+
+        <button
+          onClick={handleAcceptInvite}
+          disabled={isPending}
+          className="mt-6 w-full bg-[#FFD100] text-[#2F1107] font-semibold py-3 rounded-xl hover:bg-[#2F1107] hover:text-[#FFD100] transition-all"
+        >
+          {isPending ? "Joining..." : "Join Event"}
+        </button>
+      </div>
+    </section>
+  );
+}
