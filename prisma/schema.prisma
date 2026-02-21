@@ -127,6 +127,10 @@ model Event {
   bookingClose DateTime? // closes before event
   status       String? // 'Open', 'Closed', 'Completed'
   feedbacks    Feedback[]
+
+  inviteToken   String?
+  inviteEnabled Boolean   @default(false)
+  inviteExpires DateTime?
 }
 
 model EventParticipant {
@@ -137,6 +141,8 @@ model EventParticipant {
   joinedAt DateTime @default(now())
 
   status String?
+
+  invitedBy String? @db.ObjectId
 
   user  User? @relation(fields: [userId], references: [id], onDelete: SetNull)
   event Event @relation(fields: [eventId], references: [id])

@@ -1,7 +1,7 @@
 "use client";
 
-import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
 
 const fetchMatchedGroup = async (eventId: string) => {
   try {

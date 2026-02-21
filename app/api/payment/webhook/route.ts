@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
 import nodemailer from "nodemailer";
 import Stripe from "stripe";
-import { prisma } from "@/lib/prisma";
+import crypto from "crypto";
 
 export const runtime = "nodejs";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+const token = crypto.randomBytes(24).toString("hex");
 
 export const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
@@ -22,7 +24,7 @@ export async function POST(req: Request) {
   if (!sig) {
     return NextResponse.json(
       { error: "Missing Stripe signature" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -34,10 +36,9 @@ export async function POST(req: Request) {
     event = stripe.webhooks.constructEvent(
       body,
       sig,
-      process.env.STRIPE_WEBHOOK_SECRET!
+      process.env.STRIPE_WEBHOOK_SECRET!,
     );
-  } 
-  catch (err: any) {
+  } catch (err: any) {
     console.error("❌ Webhook signature verification failed:", err.message);
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
@@ -64,8 +65,17 @@ export async function POST(req: Request) {
           where: { stripeSessionId: session.id },
           data: { status: "paid" },
         });
-      } 
-      else {
+      } else {
+        const event = await prisma.event.findUnique({
+          where: {
+            id: eventId
+          }
+        });
+
+        if(!event) {
+          return NextResponse.json({ error: "Event not found" }, { status: 400 });
+        }
+
         await prisma.payment.create({
           data: {
             userId,
@@ -75,14 +85,25 @@ export async function POST(req: Request) {
             status: "paid",
           },
         });
+
+        await prisma.event.update({
+          where: {
+            id: eventId,
+          },
+          data: {
+            inviteToken: token,
+            inviteEnabled: true,
+            inviteExpires: new Date(event.date.getTime() - 6 * 60 * 60 * 1000),
+          },
+        });
       }
 
       // If it's a subscription
       if (mode === "subscription") {
         let credits = 4;
 
-        if(plan === "3months") credits = 12;
-        if(plan === "6months") credits = 24;
+        if (plan === "3months") credits = 12;
+        if (plan === "6months") credits = 24;
 
         await prisma.user.update({
           where: { id: userId },
@@ -120,8 +141,7 @@ export async function POST(req: Request) {
           });
         }
         // If it's a single payment for an event
-      } 
-      else if (mode === "payment" && eventId) {
+      } else if (mode === "payment" && eventId) {
         await prisma.eventParticipant.create({
           data: { userId, eventId },
         });
@@ -151,7 +171,7 @@ export async function POST(req: Request) {
 
       console.log(
         "🎉 Payment confirmed and database updated for user:",
-        userId
+        userId,
       );
       break;
     }
@@ -182,4 +202,4 @@ export const config = {
   api: {
     bodyParser: false,
   },
-}
+};

@@ -2,6 +2,7 @@
 import nodemailer from "nodemailer";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import crypto from "crypto";
 
 export const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
@@ -79,6 +80,19 @@ export async function POST(request: NextRequest) {
     const participant = await prisma.eventParticipant.create({
       data: { userId, eventId, status: "Active" },
       include: { user: true },
+    });
+
+    const token = crypto.randomBytes(24).toString("hex");
+
+    await prisma.event.update({
+      where: {
+        id: eventId,
+      },
+      data: {
+        inviteToken: token,
+        inviteEnabled: true,
+        inviteExpires: new Date(event.date.getTime() - 6 * 60 * 60 * 1000),
+      },
     });
 
     const formattedDate = new Date(event?.date).toLocaleString("en-US", {

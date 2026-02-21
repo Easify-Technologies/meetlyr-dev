@@ -75,8 +75,7 @@ const Page = () => {
   const eventStatus = upcomingParticipant?.event?.status;
   const eventId = upcomingParticipant?.eventId;
 
-  const { data: matches, isPending: matchesPending } =
-    useMatchedGroupUsers(eventStatus === "Matched" ? eventId : undefined);
+  const { data: matches, isPending: matchesPending } = useMatchedGroupUsers(eventStatus === "Matched" ? eventId : undefined);
 
   const toFeedback = ({ eventId, cafeId, cafeName, cafeAddress }: { eventId: string, cafeId: string, cafeName: string, cafeAddress: string; }) => {
     router.push("/feedback");
@@ -85,6 +84,28 @@ const Page = () => {
     localStorage.setItem("cafeId", cafeId);
     localStorage.setItem("cafeName", cafeName);
     localStorage.setItem("cafeAddress", cafeAddress);
+  }
+
+  const handleInviteFriend = (item: any) => {
+    const inviteToken = item?.event?.inviteToken;
+
+    if (!inviteToken) {
+      return;
+    }
+    else {
+      const link = `${window.location.origin}/invite/${item.event.inviteToken}`;
+
+      if (navigator.share) {
+        navigator.share({
+          title: "Join my meetup!",
+          text: "Let's attend this event together 🎉",
+          url: link,
+        });
+      } else {
+        navigator.clipboard.writeText(link);
+        toast.success("Invite link copied!");
+      }
+    }
   }
 
   useEffect(() => {
@@ -202,47 +223,50 @@ const Page = () => {
                         {eventStatus !== "Matched" && (
                           <h4 className="text-[#2f1107] font-semibold md:text-xl text-base mt-3">Further Details will be available 24 hours before the event</h4>
                         )}
-                        {item?.user?.payment[0]?.mode === "subscription" && (
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <button
-                                type="button"
-                                className="flex items-center gap-1 mt-3 bg-red-100 text-red-500 px-4 py-2 rounded-md font-semibold hover:bg-red-500 hover:text-white transition-colors duration-300 cursor-pointer"
-                              >
-                                <TbCancel />
-                                <span>Cancel my event</span>
-                              </button>
-                            </AlertDialogTrigger>
+                        <div className="flex items-center gap-3">
+                          {item?.user?.payment[0]?.mode === "subscription" && (
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <button
+                                  type="button"
+                                  className="flex items-center gap-1 mt-3 bg-red-100 text-red-500 px-4 py-2 rounded-md font-semibold hover:bg-red-500 hover:text-white transition-colors duration-300 cursor-pointer"
+                                >
+                                  <TbCancel />
+                                  <span>Cancel my event</span>
+                                </button>
+                              </AlertDialogTrigger>
 
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle className="text-[#2f1107] text-2xl font-bold">
-                                  Event Cancellation Notice
-                                </AlertDialogTitle>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle className="text-[#2f1107] text-2xl font-bold">
+                                    Event Cancellation Notice
+                                  </AlertDialogTitle>
 
-                                <AlertDialogDescription className="text-[#2f1107] font-medium">
-                                  You cannot cancel an event within <strong>24 hours</strong> of the
-                                  start time.
-                                  <br />
-                                  Please contact our team if you are facing an extraordinary situation.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
+                                  <AlertDialogDescription className="text-[#2f1107] font-medium">
+                                    You cannot cancel an event within <strong>24 hours</strong> of the
+                                    start time.
+                                    <br />
+                                    Please contact our team if you are facing an extraordinary situation.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
 
-                              <AlertDialogFooter>
-                                <AlertDialogCancel className='cursor-pointer'>Close</AlertDialogCancel>
-                                {cancellationDeadline < eventDate && (
-                                  <AlertDialogAction className='cursor-pointer' disabled={cancelEventPending} onClick={() => {
-                                    mutate({
-                                      userId: item?.userId,
-                                      eventId: item?.event?.id,
-                                      mode: item?.user?.payment[0]?.mode,
-                                    });
-                                  }}>{cancelEventPending ? "Cancelling..." : "Cancel"}</AlertDialogAction>
-                                )}
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        )}
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel className='cursor-pointer'>Close</AlertDialogCancel>
+                                  {cancellationDeadline < eventDate && (
+                                    <AlertDialogAction className='cursor-pointer' disabled={cancelEventPending} onClick={() => {
+                                      mutate({
+                                        userId: item?.userId,
+                                        eventId: item?.event?.id,
+                                        mode: item?.user?.payment[0]?.mode,
+                                      });
+                                    }}>{cancelEventPending ? "Cancelling..." : "Cancel"}</AlertDialogAction>
+                                  )}
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          )}
+                          <button onClick={() => handleInviteFriend(item)} className="flex items-center gap-2 mt-3 bg-blue-100 text-blue-600 px-4 py-2 rounded-md font-semibold hover:bg-blue-600 hover:text-white transition-colors duration-300 cursor-pointer" type="button">Invite a Friend</button>
+                        </div>
                       </div>
                     </div>
                     {/* ☕ CARD 2 - Café Info */}
