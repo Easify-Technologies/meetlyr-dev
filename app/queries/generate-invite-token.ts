@@ -1,6 +1,6 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 
 const generateInviteToken = async(data: {
@@ -16,7 +16,12 @@ const generateInviteToken = async(data: {
 }
 
 export const useGenerateInviteToken = () => {
+    const queryClient = useQueryClient();
+
     return useMutation({
-        mutationFn: generateInviteToken
+        mutationFn: generateInviteToken,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["profileDetails"] });
+        }
     });
 }

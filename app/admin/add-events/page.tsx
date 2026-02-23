@@ -79,7 +79,7 @@ const Page = () => {
     return slots;
   };
 
-  const timeSlots = generateTimeSlots(60); // 15-minute intervals
+  const timeSlots = generateTimeSlots(60);
 
   const handleSaveEvent = () => {
     const fullDateTime = new Date(`${formData.date}T${formData.time}:00`);

@@ -8,6 +8,7 @@ import { useEventParticipant } from "../queries/participants";
 import { useMatchedGroupUsers } from "../queries/groups";
 import { useCancelMyEvent } from "../queries/cancel-event";
 import { useGetPastEvents } from "../queries/past-events";
+import { useGenerateInviteToken } from "../queries/generate-invite-token";
 import { parseISO, format } from "date-fns";
 
 import Navbar from "@/components/ui/Navbar";
@@ -54,7 +55,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { useGenerateInviteToken } from "../queries/generate-invite-token";
 
 const Page = () => {
   const { data: session } = useSession();
@@ -67,7 +67,7 @@ const Page = () => {
   const { data: participant, isPending } = useEventParticipant(profile?.id);
   const { data: pastEvents } = useGetPastEvents(profile?.id);
   const { mutate, isPending: cancelEventPending } = useCancelMyEvent();
-  const { mutate: generateToken } = useGenerateInviteToken();
+  const { mutateAsync: generateToken } = useGenerateInviteToken();
 
   const upcomingParticipant = participant?.find((item: any) => {
     const eventDate = parseISO(item.event.date);
@@ -88,21 +88,17 @@ const Page = () => {
     localStorage.setItem("cafeAddress", cafeAddress);
   }
 
+  const hasInvitedForEvent = (eventId: string) => {
+    return profile?.sentInvites?.some(
+      (invite: any) => invite.eventId === eventId
+    );
+  };
+
   const handleInviteFriend = async (item: any) => {
     try {
-      const res = await new Promise<any>((resolve) => {
-        generateToken(
-          {
-            eventId: item.event.id,
-            inviterId: session?.user?.id as string,
-          },
-          {
-            onSuccess: (data) => {
-              resolve(data);
-              toast.success("Invitation link generated");
-            },
-          }
-        );
+      const res = await generateToken({
+        eventId: item.event.id,
+        inviterId: session?.user?.id as string,
       });
 
       const token = res?.token;
@@ -124,6 +120,7 @@ const Page = () => {
         await navigator.clipboard.writeText(link);
         toast.success("Invite link copied!");
       }
+
     } catch (err) {
       toast.error("Could not create invite link");
     }
@@ -213,6 +210,7 @@ const Page = () => {
                 const formattedEventDate = format(eventDate, "EEEE, MMMM d, yyyy 'at' h:mm a");
 
                 const cafe = item?.event?.cafe;
+                const alreadyInvited = hasInvitedForEvent(item.event.id);
 
                 const cancellationDeadline = new Date(new Date().getTime() + 24 * 60 * 60 * 1000);
 
@@ -286,7 +284,18 @@ const Page = () => {
                               </AlertDialogContent>
                             </AlertDialog>
                           )}
-                          <button onClick={() => handleInviteFriend(item)} className="flex items-center gap-2 mt-3 bg-blue-100 text-blue-600 px-4 py-2 rounded-md font-semibold hover:bg-blue-600 hover:text-white transition-colors duration-300 cursor-pointer" type="button">Invite a Friend</button>
+                          <button
+                            onClick={() => handleInviteFriend(item)}
+                            disabled={alreadyInvited}
+                            className={`mt-3 px-4 py-2 rounded-md font-semibold transition-colors duration-300
+                            ${alreadyInvited
+                                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                : "bg-blue-100 cursor-pointer text-blue-600 hover:bg-blue-600 hover:text-white"
+                              }
+                            `}
+                          >
+                            {alreadyInvited ? "Invite Sent" : "Invite a Friend"}
+                          </button>
                         </div>
                       </div>
                     </div>

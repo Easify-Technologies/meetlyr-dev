@@ -22,6 +22,11 @@ export async function POST(request: NextRequest) {
                     select: {
                         eventId: true
                     }   
+                },
+                sentInvites: {
+                    select: {
+                        eventId: true
+                    }
                 }
             }
         });

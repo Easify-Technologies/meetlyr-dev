@@ -51,6 +51,11 @@ interface EventProps {
   admin: {
     email: string;
   }
+  invites: [{
+    inviter: {
+      name: string;
+    }
+  }]
 }
 
 interface LocationProps {
