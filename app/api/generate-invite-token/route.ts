@@ -30,6 +30,20 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    if (invite) {
+      await prisma.eventParticipant.update({
+        where: {
+          eventId_userId: {
+            eventId,
+            userId: inviterId,
+          },
+        },
+        data: {
+          invitationToken: token,
+        },
+      });
+    }
+
     return NextResponse.json({ token: invite.token }, { status: 201 });
   } catch (error) {
     console.error("Error creating token:", error);

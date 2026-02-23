@@ -140,10 +140,13 @@ model EventParticipant {
 
   status String?
 
-  invitedBy String? @db.ObjectId
+  invitedBy       String? @db.ObjectId
+  invitationToken String?
 
   user  User? @relation(fields: [userId], references: [id], onDelete: SetNull)
   event Event @relation(fields: [eventId], references: [id])
+
+  @@unique([eventId, userId])
 }
 
 model EventInvite {

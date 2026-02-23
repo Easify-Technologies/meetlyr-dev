@@ -2,7 +2,6 @@
 import nodemailer from "nodemailer";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import crypto from "crypto";
 
 export const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
@@ -82,16 +81,10 @@ export async function POST(request: NextRequest) {
       include: { user: true },
     });
 
-    const token = crypto.randomBytes(24).toString("hex");
-
-    await prisma.event.update({
+    const invite = await prisma.eventInvite.findFirst({
       where: {
-        id: eventId,
-      },
-      data: {
-        inviteToken: token,
-        inviteEnabled: true,
-        inviteExpires: new Date(event.date.getTime() - 6 * 60 * 60 * 1000),
+        eventId,
+        inviterId: userId,
       },
     });
 
@@ -180,6 +173,18 @@ export async function POST(request: NextRequest) {
         </p>
       </div>
     `;
+
+      if (participant.invitationToken === invite?.token) {
+        await prisma.eventParticipant.update({
+          where: {
+            id: participant.id,
+            invitationToken: participant.invitationToken,
+          },
+          data: {
+            invitedBy: invite?.inviterId,
+          },
+        });
+      }
 
       await transporter.sendMail({
         from: `"Meetlyr" <${process.env.SMTP_USER}>`,
