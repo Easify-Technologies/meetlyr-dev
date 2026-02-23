@@ -46,6 +46,7 @@ model User {
   location Location? @relation(fields: [locationId], references: [id])
 
   eventParticipants EventParticipant[]
+  sentInvites       EventInvite[]
 
   age       Int?
   interests String?
@@ -119,6 +120,7 @@ model Event {
 
   matchGroups MatchGroup[]
   payment     Payment[]
+  invites     EventInvite[]
 
   // Additional event properties from spec
   locationId   String?    @db.ObjectId
@@ -127,10 +129,6 @@ model Event {
   bookingClose DateTime? // closes before event
   status       String? // 'Open', 'Closed', 'Completed'
   feedbacks    Feedback[]
-
-  inviteToken   String?
-  inviteEnabled Boolean   @default(false)
-  inviteExpires DateTime?
 }
 
 model EventParticipant {
@@ -146,6 +144,21 @@ model EventParticipant {
 
   user  User? @relation(fields: [userId], references: [id], onDelete: SetNull)
   event Event @relation(fields: [eventId], references: [id])
+}
+
+model EventInvite {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  token     String    @unique
+  eventId   String    @db.ObjectId
+  inviterId String    @db.ObjectId
+  createdAt DateTime  @default(now())
+  expiresAt DateTime?
+
+  event   Event @relation(fields: [eventId], references: [id])
+  inviter User  @relation(fields: [inviterId], references: [id])
+
+  @@index([eventId])
+  @@index([inviterId])
 }
 
 model MatchGroup {

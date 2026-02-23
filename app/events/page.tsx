@@ -12,7 +12,7 @@ import { parseISO, format } from "date-fns";
 
 import Navbar from "@/components/ui/Navbar";
 import Loader from "@/components/ui/loader";
-import { toast } from "sonner";
+import toast from "react-hot-toast";
 import { TbUsersGroup, TbCancel } from "react-icons/tb";
 import { MdOutlineArrowOutward, MdOutlineLocationOn, MdEventNote, MdEmojiEvents } from "react-icons/md";
 import { LuCalendarClock } from "react-icons/lu";
@@ -54,6 +54,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { useGenerateInviteToken } from "../queries/generate-invite-token";
 
 const Page = () => {
   const { data: session } = useSession();
@@ -66,6 +67,7 @@ const Page = () => {
   const { data: participant, isPending } = useEventParticipant(profile?.id);
   const { data: pastEvents } = useGetPastEvents(profile?.id);
   const { mutate, isPending: cancelEventPending } = useCancelMyEvent();
+  const { mutate: generateToken } = useGenerateInviteToken();
 
   const upcomingParticipant = participant?.find((item: any) => {
     const eventDate = parseISO(item.event.date);
@@ -86,27 +88,46 @@ const Page = () => {
     localStorage.setItem("cafeAddress", cafeAddress);
   }
 
-  const handleInviteFriend = (item: any) => {
-    const inviteToken = item?.event?.inviteToken;
+  const handleInviteFriend = async (item: any) => {
+    try {
+      const res = await new Promise<any>((resolve) => {
+        generateToken(
+          {
+            eventId: item.event.id,
+            inviterId: session?.user?.id as string,
+          },
+          {
+            onSuccess: (data) => {
+              resolve(data);
+              toast.success("Invitation link generated");
+            },
+          }
+        );
+      });
 
-    if (!inviteToken) {
-      return;
-    }
-    else {
-      const link = `${window.location.origin}/invite/${item.event.inviteToken}`;
+      const token = res?.token;
+
+      if (!token) {
+        toast.error("Failed to generate invite link");
+        return;
+      }
+
+      const link = `${window.location.origin}/invite/${token}`;
 
       if (navigator.share) {
-        navigator.share({
+        await navigator.share({
           title: "Join my meetup!",
           text: "Let's attend this event together 🎉",
           url: link,
         });
       } else {
-        navigator.clipboard.writeText(link);
+        await navigator.clipboard.writeText(link);
         toast.success("Invite link copied!");
       }
+    } catch (err) {
+      toast.error("Could not create invite link");
     }
-  }
+  };
 
   useEffect(() => {
     if (!pastEvents?.length) return;

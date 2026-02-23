@@ -11,6 +11,7 @@ const PROTECTED_ROUTES = [
   "/events",
   "/feedback",
   "/personal-information",
+  "/invite"
 ];
 
 const GUEST_ROUTES = [
@@ -68,6 +69,7 @@ export const config = {
     "/events/:path*",
     "/feedback/:path*",
     "/personal-information/:path*",
+    "/invite/:path*",
     "/login",
     "/get-started/:path*",
     "/email-verification",

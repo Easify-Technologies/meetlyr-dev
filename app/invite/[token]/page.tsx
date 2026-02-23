@@ -11,16 +11,17 @@ import { useProfileDetails } from "@/app/queries/profile";
 export default function InvitePage() {
   const { token } = useParams();
   const { data: session } = useSession();
-  
+
   const router = useRouter();
   const userId = session?.user?.email ?? "";
 
-  const { data, isLoading, error } = useGetEventByInviteToken(token as string);
+  const { data, isLoading, isError, error } = useGetEventByInviteToken(token as string);
   const { data: profile } = useProfileDetails(userId);
 
   const { mutate: joinEvent, isPending } = useJoinEvent();
 
   const event = data?.event;
+  const inviterName = data?.inviterName;
 
   const handleAcceptInvite = () => {
     if (!session) {
@@ -29,18 +30,19 @@ export default function InvitePage() {
       return;
     }
 
-    if(!profile?.subscriptionActive) {
+    if (!profile?.subscriptionActive) {
       toast.error("Your subscription has expired");
       return;
     }
 
-    if(profile.subscriptionCredits < 1) {
+    if (profile.subscriptionCredits < 1) {
       toast.error("You do not have enough credits");
       return;
     }
 
     joinEvent(
-      { eventId: event.id,
+      {
+        eventId: event.id,
         userId: userId as string,
         token: session.user.accessToken as string
       },
@@ -72,7 +74,7 @@ export default function InvitePage() {
     <section className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-b from-amber-50 to-white">
       <div className="max-w-xl w-full bg-white shadow-md rounded-3xl p-8">
         <h1 className="text-2xl font-bold mb-4">
-          You're invited! 🎉
+          {inviterName} invited you to join this event 🎉
         </h1>
 
         <div className="space-y-2">
@@ -89,10 +91,14 @@ export default function InvitePage() {
           </p>
         </div>
 
+        {isError && (
+          <p className="text-red-700 font-semibold text-base">{(error as Error).message}</p>
+        )}
+
         <button
           onClick={handleAcceptInvite}
           disabled={isPending}
-          className="mt-6 w-full cursor-pointer bg-[#FFD100] text-[#2F1107] font-semibold py-3 rounded-xl hover:bg-[#2F1107] hover:text-[#FFD100] transition-all"
+          className="mt-5 w-full cursor-pointer bg-[#FFD100] text-[#2F1107] font-semibold py-3 rounded-xl hover:bg-[#2F1107] hover:text-[#FFD100] transition-all"
         >
           {isPending ? "Joining..." : "Join Event"}
         </button>
