@@ -6,13 +6,17 @@ import toast from "react-hot-toast";
 import Loader from "@/components/ui/loader";
 import { useGetEventByInviteToken } from "@/app/queries/invite-token";
 import { useJoinEvent } from "@/app/queries/useJoinEvents";
+import { useProfileDetails } from "@/app/queries/profile";
 
 export default function InvitePage() {
   const { token } = useParams();
-  const router = useRouter();
   const { data: session } = useSession();
+  
+  const router = useRouter();
+  const userId = session?.user?.email ?? "";
 
   const { data, isLoading, error } = useGetEventByInviteToken(token as string);
+  const { data: profile } = useProfileDetails(userId);
 
   const { mutate: joinEvent, isPending } = useJoinEvent();
 
@@ -25,9 +29,19 @@ export default function InvitePage() {
       return;
     }
 
+    if(!profile?.subscriptionActive) {
+      toast.error("Your subscription has expired");
+      return;
+    }
+
+    if(profile.subscriptionCredits < 1) {
+      toast.error("You do not have enough credits");
+      return;
+    }
+
     joinEvent(
       { eventId: event.id,
-        userId: session?.user?.id as string,
+        userId: userId as string,
         token: session.user.accessToken as string
       },
       {
@@ -47,7 +61,7 @@ export default function InvitePage() {
   if (error || !event) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <h2 className="text-xl text-[#2f1107] font-semibold">
+        <h2 className="text-2xl text-[#2f1107] font-semibold">
           Invalid or expired invite link.
         </h2>
       </div>
@@ -63,22 +77,22 @@ export default function InvitePage() {
 
         <div className="space-y-2">
           <p className="text-lg font-semibold">
-            {event.cafe?.name}
+            {event?.cafe?.name}
           </p>
 
           <p className="text-sm text-gray-600 font-semibold">
-            {new Date(event.date).toLocaleString()}
+            {new Date(event?.date).toLocaleString()}
           </p>
 
           <p className="text-sm text-gray-600">
-            {event.cafe?.address}
+            {event?.cafe?.address}
           </p>
         </div>
 
         <button
           onClick={handleAcceptInvite}
           disabled={isPending}
-          className="mt-6 w-full bg-[#FFD100] text-[#2F1107] font-semibold py-3 rounded-xl hover:bg-[#2F1107] hover:text-[#FFD100] transition-all"
+          className="mt-6 w-full cursor-pointer bg-[#FFD100] text-[#2F1107] font-semibold py-3 rounded-xl hover:bg-[#2F1107] hover:text-[#FFD100] transition-all"
         >
           {isPending ? "Joining..." : "Join Event"}
         </button>

@@ -110,7 +110,7 @@ const PaymentClient = () => {
       const data = await res.json();
 
       if (data.url) {
-        window.location.href = data.url;
+        router.push(data.url);
       } else {
         alert("Error creating checkout session");
         console.error(data.error);
