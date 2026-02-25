@@ -59,6 +59,7 @@ interface UserProps {
         status: string;
     }];
     kindOfPeople: string[];
+    sentInvites: [{}];
 }
 
 interface LocationProps {

@@ -20,6 +20,15 @@ export async function GET() {
             status: true,
           },
         },
+        sentInvites: {
+          select: {
+            event: {
+              select: {
+                date: true
+              }
+            }
+          }
+        }
       },
     });
 
