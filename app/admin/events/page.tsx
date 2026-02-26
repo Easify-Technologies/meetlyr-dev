@@ -52,11 +52,6 @@ interface EventProps {
   admin: {
     email: string;
   }
-  invites: [{
-    inviter: {
-      name: string;
-    }
-  }]
 }
 
 interface LocationProps {
@@ -186,7 +181,6 @@ const Page = () => {
                     <TableHead className='text-[#2f1107]'>Date</TableHead>
                     <TableHead className='text-[#2f1107]'>City</TableHead>
                     <TableHead className='text-[#2f1107]'>Country</TableHead>
-                    <TableHead className='text-[#2f1107]'>Invites</TableHead>
                     <TableHead className='text-[#2f1107]'>Created At</TableHead>
                     <TableHead className='text-[#2f1107]'>Status</TableHead>
                     <TableHead className='text-[#2f1107]'>Created By</TableHead>
@@ -207,41 +201,6 @@ const Page = () => {
                         <TableCell>{formattedEventDate}</TableCell>
                         <TableCell>{event?.city}</TableCell>
                         <TableCell>{event?.country}</TableCell>
-                        <TableCell>
-                          {event.invites?.length > 0 ? (
-                            <div className="flex flex-col gap-2 text-xs max-w-[250px]">
-                              {event.invites.map((invite: any) => {
-                                const joinedUsers = event.participants?.filter(
-                                  (p: any) => p.invitedBy === invite.inviterId
-                                );
-
-                                return (
-                                  <div key={invite.id} className="border rounded-md p-2 bg-gray-50">
-                                    <div className="font-semibold text-[#2f1107]">
-                                      {invite.inviter?.name}
-                                    </div>
-
-                                    {joinedUsers.length > 0 ? (
-                                      joinedUsers.map((p: any) => (
-                                        <div key={p.id} className="text-gray-600">
-                                          → {p.user?.name}
-                                        </div>
-                                      ))
-                                    ) : (
-                                      <div className="text-gray-400">
-                                        No one joined yet
-                                      </div>
-                                    )}
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          ) : (
-                            <span className="text-gray-400 text-xs">
-                              No Invites
-                            </span>
-                          )}
-                        </TableCell>
                         <TableCell>{formattedCreatedDate}</TableCell>
                         <TableCell>{event?.isClosed ? "True" : "False"}</TableCell>
                         <TableCell>{event?.admin?.email}</TableCell>
