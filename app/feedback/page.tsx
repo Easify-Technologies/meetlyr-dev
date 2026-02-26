@@ -279,8 +279,13 @@ const Page = () => {
     switch (currentStep) {
       case 1:
         return Boolean(rating.overall);
-      case 2:
-        return participantFeedback.length === matchGroupUsers.length;
+      case 2: {
+        const currentUser = matchGroupUsers[participantIndex];
+
+        return participantFeedback.some(
+          p => String(p.participantId) === String(currentUser?.id)
+        );
+      }
       case 3:
         return Boolean(rating.cafe);
       case 4:
