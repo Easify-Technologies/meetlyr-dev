@@ -62,6 +62,7 @@ const Page = () => {
   const userEmail = session?.user?.email ?? "";
 
   const [showGroupSection, setShowGroupSection] = useState(false);
+  const [invitedEvents, setInvitedEvents] = useState<string[]>([]);
 
   const { data: profile, isLoading } = useProfileDetails(userEmail);
   const { data: participant, isPending } = useEventParticipant(profile?.id);
@@ -121,7 +122,10 @@ const Page = () => {
         toast.success("Invite link copied!");
       }
 
+      setInvitedEvents((prev) => [...prev, item.event.id]);
+
     } catch (err) {
+      console.error(err);
       toast.error("Could not create invite link");
     }
   };
@@ -210,7 +214,9 @@ const Page = () => {
                 const formattedEventDate = format(eventDate, "EEEE, MMMM d, yyyy 'at' h:mm a");
 
                 const cafe = item?.event?.cafe;
-                const alreadyInvited = hasInvitedForEvent(item.event.id);
+                const alreadyInvited =
+                  hasInvitedForEvent(item.event.id) ||
+                  invitedEvents.includes(item.event.id);
 
                 const cancellationDeadline = new Date(new Date().getTime() + 24 * 60 * 60 * 1000);
 
@@ -515,10 +521,10 @@ const Page = () => {
                           <div className="flex flex-col gap-3">
                             <div className="flex flex-col gap-1">
                               <span className="text-[#2f1107] font-semibold text-base">
-                                {past.event.cafe.name}
+                                {past.event.cafe?.name ?? "Unavailable"}
                               </span>
                               <span className="text-sm font-semibold text-muted-foreground">
-                                {past.event.cafe.address}
+                                {past.event.cafe?.address ?? "Unavailable"}
                               </span>
                             </div>
 
