@@ -1,11 +1,14 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Eye, EyeOff } from "lucide-react";
 
 import { useLoginDetails } from '../queries/login';
+import { signIn } from "next-auth/react";
+import { FaGoogle } from "react-icons/fa";
 
 interface LoginProps {
     email: string;
@@ -13,23 +16,44 @@ interface LoginProps {
 }
 
 const Page = () => {
+    const router = useRouter();
     const [showPassword, setShowPassword] = useState(false);
     const [formData, setFormData] = useState<LoginProps>({
         email: "",
         password: ""
     });
-
+    const { mutate, isPending, isSuccess, isError, data, error, reset } = useLoginDetails();
     const { email, password } = formData;
+
+    useEffect(() => {
+        if (isSuccess) {
+            const timer = setTimeout(() => {
+                router.push("/bookings");
+            }, 1000);
+            return () => clearTimeout(timer);
+        }
+    }, [isSuccess, router]);
+
+    useEffect(() => {
+        if (isError) {
+            const timer = setTimeout(() => {
+                reset();
+            }, 2000);
+            return () => clearTimeout(timer);
+        }
+    }, [isError, reset]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
     }
 
-    const { mutate, isPending, isSuccess, isError, data, error } = useLoginDetails();
-
     const handleLoginUser = () => {
         mutate(formData);
+    }
+
+    const handleGoogleLogin = async () => {
+        await signIn("google", { callbackUrl: "/" });
     }
 
     return (
@@ -74,8 +98,12 @@ const Page = () => {
                                 <p data-slot="form-message" className="text-green-500 text-sm">{data.message}</p>
                             )}
                         </div>
-                        <div className="flex-1 flex flex-col gap-4 justify-center items-center">
-                            <button onClick={handleLoginUser} disabled={isPending} className="inline-flex items-center justify-center gap-2 whitespace-nowrap cursor-pointer text-sm md:text-base font-medium transition-all bg-[#FFD100] text-[#2f1107] hover:bg-[#FFD100]/90 h-12 px-4 py-2 rounded-full w-full" type="button">{isPending ? "Redirecting..." : "Sign in"}</button>
+                        <div className="flex-1 flex flex-col justify-center items-center">
+                            <button onClick={handleLoginUser} disabled={isPending} className="inline-flex items-center justify-center mb-3 gap-2 whitespace-nowrap cursor-pointer text-sm md:text-base font-medium transition-colors bg-[#FFD100] text-[#2f1107] hover:bg-[#FFD100]/80 h-12 px-4 py-2 rounded-full w-full" type="button">{isPending ? "Redirecting..." : "Sign in"}</button>
+                            <button onClick={handleGoogleLogin} type="button" className='flex items-center justify-center gap-2 bg-[#2f1107] text-white mb-3 cursor-pointer whitespace-nowrap text-base font-medium transition-colors px-4 py-2 w-full rounded-full h-12 hover:bg-[#2f1107]/80'>
+                                <FaGoogle size={16} />
+                                <span>Sign in with Google</span>
+                            </button>
                             <Link href="/get-started" className="inline-flex items-center cursor-pointer justify-center gap-2 whitespace-nowrap text-sm md:text-base font-medium transition-all select-none disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg:not([class*='size-'])]:size-4 shrink-0 [&amp;_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive underline-offset-4 hover:underline rounded-full w-fit h-fit p-0">Create account</Link>
                         </div>
                     </form>

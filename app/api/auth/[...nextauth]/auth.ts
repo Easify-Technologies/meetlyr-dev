@@ -1,7 +1,8 @@
+import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import CredentialsProvider from "next-auth/providers/credentials";
+import { prisma } from "@/lib/prisma";
+import bcrypt from "bcrypt";
 
 export const authOptions = {
   providers: [
@@ -9,10 +10,40 @@ export const authOptions = {
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
+
+    CredentialsProvider({
+      name: "Credentials",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          throw new Error("Email and password are required");
+        }
+
+        const user = await prisma.user.findUnique({
+          where: { email: credentials.email },
+        });
+
+        if (!user) throw new Error("This email address does not exist");
+        if (!user.password) throw new Error("This account uses Google sign-in");
+
+        const isPasswordValid = await bcrypt.compare(
+          credentials.password,
+          user.password,
+        );
+        if (!isPasswordValid) throw new Error("Incorrect password");
+
+        return { id: user.id, email: user.email, name: user.name };
+      },
+    }),
   ],
 
   callbacks: {
-    async signIn({ user }: any) {
+    async signIn({ user, account }: any) {
+      if (account?.provider !== "google") return true;
+
       if (!user?.email) return false;
 
       const existingUser = await prisma.user.findUnique({
@@ -46,14 +77,10 @@ export const authOptions = {
           },
         });
       } else {
-        // link google if not already linked
         if (!existingUser.googleId) {
           await prisma.user.update({
             where: { email: user.email },
-            data: {
-              googleId: user.id,
-              authProvider: "google",
-            },
+            data: { googleId: user.id, authProvider: "google" },
           });
         }
       }
@@ -63,15 +90,21 @@ export const authOptions = {
 
     async jwt({ token, user }: any) {
       if (user) {
+        token.id = user.id; // ✅ Added id to token
         token.email = user.email;
       }
       return token;
     },
 
     async session({ session, token }: any) {
+      session.user.id = token.id; // ✅ Expose id on session
       session.user.email = token.email;
       return session;
     },
+  },
+
+  pages: {
+    signIn: "/login",
   },
 
   secret: process.env.NEXTAUTH_SECRET,
