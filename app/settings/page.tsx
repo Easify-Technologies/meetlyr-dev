@@ -10,7 +10,7 @@ import { useProfileDetails } from '../queries/profile';
 import Link from 'next/link';
 import axios from 'axios';
 import { signOut } from 'next-auth/react';
-import { FaLocationArrow } from "react-icons/fa";
+import { FaLocationArrow, FaRegEdit } from "react-icons/fa";
 import { IoIosClose } from "react-icons/io";
 import { CheckCircle } from "lucide-react";
 import { useFetchAllLocations } from "../queries/fetch-locations";
@@ -25,6 +25,7 @@ import toast from 'react-hot-toast';
 import {
     Dialog,
     DialogContent,
+    DialogDescription,
     DialogHeader,
     DialogTitle,
     DialogTrigger,
@@ -510,7 +511,22 @@ const Page = () => {
                                                             </div>
                                                         </div>
                                                         <div className="px-4 flex flex-col gap-4">
-                                                            <div className="flex flex-col gap-4 bg-card rounded-lg p-4 border">
+                                                            <div className="relative flex flex-col gap-4 bg-card rounded-lg p-4 border">
+                                                                {profile?.googleId !== "" && profile?.authProvider === "google" && (
+                                                                    <Dialog>
+                                                                        <DialogTrigger className='absolute top-4 right-4 text-gray-400 cursor-pointer'>
+                                                                            <FaRegEdit size={20} />
+                                                                        </DialogTrigger>
+                                                                        <DialogContent>
+                                                                            <DialogHeader>
+                                                                                <DialogTitle className='font-semibold text-start text-2xl text-[#2f1107]'>Personal Details</DialogTitle>
+                                                                                <DialogDescription className='text-gray-500 text-start text-sm'>
+                                                                                    Update your personal information to keep your profile accurate and up to date.
+                                                                                </DialogDescription>
+                                                                            </DialogHeader>
+                                                                        </DialogContent>
+                                                                    </Dialog>
+                                                                )}
                                                                 <div className="flex flex-col gap-3">
                                                                     <div className="flex items-center gap-3">
                                                                         <div className="text-muted-foreground">
