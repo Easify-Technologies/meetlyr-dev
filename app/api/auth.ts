@@ -1,16 +1,22 @@
-import { prisma } from "@/lib/prisma";
-import { NextAuthOptions } from "next-auth";
+import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
+import { prisma } from "@/lib/prisma";
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
 
-export const authOptions: NextAuthOptions = {
+export const authOptions = {
   providers: [
+    // 🔵 GOOGLE LOGIN
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
+
+    // 🔐 EMAIL/PASSWORD LOGIN (KEEP EXISTING USERS SAFE)
     CredentialsProvider({
-      name: "Credentials",
+      name: "credentials",
       credentials: {
-        email: { label: "Email", type: "text" },
-        password: { label: "Password", type: "password" },
+        email: {},
+        password: {},
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials.password) return null;
@@ -19,23 +25,19 @@ export const authOptions: NextAuthOptions = {
           where: { email: credentials.email },
         });
 
-        if (!user) return null;
+        if (!user || !user.password) return null;
 
-        const isValid = await bcrypt.compare(credentials.password, user.password);
-        if (!isValid) return null;
-
-        // ✅ Generate JWT token manually here
-        const accessToken = jwt.sign(
-          { userId: user.id, email: user.email },
-          process.env.NEXTAUTH_SECRET!, // same secret used in verifyAuthToken
-          { expiresIn: "1h" }
+        const isValid = await bcrypt.compare(
+          credentials.password,
+          user.password
         );
+
+        if (!isValid) return null;
 
         return {
           id: user.id,
-          name: user.name,
           email: user.email,
-          accessToken, // ✅ Attach token
+          name: user.name,
         };
       },
     }),
@@ -46,33 +48,80 @@ export const authOptions: NextAuthOptions = {
   },
 
   callbacks: {
-    redirect({ url, baseUrl }) {
-      return url.startsWith("/") ? baseUrl + url : url;
-    },
-    async jwt({ token, user }) {
-      // When user logs in, attach token
-      if (user?.accessToken) {
-        token.accessToken = user.accessToken;
+    // 🔵 GOOGLE AUTO USER CREATE / LINK
+    async signIn({ user, account }) {
+      if (account?.provider === "google") {
+        const email = user.email;
+
+        if (!email) return false;
+
+        const existingUser = await prisma.user.findUnique({
+          where: { email },
+        });
+
+        // 🟢 NEW USER → CREATE
+        if (!existingUser) {
+          await prisma.user.create({
+            data: {
+              email,
+              name: user.name || "",
+              avatar: user.image || "",
+              googleId: account.providerAccountId,
+              authProvider: "google",
+
+              // ⚠️ safe defaults (IMPORTANT for your schema)
+              phoneNumber: "",
+              gender: "",
+              dateOfBirth: "",
+              country: "",
+              city: "",
+              connectionStyles: "",
+              communicationStyles: "",
+              socialStyles: "",
+              healthAndFitness: "",
+              family: "",
+              spirituality: "",
+              politicalNews: "",
+              incorrectHumor: "",
+              kindOfPeople: [],
+              password: "", // IMPORTANT: keep empty string, NOT null
+              isVerified: false,
+            },
+          });
+        }
+
+        // 🟡 EXISTING USER → LINK GOOGLE
+        else if (!existingUser.googleId) {
+          await prisma.user.update({
+            where: { email },
+            data: {
+              googleId: account.providerAccountId,
+              authProvider: "google",
+            },
+          });
+        }
       }
-      if (user?.id) token.id = user.id;
+
+      return true;
+    },
+
+    async jwt({ token, user }) {
+      if (user) token.id = user.id;
       return token;
     },
 
     async session({ session, token }) {
-      // Attach token to session
-      if (token?.accessToken) {
-        session.user.accessToken = token.accessToken as string;
-      }
-      if (token?.id) {
+      if (session.user) {
         session.user.id = token.id as string;
       }
       return session;
     },
   },
 
-  pages: {
-    signIn: "/auth/signin",
-  },
-
   secret: process.env.NEXTAUTH_SECRET,
+
+  // IMPORTANT (fix your redirect issue)
+  pages: {
+    signIn: "/api/auth/signin",
+  },
 };

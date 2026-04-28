@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react'
-import Navbar from '@/components/ui/Navbar';
-import Link from 'next/link';
-import { useProfileDetails } from '../queries/profile';
-import { useEditUserDetails } from '../queries/edit-user-details';
-import { useSession } from 'next-auth/react';
-import Loader from '@/components/ui/loader';
+import React, { useState, useEffect } from "react";
+import Navbar from "@/components/ui/Navbar";
+import Link from "next/link";
+import { useProfileDetails } from "../queries/profile";
+import { useEditUserDetails } from "../queries/edit-user-details";
+import { useSession } from "next-auth/react";
+import Loader from "@/components/ui/loader";
 
-import PhoneNumberInput from '@/components/comp-46';
+import PhoneNumberInput from "@/components/comp-46";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { ChevronDownIcon } from "lucide-react";
@@ -24,6 +24,12 @@ const Page = () => {
   const email = session?.user?.email ?? "";
 
   const { data: profile, isLoading } = useProfileDetails(email);
+  const isGoogleUser = profile?.authProvider === "google";
+  const isProfileLocked =
+    isGoogleUser &&
+    profile?.phoneNumber &&
+    profile?.gender &&
+    profile?.dateOfBirth;
   const { mutate, isSuccess, isError, error, data } = useEditUserDetails(email);
   const [open, setOpen] = useState(false);
   const [date, setDate] = useState<Date | undefined>(undefined);
@@ -44,7 +50,7 @@ const Page = () => {
 
   const handleSaveChanges = () => {
     mutate(formData);
-  }
+  };
 
   useEffect(() => {
     if (profile) {
@@ -96,18 +102,24 @@ const Page = () => {
                 <path d="M19 12H5"></path>
               </svg>
             </Link>
-            <h3 className="text-2xl md:text-3xl font-bold">Personal Information</h3>
+            <h3 className="text-2xl md:text-3xl font-bold">
+              Personal Information
+            </h3>
           </div>
 
           {/* Form */}
           <form className="w-full mt-5">
             {/* First Name */}
             <div className="flex flex-col gap-2 items-start justify-start">
-              <label htmlFor="first_name" className="text-[#2f1107] font-semibold">
+              <label
+                htmlFor="first_name"
+                className="text-[#2f1107] font-semibold"
+              >
                 First Name
               </label>
               <input
                 onChange={handleInputChange}
+                disabled={isProfileLocked}
                 type="text"
                 id="first_name"
                 name="first_name"
@@ -118,11 +130,15 @@ const Page = () => {
 
             {/* Last Name */}
             <div className="flex flex-col gap-2 items-start justify-start mt-6">
-              <label htmlFor="last_name" className="text-[#2f1107] font-semibold">
+              <label
+                htmlFor="last_name"
+                className="text-[#2f1107] font-semibold"
+              >
                 Last Name
               </label>
               <input
                 onChange={handleInputChange}
+                disabled={isProfileLocked}
                 type="text"
                 id="last_name"
                 name="last_name"
@@ -138,6 +154,7 @@ const Page = () => {
               </label>
               <input
                 onChange={handleInputChange}
+                disabled={isProfileLocked}
                 type="email"
                 id="email"
                 name="email"
@@ -149,6 +166,7 @@ const Page = () => {
             {/* Phone Number */}
             <PhoneNumberInput
               phone={formData.phone_number}
+              disabled={isProfileLocked}
               onChange={(value) =>
                 setFormData((prev) => ({ ...prev, phone_number: value }))
               }
@@ -156,13 +174,17 @@ const Page = () => {
 
             {/* Date of Birth */}
             <div className="flex flex-col gap-2 items-start justify-start mt-6">
-              <label htmlFor="date_of_birth" className="text-[#2f1107] font-semibold">
+              <label
+                htmlFor="date_of_birth"
+                className="text-[#2f1107] font-semibold"
+              >
                 Date of birth
               </label>
               <Popover open={open} onOpenChange={setOpen}>
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
+                    disabled={isProfileLocked}
                     id="date"
                     className="w-full p-5 rounded-md justify-between bg-transparent border border-[#2f1107] text-[#2f1107] outline-none text-sm font-semibold"
                   >
@@ -170,10 +192,14 @@ const Page = () => {
                     <ChevronDownIcon />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto overflow-hidden" align="start">
+                <PopoverContent
+                  className="w-auto overflow-hidden"
+                  align="start"
+                >
                   <Calendar
                     mode="single"
                     selected={date}
+                    disabled={isProfileLocked}
                     captionLayout="dropdown"
                     onSelect={(newDate) => {
                       setDate(newDate);
@@ -197,6 +223,7 @@ const Page = () => {
               </label>
               <RadioGroup
                 value={formData.gender}
+                disabled={isProfileLocked}
                 onValueChange={(value) =>
                   setFormData((prev) => ({ ...prev, gender: value }))
                 }
@@ -207,15 +234,23 @@ const Page = () => {
                   className="relative w-1/2 flex cursor-pointer flex-col items-center gap-3 rounded-full border border-input px-2 py-5 text-center shadow-xs transition-all has-[input:checked]:bg-blue-100 has-[input:checked]:border-blue-500"
                 >
                   <RadioGroupItem id="male" value="male" className="sr-only" />
-                  <p className="text-sm leading-none font-bold text-foreground">Male</p>
+                  <p className="text-sm leading-none font-bold text-foreground">
+                    Male
+                  </p>
                 </label>
 
                 <label
                   htmlFor="female"
                   className="relative w-1/2 flex cursor-pointer flex-col items-center gap-3 rounded-full border border-input px-2 py-5 text-center shadow-xs transition-all has-[input:checked]:bg-pink-100 has-[input:checked]:border-pink-500"
                 >
-                  <RadioGroupItem id="female" value="female" className="sr-only" />
-                  <p className="text-sm leading-none font-bold text-foreground">Female</p>
+                  <RadioGroupItem
+                    id="female"
+                    value="female"
+                    className="sr-only"
+                  />
+                  <p className="text-sm leading-none font-bold text-foreground">
+                    Female
+                  </p>
                 </label>
                 <label
                   htmlFor="other"
@@ -238,15 +273,26 @@ const Page = () => {
             </div>
 
             {isError && (
-              <p data-slot="form-message" className="text-destructive text-sm font-semibold">{(error as Error).message}</p>
+              <p
+                data-slot="form-message"
+                className="text-destructive text-sm font-semibold"
+              >
+                {(error as Error).message}
+              </p>
             )}
             {isSuccess && data?.message && (
-              <p data-slot="form-message" className="text-green-500 text-sm font-semibold">{data.message}</p>
+              <p
+                data-slot="form-message"
+                className="text-green-500 text-sm font-semibold"
+              >
+                {data.message}
+              </p>
             )}
 
             {/* Save Button */}
             <button
               type="button"
+              disabled={isProfileLocked}
               onClick={handleSaveChanges}
               className="w-full mt-6 bg-[#2f1107] rounded-full text-white transition-colors duration-500 cursor-pointer text-sm font-semibold py-4 hover:bg-[#2f1107]/90"
             >

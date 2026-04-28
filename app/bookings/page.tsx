@@ -52,21 +52,40 @@ const Page = () => {
   const { day, time } = suggestionData;
 
   const { data: profile, isLoading } = useProfileDetails(userId);
+  useEffect(() => {
+    if (!profile) return;
+
+    const isProfileComplete =
+      profile.gender && profile.dateOfBirth && profile.city && profile.country;
+
+    if (!isProfileComplete) {
+      toast.error("Please complete your profile first");
+      router.push("/settings");
+    }
+  }, [profile, router]);
+
   const { data } = useGetAllEvents(profile?.city);
   const events = data?.events ?? [];
 
   const { mutate: joinEvent, isPending } = useJoinEvent();
   const { mutate: joinSpecialEvent } = useSpecialEventPass();
 
-  const { mutate: addSuggestion, isPending: suggestionPending, isSuccess, isError, data: suggestionRes, error } = useAddSuggestions();
+  const {
+    mutate: addSuggestion,
+    isPending: suggestionPending,
+    isSuccess,
+    isError,
+    data: suggestionRes,
+    error,
+  } = useAddSuggestions();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setSuggestionData((prev => ({
+    setSuggestionData((prev) => ({
       ...prev,
-      [name]: value
-    })));
-  }
+      [name]: value,
+    }));
+  };
 
   const handleSendSuggestion = useCallback(() => {
     addSuggestion({
@@ -77,6 +96,17 @@ const Page = () => {
   }, [suggestionData]);
 
   const handleBooking = () => {
+    const isProfileComplete =
+      profile?.gender &&
+      profile?.dateOfBirth &&
+      profile?.city &&
+      profile?.country;
+
+    if (!isProfileComplete) {
+      toast.error("Please complete your profile first");
+      router.push("/settings");
+      return;
+    }
     if (!booking) {
       toast.error("Please select an event first");
       return;
@@ -103,7 +133,7 @@ const Page = () => {
           onError: () => {
             toast.error("Failed to book special event");
           },
-        }
+        },
       );
 
       return;
@@ -134,7 +164,7 @@ const Page = () => {
           onError: () => {
             toast.error("Failed to join event");
           },
-        }
+        },
       );
 
       return;
@@ -149,14 +179,16 @@ const Page = () => {
         eventDate >= now &&
         Array.isArray(event?.participants) &&
         event.participants.some(
-          (p) => p.userId === profile?.id && (p.status === "Active" || p.status === null)
+          (p) =>
+            p.userId === profile?.id &&
+            (p.status === "Active" || p.status === null),
         ) &&
         Array.isArray(event?.payment) &&
         event.payment.some(
           (pay) =>
             pay.userId === profile?.id &&
             pay.mode === "subscription" &&
-            pay.status === "paid"
+            pay.status === "paid",
         )
       );
     });
@@ -180,7 +212,7 @@ const Page = () => {
     }
   }, [isSuccess, suggestionRes, storageKey]);
 
-  if (isLoading) return <Loader />
+  if (isLoading) return <Loader />;
 
   return (
     <>
@@ -257,34 +289,43 @@ const Page = () => {
                                 >
                                   {(() => {
                                     // ⭐ STEP 1 — Find ANY currently active FUTURE booked event (subscription, payment, or free)
-                                    const activeBookedEvent = events.find((event) => {
-                                      const eventDate = new Date(event?.date);
-                                      const now = new Date();
+                                    const activeBookedEvent = events.find(
+                                      (event) => {
+                                        const eventDate = new Date(event?.date);
+                                        const now = new Date();
 
-                                      const isFutureEvent = eventDate >= now;
+                                        const isFutureEvent = eventDate >= now;
 
-                                      const isActiveParticipant =
-                                        Array.isArray(event?.participants) &&
-                                        event.participants.some(
-                                          (p) => p.userId === profile?.id && (p.status === "Active" || p.status === null)
+                                        const isActiveParticipant =
+                                          Array.isArray(event?.participants) &&
+                                          event.participants.some(
+                                            (p) =>
+                                              p.userId === profile?.id &&
+                                              (p.status === "Active" ||
+                                                p.status === null),
+                                          );
+
+                                        const hasActivePaidBooking =
+                                          Array.isArray(event?.payment) &&
+                                          event.payment.some(
+                                            (pay) =>
+                                              pay.userId === profile?.id &&
+                                              pay.status === "paid",
+                                          );
+
+                                        return (
+                                          isFutureEvent &&
+                                          isActiveParticipant &&
+                                          hasActivePaidBooking
                                         );
-
-                                      const hasActivePaidBooking =
-                                        Array.isArray(event?.payment) &&
-                                        event.payment.some(
-                                          (pay) =>
-                                            pay.userId === profile?.id &&
-                                            pay.status === "paid"
-                                        );
-
-                                      return isFutureEvent && isActiveParticipant && hasActivePaidBooking;
-                                    });
+                                      },
+                                    );
 
                                     return events.map((event) => {
                                       const isoEventDate = event?.date;
                                       const formattedEventDate = format(
                                         parseISO(isoEventDate),
-                                        "EEEE, MMM do h:mm a"
+                                        "EEEE, MMM do h:mm a",
                                       );
 
                                       // ⭐ REQUIRED — date guard PER event (scope fix)
@@ -296,21 +337,27 @@ const Page = () => {
                                       const isSubscribedToThisEvent =
                                         Array.isArray(event?.participants) &&
                                         event.participants.some(
-                                          (p) => p.userId === profile?.id && (p.status === "Active" || p.status === null)
+                                          (p) =>
+                                            p.userId === profile?.id &&
+                                            (p.status === "Active" ||
+                                              p.status === null),
                                         ) &&
                                         Array.isArray(event?.payment) &&
                                         event.payment.some(
                                           (pay) =>
                                             pay.userId === profile?.id &&
                                             pay.mode === "subscription" &&
-                                            pay.status === "paid"
+                                            pay.status === "paid",
                                         );
 
                                       // ⭐ FIXED — Check for ACTIVE participant (status === "Active" or null) with paid payment OR free pass
                                       const isActiveParticipant =
                                         Array.isArray(event?.participants) &&
                                         event.participants.some(
-                                          (p) => p.userId === profile?.id && (p.status === "Active" || p.status === null)
+                                          (p) =>
+                                            p.userId === profile?.id &&
+                                            (p.status === "Active" ||
+                                              p.status === null),
                                         );
 
                                       const hasPaidPayment =
@@ -318,7 +365,7 @@ const Page = () => {
                                         event.payment.some(
                                           (pay) =>
                                             pay.userId === profile?.id &&
-                                            pay.status === "paid"
+                                            pay.status === "paid",
                                         );
 
                                       const hasFreePass =
@@ -327,7 +374,7 @@ const Page = () => {
                                           (pay) =>
                                             pay.userId === profile?.id &&
                                             pay.mode === "free" &&
-                                            pay.status === "paid"
+                                            pay.status === "paid",
                                         );
 
                                       // An event is booked if it's future, user is ACTIVE participant, and has paid OR used free pass
@@ -355,11 +402,12 @@ const Page = () => {
                                           ${isBlocked ? "opacity-50 cursor-not-allowed" : ""}
                                           p-4 rounded-full shadow-xs outline-none hover:bg-[#2F1107]/10`}
                                         >
-                                          {event?.tagline && event.tagline.trim() !== "" && (
-                                            <span className="absolute -top-2.5 right-4 z-10 rounded-full bg-[#d90368] px-2.5 py-1.5 text-xs font-semibold text-white leading-none">
-                                              {event.tagline}
-                                            </span>
-                                          )}
+                                          {event?.tagline &&
+                                            event.tagline.trim() !== "" && (
+                                              <span className="absolute -top-2.5 right-4 z-10 rounded-full bg-[#d90368] px-2.5 py-1.5 text-xs font-semibold text-white leading-none">
+                                                {event.tagline}
+                                              </span>
+                                            )}
                                           <>
                                             <RadioGroupItem
                                               value={event?.id}
@@ -371,11 +419,15 @@ const Page = () => {
                                             {isBlocked ? (
                                               <div className="w-full flex md:flex-row flex-col md:items-center items-start md:gap-2.5 gap-2">
                                                 <span className="md:text-base text-sm text-[#2f1107] font-semibold">
-                                                  Cancel your current booking to join this event
+                                                  Cancel your current booking to
+                                                  join this event
                                                 </span>
                                                 <div className="bg-muted rounded-full px-3 py-2">
                                                   <span className="md:text-lg text-sm font-medium text-[#2f1107] leading-none">
-                                                    {formattedEventDate.split(" ").slice(0, 5).join(" ")}
+                                                    {formattedEventDate
+                                                      .split(" ")
+                                                      .slice(0, 5)
+                                                      .join(" ")}
                                                   </span>
                                                 </div>
                                               </div>
@@ -386,25 +438,42 @@ const Page = () => {
                                                 </span>
                                                 <div className="bg-[#2F1107] rounded-full px-3 py-2">
                                                   <span className="md:text-lg text-sm font-medium text-white leading-none">
-                                                    {formattedEventDate.split(" ").slice(0, 5).join(" ")}
+                                                    {formattedEventDate
+                                                      .split(" ")
+                                                      .slice(0, 5)
+                                                      .join(" ")}
                                                   </span>
                                                 </div>
                                               </div>
                                             ) : (
                                               <div className="grid grow gap-2">
-                                                <Label htmlFor={event?.id} className="flex items-center gap-2">
+                                                <Label
+                                                  htmlFor={event?.id}
+                                                  className="flex items-center gap-2"
+                                                >
                                                   <div className="bg-[#ffd100] text-[#2f1107] w-11 h-11 mr-1 flex items-center justify-center rounded-full">
                                                     <BiSolidCoffee size={20} />
                                                   </div>
                                                   <h4 className="font-semibold md:text-xl text-lg text-[#2F1107]">
-                                                    {formattedEventDate.split(" ").slice(0, 3).join(" ")}
+                                                    {formattedEventDate
+                                                      .split(" ")
+                                                      .slice(0, 3)
+                                                      .join(" ")}
                                                   </h4>
                                                   <div className="flex items-start text-center justify-center bg-[#2F1107] rounded-full px-3 py-2">
                                                     <span className="text-lg font-medium text-white leading-none">
-                                                      {formattedEventDate.split(" ")[3]}
+                                                      {
+                                                        formattedEventDate.split(
+                                                          " ",
+                                                        )[3]
+                                                      }
                                                     </span>
                                                     <span className="text-[10px] text-white ml-1 leading-none">
-                                                      {formattedEventDate.split(" ")[4]}
+                                                      {
+                                                        formattedEventDate.split(
+                                                          " ",
+                                                        )[4]
+                                                      }
                                                     </span>
                                                   </div>
                                                 </Label>
@@ -420,7 +489,11 @@ const Page = () => {
 
                               {/* Suggestion Form */}
                               {suggestionBox && (
-                                <Accordion type="single" collapsible className="mt-8">
+                                <Accordion
+                                  type="single"
+                                  collapsible
+                                  className="mt-8"
+                                >
                                   <AccordionItem
                                     value="suggestion"
                                     className="rounded-2xl border border-muted bg-muted/40 px-4"
@@ -431,32 +504,57 @@ const Page = () => {
 
                                     <AccordionContent className="pb-4">
                                       <p className="text-sm text-muted-foreground mb-5">
-                                        Suggest a preferred day and time, and we’ll try to accommodate you.
+                                        Suggest a preferred day and time, and
+                                        we’ll try to accommodate you.
                                       </p>
 
                                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                         {/* Day */}
                                         <div className="flex flex-col gap-1.5">
-                                          <label htmlFor="day" className="text-sm font-semibold text-[#2f1107]">
+                                          <label
+                                            htmlFor="day"
+                                            className="text-sm font-semibold text-[#2f1107]"
+                                          >
                                             Day
                                           </label>
 
-                                          <select className="bg-white px-4 py-2 shadow outline-none rounded-full h-11 text-[#2F1107] text-sm font-medium" value={day} name="day" onChange={handleInputChange}>
+                                          <select
+                                            className="bg-white px-4 py-2 shadow outline-none rounded-full h-11 text-[#2F1107] text-sm font-medium"
+                                            value={day}
+                                            name="day"
+                                            onChange={handleInputChange}
+                                          >
                                             <option value="">Select Day</option>
-                                            <option value="Friday">Friday</option>
-                                            <option value="Saturday">Saturday</option>
-                                            <option value="Sunday">Sunday</option>
+                                            <option value="Friday">
+                                              Friday
+                                            </option>
+                                            <option value="Saturday">
+                                              Saturday
+                                            </option>
+                                            <option value="Sunday">
+                                              Sunday
+                                            </option>
                                           </select>
                                         </div>
 
                                         {/* Time */}
                                         <div className="flex flex-col gap-1.5">
-                                          <label htmlFor="time" className="text-sm font-semibold text-[#2f1107]">
+                                          <label
+                                            htmlFor="time"
+                                            className="text-sm font-semibold text-[#2f1107]"
+                                          >
                                             Time
                                           </label>
 
-                                          <select className="bg-white px-4 py-2 outline-none shadow rounded-full h-11 text-[#2F1107] text-sm font-medium" value={time} name="time" onChange={handleInputChange}>
-                                            <option value="">Select Time</option>
+                                          <select
+                                            className="bg-white px-4 py-2 outline-none shadow rounded-full h-11 text-[#2F1107] text-sm font-medium"
+                                            value={time}
+                                            name="time"
+                                            onChange={handleInputChange}
+                                          >
+                                            <option value="">
+                                              Select Time
+                                            </option>
                                             <option value="11:00 AM – 12:00 PM">
                                               11:00 AM – 12:00 PM
                                             </option>
@@ -482,10 +580,14 @@ const Page = () => {
                                       <button
                                         type="button"
                                         onClick={handleSendSuggestion}
-                                        disabled={suggestionPending || !day || !time}
+                                        disabled={
+                                          suggestionPending || !day || !time
+                                        }
                                         className="mt-5 w-full h-11 rounded-full border border-[#2f1107] cursor-pointer text-[#2f1107] text-sm font-semibold hover:bg-[#2f1107]/10 transition"
                                       >
-                                        {suggestionPending ? "Sending..." : "Send Suggestion"}
+                                        {suggestionPending
+                                          ? "Sending..."
+                                          : "Send Suggestion"}
                                       </button>
                                     </AccordionContent>
                                   </AccordionItem>
@@ -494,19 +596,23 @@ const Page = () => {
 
                               {/* BUTTON */}
                               <div className="shrink-0 pt-6 pb-3">
-                                {profile?.isVerified ? (
-                                  <button
-                                    type="button"
-                                    onClick={handleBooking}
-                                    disabled={isPending || !booking}
-                                    className="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm md:text-base font-medium transition-all outline-none bg-[#FFD100] text-[#2F1107] hover:bg-[#FFD100]/80 cursor-pointer h-12 px-4 py-2 rounded-full w-full"
-                                  >
-                                    {isPending ? "Booking..." : "Book my seat"}
-                                  </button>
-                                ) : (
-                                  <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm md:text-base font-medium transition-all outline-none bg-muted text-muted-foreground cursor-not-allowed h-12 px-4 py-2 rounded-full w-full">
-                                    Book my seat
-                                  </div>
+                                <button
+                                  type="button"
+                                  onClick={handleBooking}
+                                  disabled={isPending || !booking}
+                                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm md:text-base font-medium transition-all outline-none bg-[#FFD100] text-[#2F1107] hover:bg-[#FFD100]/80 cursor-pointer h-12 px-4 py-2 rounded-full w-full"
+                                >
+                                  {isPending ? "Booking..." : "Book my seat"}
+                                </button>
+
+                                {(!profile?.gender ||
+                                  !profile?.dateOfBirth ||
+                                  !profile?.city ||
+                                  !profile?.country) && (
+                                  <p className="text-red-500 text-sm text-center mt-2">
+                                    Please complete your profile details to book
+                                    an event.
+                                  </p>
                                 )}
                               </div>
 
@@ -529,7 +635,7 @@ const Page = () => {
         </div>
 
         {/* RIGHT SIDE IMAGE */}
-        <div className="hidden lg:flex lg:w-1/2 relative items-center justify-center overflow-hidden bg-muted" >
+        <div className="hidden lg:flex lg:w-1/2 relative items-center justify-center overflow-hidden bg-muted">
           <Image
             alt="bookings"
             src="/10254.webp"
@@ -539,7 +645,7 @@ const Page = () => {
             className="object-cover"
           />
         </div>
-      </div >
+      </div>
     </>
   );
 };

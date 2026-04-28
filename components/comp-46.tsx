@@ -13,9 +13,10 @@ import { Label } from "@/components/ui/label";
 interface PhoneNumberInputProps {
   phone: string;
   onChange: (value: string) => void;
+  disabled?: boolean;
 }
 
-const PhoneNumberInput = ({ phone, onChange }: PhoneNumberInputProps) => {
+const PhoneNumberInput = ({ phone, onChange, disabled }: PhoneNumberInputProps) => {
   const path = usePathname();
   return (
     <div className="mt-6" dir="ltr">
@@ -32,6 +33,7 @@ const PhoneNumberInput = ({ phone, onChange }: PhoneNumberInputProps) => {
       <RPNInput.default
         className="flex shadow-xs mt-2"
         international
+        disabled={disabled}
         flagComponent={FlagComponent}
         countrySelectComponent={CountrySelect}
         inputComponent={PhoneInput}

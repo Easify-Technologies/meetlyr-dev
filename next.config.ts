@@ -10,6 +10,7 @@ const nextConfig: import("next").NextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
+    domains: ["lh3.googleusercontent.com"],
     remotePatterns: [
       {
         protocol: "https",

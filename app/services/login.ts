@@ -1,25 +1,22 @@
-import axios, { AxiosError } from "axios";
 import { signIn } from "next-auth/react";
 
-interface ApiError {
-  error: string;
-}
-
-export async function userLogin(data: { email: string; password: string }) {
+export async function userLogin(data: {
+  email: string;
+  password: string;
+}) {
   try {
-    const response = await axios.post("/api/auth/login", data);
+    const result = await signIn("credentials", {
+      redirect: false,
+      email: data.email,
+      password: data.password,
+    });
 
-    if (response.status === 201) {
-      await signIn("credentials", {
-        redirect: false,
-        email: data.email,
-        password: data.password,
-      });
+    if (result?.error) {
+      throw new Error(result.error);
     }
 
-    return response.data;
-  } catch (error) {
-    const axiosErr = error as AxiosError<ApiError>;
-    throw new Error(axiosErr.response?.data?.error || "Something went wrong");
+    return result;
+  } catch (error: any) {
+    throw new Error(error.message || "Something went wrong");
   }
 }
