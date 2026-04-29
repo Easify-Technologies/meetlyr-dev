@@ -1,9 +1,12 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+
 import Loader from "@/components/ui/loader";
-import { useEffect, useState } from "react";
+import { signIn } from "next-auth/react";
+import { FaGoogle } from "react-icons/fa";
 
 export default function Home() {
   const [loading, setLoading] = useState(true);
@@ -15,6 +18,10 @@ export default function Home() {
 
     return () => clearTimeout(timer);
   }, []);
+
+  const handleGoogleLogin = async () => {
+    await signIn("google", { callbackUrl: "/" });
+  }
 
   if (loading) {
     return <Loader />
@@ -74,6 +81,10 @@ export default function Home() {
                 >
                   Get Started
                 </Link>
+                <button onClick={handleGoogleLogin} type="button" className='flex items-center justify-center gap-2 bg-[#2f1107] text-white mb-3 cursor-pointer whitespace-nowrap text-base font-medium transition-colors px-4 py-2 w-full rounded-full h-12 hover:bg-[#2f1107]/80'>
+                  <FaGoogle size={16} />
+                  <span>Continue with Google</span>
+                </button>
                 <Link
                   href="/login"
                   className="text-sm underline underline-offset-4 text-muted-foreground hover:text-foreground"
@@ -93,6 +104,10 @@ export default function Home() {
                 >
                   Get Started
                 </Link>
+                <button onClick={handleGoogleLogin} type="button" className='flex items-center justify-center gap-2 bg-[#2f1107] text-white mb-3 cursor-pointer whitespace-nowrap text-base font-medium transition-colors px-4 py-2 w-full rounded-full h-12 hover:bg-[#2f1107]/80'>
+                  <FaGoogle size={16} />
+                  <span>Continue with Google</span>
+                </button>
                 <Link
                   href="/login"
                   className="text-sm underline underline-offset-4 text-center text-[#2f1107]"
