@@ -3,25 +3,21 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 
-const generateInviteToken = async(data: {
-    eventId: string;
-    inviterId: string;
+const generateInviteToken = async (data: {
+  eventId: string;
+  inviterId: string;
 }) => {
-    try {
-        const res = await axios.post("/api/generate-invite-token", data);
-        return res.data;
-    } catch (error) {
-        console.error(error);
-    }
-}
+  const res = await axios.post("/api/generate-invite-token", data);
+  return res.data;
+};
 
 export const useGenerateInviteToken = () => {
-    const queryClient = useQueryClient();
+  const queryClient = useQueryClient();
 
-    return useMutation({
-        mutationFn: generateInviteToken,
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["profileDetails"] });
-        }
-    });
-}
+  return useMutation({
+    mutationFn: generateInviteToken,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["profileDetails"] });
+    },
+  });
+};

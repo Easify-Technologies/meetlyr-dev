@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/accordion";
 
 const Page = () => {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
   const userId = session?.user?.email ?? "";
 
@@ -52,6 +52,7 @@ const Page = () => {
   const { day, time } = suggestionData;
 
   const { data: profile, isLoading } = useProfileDetails(userId);
+
   useEffect(() => {
     if (!profile) return;
 
@@ -212,7 +213,7 @@ const Page = () => {
     }
   }, [isSuccess, suggestionRes, storageKey]);
 
-  if (isLoading) return <Loader />;
+  if (status === "loading" || isLoading) return <Loader />;
 
   return (
     <>
@@ -609,19 +610,12 @@ const Page = () => {
                                   !profile?.dateOfBirth ||
                                   !profile?.city ||
                                   !profile?.country) && (
-                                  <p className="text-red-500 text-sm text-center mt-2">
+                                  <p className="text-red-500 text-sm font-semibold text-center mt-4">
                                     Please complete your profile details to book
                                     an event.
                                   </p>
                                 )}
                               </div>
-
-                              {/* Face Verification */}
-                              {/* {!profile?.faceVerificationStatus && (
-                                <div className="shrink-0 pb-4">
-                                  <Link href="/face-verification" type="button" className="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm md:text-base font-medium transition-all outline-none bg-[#2f1107] text-[#ffd100] hover:bg-[#2f1107]/80 cursor-pointer h-12 px-4 py-2 rounded-full w-full">Verify Your Face</Link>
-                                </div>
-                              )} */}
                             </form>
                           </div>
                         </div>
