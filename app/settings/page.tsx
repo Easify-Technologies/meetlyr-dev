@@ -12,13 +12,14 @@ import axios from 'axios';
 import { signOut } from 'next-auth/react';
 import { FaLocationArrow, FaRegEdit } from "react-icons/fa";
 import { IoIosClose } from "react-icons/io";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, ChevronDownIcon } from "lucide-react";
 import { useFetchAllLocations } from "../queries/fetch-locations";
 import { useUpdateUserLocation } from '../queries/update-location';
 import { useDeleteUser } from '../queries/delete-user';
 import { useUpdateAvatar } from '../queries/update-avatar';
 import { useManageSubscription } from '../queries/manage-subscription';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import PhoneNumberInput from "@/components/comp-46";
 import { Label } from "@/components/ui/label";
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
@@ -52,6 +53,8 @@ import {
     DrawerTrigger,
 } from "@/components/ui/drawer";
 import { Button } from '@/components/ui/button';
+import AboutMeModal from '@/components/AboutMeModal';
+import PersonalDetailsModal from '@/components/PersonalDetailsModal';
 
 const connectionStyles = [
     { label: "I ask questions", value: "ask_questions" },
@@ -511,21 +514,10 @@ const Page = () => {
                                                             </div>
                                                         </div>
                                                         <div className="px-4 flex flex-col gap-4">
+                                                            {/* PERSONAL DETAILS */}
                                                             <div className="relative flex flex-col gap-4 bg-card rounded-lg p-4 border">
                                                                 {profile?.googleId !== "" && profile?.authProvider === "google" && (
-                                                                    <Dialog>
-                                                                        <DialogTrigger className='absolute top-4 right-4 text-gray-400 cursor-pointer'>
-                                                                            <FaRegEdit size={20} />
-                                                                        </DialogTrigger>
-                                                                        <DialogContent>
-                                                                            <DialogHeader>
-                                                                                <DialogTitle className='font-semibold text-start text-2xl text-[#2f1107]'>Personal Details</DialogTitle>
-                                                                                <DialogDescription className='text-gray-500 text-start text-sm'>
-                                                                                    Update your personal information to keep your profile accurate and up to date.
-                                                                                </DialogDescription>
-                                                                            </DialogHeader>
-                                                                        </DialogContent>
-                                                                    </Dialog>
+                                                                    <PersonalDetailsModal />
                                                                 )}
                                                                 <div className="flex flex-col gap-3">
                                                                     <div className="flex items-center gap-3">
@@ -593,9 +585,13 @@ const Page = () => {
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                            <div className="flex flex-col gap-4 bg-card rounded-lg p-4 border">
+                                                            {/* ABOUT ME */}
+                                                            <div className="flex flex-col gap-4 bg-card rounded-lg p-4 border relative">
                                                                 <div className="flex items-center justify-between">
                                                                     <h3 className="text-base md:text-lg text-muted-foreground">About Me</h3>
+                                                                    {profile?.googleId !== "" && profile?.authProvider === "google" && (
+                                                                        <AboutMeModal />
+                                                                    )}
                                                                 </div>
                                                                 <div className="flex flex-col gap-3">
                                                                     <div className="flex items-center gap-3">

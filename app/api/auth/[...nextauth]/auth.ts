@@ -90,14 +90,19 @@ export const authOptions = {
 
     async jwt({ token, user }: any) {
       if (user) {
-        token.id = user.id; // ✅ Added id to token
+        const dbUser = await prisma.user.findUnique({
+          where: { email: user.email },
+          select: { id: true },
+        });
+
+        token.id = dbUser?.id;
         token.email = user.email;
       }
       return token;
     },
 
     async session({ session, token }: any) {
-      session.user.id = token.id; // ✅ Expose id on session
+      session.user.id = token.id;
       session.user.email = token.email;
       return session;
     },
